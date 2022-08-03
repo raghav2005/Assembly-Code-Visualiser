@@ -11,15 +11,14 @@ body {
 	font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
+/* all navbar stuff */
 .navbar {
 	display: flex;
 	flex-flow: row nowrap;
 	justify-content: space-around;
 	position: relative;
 	width: 100%;
-	font-size: 1.5em;
-	border-bottom: 1px solid hsla(0, 0%, 100%, 0.2);
-	z-index: 1;
+	font-size: 1em;
 }
 
 .navbar_wrapper {
@@ -48,6 +47,6 @@ body {
 
 #navbar_title {
 	color: whitesmoke;
-	padding-left: 0.5em;
-	padding-right: 1.5em;
+	padding-left: 0.25em;
+	padding-right: 1.25em;
 }

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<% include partials/head %>
+</head>
+
+<body>
+
+	<% include partials/menu %>
+
+	<div class="row">
+		<div class="col-md-12">
+
+			<% if (messages.success) { %>
+				<div class="alert alert-success" role="alert">
+					<%- messages.success %>
+				</div>
+			<% } %>
+
+			<% if (messages.error) { %>
+				<div class="alert alert-danger" role="alert">
+					<%- messages.error %>
+				</div>
+			<% } %>
+
+			<div class="card">
+				<div class="card-body">
+
+					<% if(data.length) { %>
+						<table class="table">
+							<thead>
+								<tr>
+									<th scope="col">#</th>
+									<th scope="col">Name</th>
+									<th scope="col">Age</th>
+									<th scope="col">Sex</th>
+								</tr>
+							</thead>
+							<tbody>
+								<% for(var i=0; i< data.length; i++) { %>
+									<tr>
+										<th scope="row">
+											<%= (i+1) %>
+										</th>
+										<td>
+											<%= data[i].name%>
+										</td>
+										<td>
+											<%= data[i].age%>
+										</td>
+										<td>
+											<%= data[i].sex%>
+										</td>
+									</tr>
+								<% } %>
+							</tbody>
+						</table>
+					<% } %>
+
+					<!-- if result is empty -->
+					<% if(!data.length) { %>
+						<p class="text-center">No student found!</p>
+					<% } %>
+
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+</body>
+<% include partials/script %>
+
+</html>

@@ -13,14 +13,11 @@
 							<span id="navbar_title">Assembly Code Visualiser</span>
 						</li>
 					</ul>
+				</div>
+
+				<div class="collapse navbar-collapse" id="main_navbar">
 					
-					<!-- collapsible menu w/ 3 horizontal lines for when screen too small -->
-					<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main_navbar" aria-controls="main_navbar" aria-expanded="false" aria-label="Toggle navigation">
-						<span class="navbar-toggler-icon"></span>
-					</button>
-					
-					<div class="collapse navbar-collapse" id="main_navbar">
-						
+					<div class="navbar_left">
 						<!-- main options on the left -->
 						<ul class="navbar-nav nav_items_left" id="navbar_options">
 							<li class="nav-item">
@@ -33,18 +30,23 @@
 								<a class="nav-link" id="add_students" href="/students/add">ADD STUDENT</a>
 							</li>
 						</ul>
+					</div>
 
+					<div class="navbar_right">
+						<!-- login / sign up button on the right -->
+						<ul class="navbar-nav nav_items_right">
+							<li class="navbar-item">
+								<a class="nav-link navbar_right" id="login_sign_up" href="/login_sign_up">LOGIN / SIGN UP</a>
+							</li>
+						</ul>
 					</div>
 				</div>
 
-				<div class="navbar_right">
-					<!-- login / sign up button on the right -->
-					<ul class="navbar-nav nav_items_right">
-						<li class="navbar-item">
-							<a class="nav-link navbar_right" id="login_sign_up" href="/login_sign_up">LOGIN / SIGN UP</a>
-						</li>
-					</ul>
-				</div>
+				<!-- collapsible menu w/ 3 horizontal lines for when screen too small -->
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main_navbar"
+					aria-controls="main_navbar" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
 
 			</div>
 		</nav>

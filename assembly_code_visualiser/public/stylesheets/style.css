@@ -6,9 +6,9 @@
 }
 
 body {
-	padding: 10px;
 	font-size: 1em;
 	font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
+	overflow-x: hidden;
 }
 
 /* all navbar stuff */

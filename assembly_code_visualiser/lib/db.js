@@ -20,7 +20,7 @@ connection.connect(function (error) {
 	if (!!error) {
 		console.log(error);
 	} else {
-		console.log('Connected..!');
+		console.log('Connected to Database..!');
 	}
 });
 

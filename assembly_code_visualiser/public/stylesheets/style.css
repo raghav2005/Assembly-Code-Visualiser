@@ -19,6 +19,7 @@ body {
 	position: relative;
 	width: 100%;
 	font-size: 1em;
+	border-radius: 0.75em;
 }
 
 .navbar_wrapper {
@@ -32,7 +33,6 @@ body {
 .navbar_left, .navbar_right {
 	display: flex;
 	flex-flow: row nowrap;
-	z-index: 1;
 }
 
 .navbar_left {

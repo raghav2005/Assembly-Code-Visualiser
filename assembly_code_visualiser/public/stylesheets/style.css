@@ -20,6 +20,9 @@ body {
 	width: 100%;
 	font-size: 1em;
 	border-radius: 0.75em;
+	padding-top: 0.25em;
+	padding-bottom: 0.25em;
+	text-align: center;
 }
 
 .navbar_wrapper {
@@ -28,6 +31,7 @@ body {
 	width: 100%;
 	justify-content: space-around;
 	align-items: center;
+	vertical-align: middle;
 }
 
 .navbar_left, .navbar_right {
@@ -47,6 +51,15 @@ body {
 
 #navbar_title {
 	color: whitesmoke;
-	padding-left: 0.25em;
+	padding-left: 1.6em;
 	padding-right: 1.25em;
+}
+
+#navbar_user_indicator {
+	position: absolute;
+	max-height: 50%;
+	justify-content: flex-start;
+	/* vertical-align: middle; */
+	padding-top: 0.35em;
+	padding-bottom: 0.35em;
 }

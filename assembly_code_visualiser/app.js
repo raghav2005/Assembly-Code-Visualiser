@@ -25,8 +25,13 @@ app.set('view engine', 'ejs');
 // initialise all packages
 app.use(logger('dev'));
 app.use(express.json());
+
+// allow getting information from forms (sign up & login)
 app.use(express.urlencoded({ extended: false }));
+
 app.use(cookieParser());
+
+// set static directory
 app.use(express.static(path.join(__dirname, 'public')));
 
 // session

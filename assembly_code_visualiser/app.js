@@ -11,7 +11,9 @@ var mysql = require('mysql');
 var connection = require('./lib/db');
 
 // all routes
-var indexRouter = require('./routes/index');
+var index_router = require('./routes/index');
+var login_router = require('./routes/login_sign_up/login');
+var sign_up_router = require('./routes/login_sign_up/sign_up');
 
 // initialise express
 var app = express();
@@ -39,7 +41,9 @@ app.use(session({
 app.use(flash());
 
 // initialise all routes
-app.use('/', indexRouter);
+app.use('/', index_router);
+app.use('/login', login_router);
+app.use('/sign_up', sign_up_router);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

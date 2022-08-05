@@ -9,7 +9,7 @@ var bcrypt = require('bcrypt');
 
 // coming from index page -> sign_up
 router.get('/', function (req, res, next) {
-	res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'login_sign_up' });
+	res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'sign_up' });
 });
 
 router.post('/', function (req, res, next) {
@@ -26,7 +26,7 @@ router.post('/', function (req, res, next) {
 		errors = true;
 		req.flash('error', "Please complete the entire form");
 		console.log('Error: Please complete the entire form');
-		res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'login_sign_up' })
+		res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'sign_up' })
 	}
 
 	// if no errors

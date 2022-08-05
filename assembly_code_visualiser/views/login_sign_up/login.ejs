@@ -49,6 +49,22 @@
 					</div>
 				
 				</form>
+
+				<% if (message.error) { %>
+					<div class="alert alert-danger" role="alert">
+						<strong>
+							<%= message.error %>
+						</strong>
+					</div>
+				<% } %>
+				
+				<% if (message.success) { %>
+					<div class="alert alert-success" role="alert">
+						<strong>
+							<%= message.success %>
+						</strong>
+					</div>
+				<% } %>
 				
 				<h4>Don't have an account? <a href="/sign_up">Sign up...</a></h4>
 				

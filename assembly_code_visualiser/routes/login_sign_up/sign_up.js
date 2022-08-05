@@ -22,10 +22,19 @@ router.post('/', function (req, res, next) {
 	let errors = false;
 
 	// all validation here (separate if statements for separate error messages)
+	// any fields aren't filled out
 	if (email.length === 0 || year_group.length === 0 || teacher_initials.length === 0 || password.length === 0 || password_confirmation.length === 0) {
 		errors = true;
 		req.flash('error', "Please complete the entire form");
-		console.log('Error: Please complete the entire form');
+		res.locals.message = req.flash();
+		res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'sign_up' })
+	}
+
+	// confirm password doesn't match password entered before
+	if (password !== password_confirmation) {
+		errors = true;
+		req.flash('error', "Please enter the same password");
+		res.locals.message = req.flash();
 		res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'sign_up' })
 	}
 
@@ -35,12 +44,10 @@ router.post('/', function (req, res, next) {
 		try {
 			// 10 is a quick + relatively secure value for how many times to generate the hash
 			var hashed_password = bcrypt.hash(password, 10);
-			console.log(hashed_password);
 		} catch {
 			res.redirect('/sign_up');
 		}
 
-		console.log(hashed_password);
 		res.redirect('/login');
 
 	}

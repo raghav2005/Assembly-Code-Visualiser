@@ -15,6 +15,9 @@ var index_router = require('./routes/index');
 var login_router = require('./routes/login_sign_up/login');
 var sign_up_router = require('./routes/login_sign_up/sign_up');
 
+// use dotenv (local configurations)
+require('dotenv').config()
+
 // initialise express
 var app = express();
 
@@ -59,11 +62,11 @@ app.use(function(req, res, next) {
 app.use(function(err, req, res, next) {
 	// set locals, only providing error in development
 	res.locals.message = err.message;
-	res.locals.error = req.app.get('env') === 'development' ? err : {};
+	res.locals.error = process.env.NODE_ENV === 'development' ? err : {};
 
 	// render the error page
 	res.status(err.status || 500);
-res.render('error');
+	res.render('error');
 });
 
 module.exports = app;

@@ -91,7 +91,25 @@
 
 				</form>
 
-				<h4>Already have an account? <a href="/login">Login...</a></h4>
+				<% if (message.error) { %>
+					<div class="alert alert-danger" role="alert">
+						<strong>
+							<%= message.error %>
+						</strong>
+					</div>
+				<% } %>
+
+				<% if (message.success) { %>
+					<div class="alert alert-success" role="alert">
+						<strong>
+							<%= message.success %>
+						</strong>
+					</div>
+				<% } %>
+
+				<h4>
+					Already have an account? <a href="/login">Login...</a>
+				</h4>
 
 				<!-- TEACHER FORM: email, class code (3 letters), password, confirm password, student/teacher toggle -->
 			

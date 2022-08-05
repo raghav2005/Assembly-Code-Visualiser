@@ -13,6 +13,47 @@
 		<div class="row">
 			<div class="col-md-12">
 
+				<!-- student form -->
+				<!-- TODO: student/teacher toggle -->
+				<!-- TODO: keep me logged in toggle -->
+				<form action="/login" method="POST">
+				
+					<!-- student's email -->
+					<div class="row">
+						<div class="col-md-3">
+							<label for="email">EMAIL ADDRESS</label>
+						</div>
+						<div class="col-md-9">
+							<!-- automatically check for correctly formatted student dc email (regex in JavaScript: '\d{4}' is the same as '[0-9][0-9][0-9][0-9]' ) -->
+							<input type="email" id="email" name="email" pattern="^[A-Za-z]+\d{4}\@dubaicollege.org$"
+								placeholder="student_name_and_number@dubaicollege.org" required />
+						</div>
+					</div>
+				
+					<!-- student's password -->
+					<div class="row">
+						<div class="col-md-3">
+							<label for="password">PASSWORD</label>
+						</div>
+						<div class="col-md-9">
+							<input type="password" id="password" name="password" placeholder="enter a password" required />
+						</div>
+					</div>
+				
+					<!-- submit button -->
+					<div class="row">
+						<div class="col-md-3"></div>
+						<div class="col-md-9">
+							<button type="submit">LOGIN</button>
+						</div>
+					</div>
+				
+				</form>
+				
+				<h4>Don't have an account? <a href="/sign_up">Sign up...</a></h4>
+				
+				<!-- TEACHER FORM: email, password, student/teacher toggle, keep me logged in toggle -->
+
 			</div>
 		</div>
 

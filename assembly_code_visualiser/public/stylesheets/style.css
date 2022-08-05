@@ -16,6 +16,7 @@ body {
 	padding: 0;
 }
 
+
 /* all navbar stuff */
 .navbar {
 	display: flex;
@@ -69,4 +70,9 @@ body {
 	color: whitesmoke;
 	padding-left: 2em;
 	padding-right: 1.25em;
+}
+
+
+input {
+	width: 100%;
 }

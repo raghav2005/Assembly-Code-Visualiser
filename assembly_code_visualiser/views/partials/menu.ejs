@@ -7,13 +7,15 @@
 					<ul class="navbar-nav nav_items_left">
 						<li>
 							<!-- coloured dot icon (3 diff colours for different possible accounts / no account) - needs to be coded -->
-							<span><img id="navbar_user_indicator" src="/images/red_dot_indicator.png" alt="User Indicator" /></span>
+							<!-- tooltip should change depending on account type - no account: red; teacher: red, yellow, green; student: red, green; -->
+							<span><img class="tooltip-inner" id="navbar_user_indicator" src="/images/red_dot_indicator.png" alt="User Indicator" data-toggle="tooltip" data-placement="auto" title="red: no account &#010; yellow: teacher account &#010; green: student account" /></span>
 						</li>
 						<li>
 							<span id="navbar_title">Assembly Code Visualiser</span>
 						</li>
 					</ul>
 				</div>
+
 
 				<div class="collapse navbar-collapse" id="main_navbar">
 					

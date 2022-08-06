@@ -7,9 +7,14 @@ var logger = require('morgan');
 
 var flash = require('express-flash');
 var session = require('express-session');
+
 var bcrypt = require('bcrypt');
 var passport = require('passport');
 var method_override = require('method-override');
+// for connecting to database
+var db_connection = require('./lib/db');
+
+var SQLiteStore = require('connect-sqlite3')(session);
 
 // all routes
 var index_router = require('./routes/index');
@@ -48,18 +53,28 @@ app.use(session({
 }))
 
 app.use(flash());
+app.use(passport.authenticate('session'));
+
+function get_user_by_id(id) {
+	db_connection.query(
+		'SELECT * FROM Student WHERE student_id = ?;', [id],
+		function (err, rows) {
+			if (err) {
+				console.log(err);
+				return null;
+			}
+			console.log(rows[0]);
+			return rows[0];
+		}
+	);
+};
 
 // set up passport
 var initializePassport = require('./lib/passport-config');
-
-initializePassport(
-	passport,
-	email => req.body.email,
-	id => req.body.id
-)
-
+initializePassport(passport);
 app.use(passport.initialize());
 app.use(passport.session());
+
 app.use(method_override('_method'))
 
 // initialise all routes
@@ -69,12 +84,12 @@ app.use('/sign_up', sign_up_router);
 app.use('/logout', index_router);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
 	next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
 	// set locals, only providing error in development
 	res.locals.message = err.message;
 	res.locals.error = process.env.NODE_ENV === 'development' ? err : {};

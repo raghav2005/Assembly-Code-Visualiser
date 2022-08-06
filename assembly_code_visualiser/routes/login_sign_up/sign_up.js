@@ -23,9 +23,9 @@ router.post('/', auth.check_not_authenticated, async function(req, res) {
 			[req.body.email, req.body.email.split('@')[0].slice(0, -4), req.body.email.split('@')[0].substr(-4), hashed_password],
 			function (err, rows) {
 				if (err) {
-					console.log('Into Student Error:', err);
+					console.log(err);
 				}
-				console.log('Into Student Error:', rows);
+				console.log(rows);
 			}
 		);
 		db_connection.query(
@@ -33,9 +33,9 @@ router.post('/', auth.check_not_authenticated, async function(req, res) {
 			[req.body.email, req.body.year_group, req.body.teacher_initials],
 			function (err, rows) {
 				if (err) {
-					console.log('Into Students_In_Classes Error:', err);
+					console.log(err);
 				}
-				console.log('Into Students_In_Classes Error:', rows);
+				console.log(rows);
 			}
 		);
 		res.redirect('/login');

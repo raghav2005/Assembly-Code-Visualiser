@@ -1,7 +1,9 @@
 var express = require('express');
 var router = express.Router();
-var passport = require('passport');
 
+// set up passport
+var passport = require('passport');
+var initializePassport = require('../../lib/passport-config');
 var auth = require('../../lib/auth');
 
 // for connecting to database
@@ -18,14 +20,5 @@ router.post('/', auth.check_not_authenticated, passport.authenticate('local', {
 	failureRedirect: '/login',
 	failureFlash: true
 }));
-
-// router.post('/', index_router.check_not_authenticated, function (req, res, next) {
-
-// 	let email = req.body.email;
-// 	let password = req.body.password;
-
-// 	res.redirect('/');
-
-// })
 
 module.exports = router;

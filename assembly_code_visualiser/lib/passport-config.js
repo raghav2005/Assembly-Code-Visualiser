@@ -5,7 +5,7 @@ var db_connection = require('./db');
 
 function get_user_by_email(email) {
 	db_connection.query(
-		`SELECT * FROM Student WHERE student_email = '${email}';`,
+		'SELECT * FROM Student WHERE student_email = ?;', [email],
 		function (err, rows) {
 			if (err) {
 				console.log(err);
@@ -17,44 +17,48 @@ function get_user_by_email(email) {
 	);
 };
 
-function get_user_by_id(id) {
-	db_connection.query(
-		`SELECT * FROM Student WHERE student_id = '${id}';`,
-		function (err, rows) {
-			if (err) {
-				console.log(err);
-				return null;
+function initialize(passport) {
+	console.log('Initialized Passport..!');
+
+	passport.use(new LocalStrategy({ usernameField: 'email' },
+	function authenticateUser(email, password, done) {
+
+		db_connection.query(
+			'SELECT * FROM `Student` WHERE `student_email` = ?;', [email],
+			function (err, rows) {
+
+				if (err) {
+					console.log(err);
+					return done(err);
+				}
+
+				if (!rows) {
+					return done(null, false, { message: 'No user with that email' });
+				}
+
+				try {
+					if (bcrypt.compare(password, rows[0].student_password)) {
+						return done(null, rows)
+					} else {
+						return done(null, false, { message: 'Password incorrect' })
+					}
+				} catch (err) {
+					return done(err)
+				}
 			}
-			console.log(rows[0]);
-			return rows[0];
-		}
-	);
-};
+		);
+	}));
 
-function initialize(passport, email, id) {
-	var authenticateUser = async (email, password, done) => {
-		
-		var user = get_user_by_email(email);
-		 
-		if (user == null) {
-			return done(null, false, {message: 'No user with that email'})
-		}
+	passport.serializeUser(function(user, done) {
+		process.nextTick(function() {
+			done(null, { id: user.student_id, username: user.student_email });
+		});
+	});
 
-		try {
-			if (await bcrypt.compare(password, user.student_password)) {
-				return done(null, user)
-			} else {
-				return done(null, false, {message: 'Password incorrect'})
-			}
-		} catch (err) {
-			return done(err)
-		}
-	};
-
-	passport.use(new LocalStrategy({ usernameField: 'email' }, authenticateUser));
-	passport.serializeUser((user, done) => done(null, user.student_id));
-	passport.deserializeUser((id, done) => {
-		return done(null, get_user_by_id(id))
+	passport.deserializeUser(function(user, done) {
+		process.nextTick(function() {
+			return done(null, user);
+		})
 	});
 };
 

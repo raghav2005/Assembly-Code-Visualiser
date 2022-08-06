@@ -19,13 +19,23 @@ router.post('/', auth.check_not_authenticated, async function(req, res) {
 	try {
 		var hashed_password = await bcrypt.hash(req.body.password, 10);
 		db_connection.query(
-			'INSERT INTO Student (student_email, student_name, student_number, student_password) VALUES (?, ?, ?, ?); INSERT INTO Students_In_Classes (student_id, class_id) VALUES ((SELECT student_id FROM Student WHERE student_email = ?), (SELECT class_id FROM Class WHERE year_group = ? AND teacher_id = (SELECT teacher_id FROM Teacher WHERE class_code = ?)));',
-			[req.body.email, req.body.email.split('@')[0].slice(0, -4), req.body.email.split('@')[0].substr(-4), hashed_password, req.body.email, req.body.year_group, req.body.teacher_initials],
+			'INSERT INTO Student (student_email, student_name, student_number, student_password) VALUES (?, ?, ?, ?);',
+			[req.body.email, req.body.email.split('@')[0].slice(0, -4), req.body.email.split('@')[0].substr(-4), hashed_password],
 			function (err, rows) {
 				if (err) {
-					console.log(err);
+					console.log('Into Student Error:', err);
 				}
-				console.log(rows);
+				console.log('Into Student Error:', rows);
+			}
+		);
+		db_connection.query(
+			'INSERT INTO Students_In_Classes (student_id, class_id) VALUES ((SELECT student_id FROM Student WHERE student_email = ?), (SELECT class_id FROM Class WHERE year_group = ? AND teacher_id = (SELECT teacher_id FROM Teacher WHERE class_code = ?)));',
+			[req.body.email, req.body.year_group, req.body.teacher_initials],
+			function (err, rows) {
+				if (err) {
+					console.log('Into Students_In_Classes Error:', err);
+				}
+				console.log('Into Students_In_Classes Error:', rows);
 			}
 		);
 		res.redirect('/login');

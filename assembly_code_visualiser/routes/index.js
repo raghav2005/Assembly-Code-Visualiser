@@ -6,7 +6,7 @@ var auth = require('../lib/auth');
 /* GET home page. */
 router.get('/', function(req, res, next) {
 	res.locals.message = req.flash();
-	res.render('index', { title: 'Home', menu_id: 'home', name: req.user.student_name });
+	res.render('index', { title: 'Home', menu_id: 'home' });
 });
 
 // router.delete('/logout', function(req, res) {

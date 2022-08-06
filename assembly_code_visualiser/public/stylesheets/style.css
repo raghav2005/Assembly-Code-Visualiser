@@ -55,11 +55,6 @@ body {
 	align-items: center;
 }
 
-/* so &#010; is a newline for the data of a tooltip */
-.tooltip-inner {
-	white-space: pre-wrap;
-}
-
 #navbar_user_indicator {
 	position: absolute;
 	max-height: 1.5em;
@@ -78,7 +73,6 @@ body {
 }
 
 
-/* form stuff - will be changed later for sure */
 input {
 	width: 100%;
 }

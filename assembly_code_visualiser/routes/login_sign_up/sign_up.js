@@ -9,6 +9,7 @@ var bcrypt = require('bcrypt');
 
 // coming from index page -> sign_up
 router.get('/', function (req, res, next) {
+	res.locals.message = req.flash();
 	res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'sign_up' });
 });
 

@@ -7,8 +7,9 @@ var logger = require('morgan');
 
 var flash = require('express-flash');
 var session = require('express-session');
-var mysql = require('mysql');
-var connection = require('./lib/db');
+var bcrypt = require('bcrypt');
+var passport = require('passport');
+var method_override = require('method-override');
 
 // all routes
 var index_router = require('./routes/index');
@@ -41,17 +42,31 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
 	cookie: { maxAge: 60000 },
 	store: new session.MemoryStore,
-	saveUninitialized: true,
-	resave: 'true',
-	secret: 'secret'
+	saveUninitialized: false,
+	resave: false,
+	secret: process.env.SESSION_SECRET_KEY
 }))
 
 app.use(flash());
+
+// set up passport
+var initializePassport = require('./lib/passport-config');
+
+initializePassport(
+	passport,
+	email => req.body.email,
+	id => req.body.id
+)
+
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(method_override('_method'))
 
 // initialise all routes
 app.use('/', index_router);
 app.use('/login', login_router);
 app.use('/sign_up', sign_up_router);
+app.use('/logout', index_router);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -13,6 +13,20 @@
 		<div class="row">
 			<div class="col-md-12">
 
+				<% if (name) {
+					<h2>Hello <% name %></h2>
+				<% } %>
+
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-12">
+		
+				<form action="/logout?_method=DELETE" method="post">
+					<button type="submit">LOG OUT</button>
+				</form>
+		
 			</div>
 		</div>
 

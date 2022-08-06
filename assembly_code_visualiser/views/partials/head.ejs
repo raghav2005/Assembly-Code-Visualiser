@@ -1,7 +1,7 @@
-<title><%= title %></title>
+<title><%= (typeof title != "undefined" ? title : "") %></title>
 
 <meta charset="utf-8">
-<meta name="active-menu" content="<%= menu_id %>">
+<meta name="active-menu" content="<%= (typeof menu_id != "undefined" ? menu_id : "") %>">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
 <!-- Bootstrap - latest compiled and minified CSS -->

@@ -5,6 +5,11 @@
   "scripts": {
     "start": "node ./bin/www"
   },
+  "author": {
+    "name": "Raghav",
+    "email": "raghavawasthi2005@gmail.com"
+  },
+  "license": "MIT",
   "dependencies": {
     "bcrypt": "^5.0.1",
     "connect-sqlite3": "^0.9.13",

@@ -22,7 +22,13 @@ router.post('/', auth.check_not_authenticated, passport.authenticate('local', {
 	session: true
 }), function(req, res) {
 	// on successful authentication
-	res.redirect('/');
+	// if remember me box not ticked
+	if (typeof req.body.remember_me === "undefined") {
+		res.redirect('/');
+	} else {
+		req.session.cookie.maxAge = 2592000000; // 30 days
+		res.redirect('/');
+	}
 });
 
 module.exports = router;

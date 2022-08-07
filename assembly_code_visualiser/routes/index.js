@@ -5,9 +5,16 @@ var auth = require('../lib/auth');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-	console.log('req.session.passport.user:', req.session.passport.user);
+	
+	// req.session.passport.user doesn't exist before authorisation
+	try {
+		console.log('req.session.passport.user:', req.session.passport.user);
+	} catch (err) {
+		console.log(err);
+	}
+
 	res.locals.message = req.flash();
-	res.render('index', { title: 'Home', menu_id: 'home', name: name });
+	res.render('index', { title: 'Home', menu_id: 'home' });
 });
 
 router.post('/logout', function(req, res) {

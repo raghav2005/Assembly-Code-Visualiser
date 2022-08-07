@@ -40,7 +40,7 @@ app.use(cookieParser());
 
 // session
 app.use(session({
-	// cookie: { maxAge: 60000 },
+	cookie: { maxAge: 60000 },
 	// store: new session.MemoryStore,
 	saveUninitialized: true,
 	resave: false,

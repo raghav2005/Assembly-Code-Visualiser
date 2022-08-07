@@ -10,12 +10,12 @@
 							<!-- tooltip should change depending on account type - no account: red; teacher: red, yellow, green; student: red, green; -->
 							<span>
 								<% if (typeof role === "undefined" ) { %>
-									<img class="tooltip-inner" id="navbar_user_indicator" src="/images/red_dot_indicator.png" alt="User Indicator" data-toggle="tooltip" data-placement="auto" title="red: no account &#010; yellow: teacher account &#010; green: student account" />
+									<img class="tooltip-inner" id="navbar_user_indicator" src="/images/red_dot_indicator.png" alt="User Indicator" data-toggle="tooltip" data-placement="auto" title="red: no account" />
 								<% } else { %>
 									<% if (role === 'student') { %>
-										<img class="tooltip-inner" id="navbar_user_indicator" src="/images/green_dot_indicator.png" alt="User Indicator" data-toggle="tooltip" data-placement="auto" title="red: no account &#010; yellow: teacher account &#010; green: student account" />
+										<img class="tooltip-inner" id="navbar_user_indicator" src="/images/green_dot_indicator.png" alt="User Indicator" data-toggle="tooltip" data-placement="auto" title="red: no account&#010;green: student account" />
 									<% } else { %>
-										<img class="tooltip-inner" id="navbar_user_indicator" src="/images/yellow_dot_indicator.png" alt="User Indicator" data-toggle="tooltip" data-placement="auto" title="red: no account &#010; yellow: teacher account &#010; green: student account" />
+										<img class="tooltip-inner" id="navbar_user_indicator" src="/images/yellow_dot_indicator.png" alt="User Indicator" data-toggle="tooltip" data-placement="auto" title="red: no account&#010;yellow: teacher account&#010;green: student account" />
 									<% } %>
 								<% } %>
 							</span>

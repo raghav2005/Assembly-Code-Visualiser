@@ -17,9 +17,11 @@ router.get('/', auth.check_not_authenticated, function (req, res, next) {
 
 // login form
 router.post('/', auth.check_not_authenticated, passport.authenticate('local', {
-	successRedirect: '/',
 	failureRedirect: '/login',
-	failureFlash: true
-}));
+	failureFlash: true,
+	session: true
+}), function(req, res) {
+	res.redirect('/');
+});
 
 module.exports = router;

@@ -57,7 +57,7 @@ function initialize(passport) {
 				try {
 
 					if (await bcrypt.compare(password, rows[0].student_password)) {
-						return done(null, rows)
+						return done(null, rows[0])
 					} else {
 						console.log('pwd incorrect', password, rows[0].student_password);
 						return done(null, false, { message: 'Password incorrect' })

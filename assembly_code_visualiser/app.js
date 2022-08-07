@@ -31,30 +31,29 @@ app.use(logger('dev'));
 app.use(express.json());
 
 // allow getting information from forms (sign up & login)
-app.use(express.urlencoded({ extended: false }));
-
-app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
 
 // set static directory
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(cookieParser());
+
 // session
 app.use(session({
-	cookie: { maxAge: 60000 },
-	store: new session.MemoryStore,
-	saveUninitialized: false,
+	// cookie: { maxAge: 60000 },
+	// store: new session.MemoryStore,
+	saveUninitialized: true,
 	resave: false,
 	secret: process.env.SESSION_SECRET_KEY
 }))
 
 app.use(flash());
-app.use(passport.authenticate('session'));
 
+app.use(passport.initialize());
+app.use(passport.session());
 // set up passport
 var initializePassport = require('./lib/passport-config');
 initializePassport(passport);
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.use(method_override('_method'))
 

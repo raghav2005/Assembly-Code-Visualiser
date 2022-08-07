@@ -5,8 +5,9 @@ var auth = require('../lib/auth');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
+	console.log('req.session.passport.user:', req.session.passport.user);
 	res.locals.message = req.flash();
-	res.render('index', { title: 'Home', menu_id: 'home' });
+	res.render('index', { title: 'Home', menu_id: 'home', name: name });
 });
 
 router.post('/logout', function(req, res) {

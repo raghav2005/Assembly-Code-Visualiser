@@ -8,13 +8,8 @@ var logger = require('morgan');
 var flash = require('express-flash');
 var session = require('express-session');
 
-var bcrypt = require('bcrypt');
 var passport = require('passport');
 var method_override = require('method-override');
-// for connecting to database
-var db_connection = require('./lib/db');
-
-var SQLiteStore = require('connect-sqlite3')(session);
 
 // all routes
 var index_router = require('./routes/index');
@@ -54,20 +49,6 @@ app.use(session({
 
 app.use(flash());
 app.use(passport.authenticate('session'));
-
-function get_user_by_id(id) {
-	db_connection.query(
-		'SELECT * FROM Student WHERE student_id = ?;', [id],
-		function (err, rows) {
-			if (err) {
-				console.log(err);
-				return null;
-			}
-			console.log(rows[0]);
-			return rows[0];
-		}
-	);
-};
 
 // set up passport
 var initializePassport = require('./lib/passport-config');

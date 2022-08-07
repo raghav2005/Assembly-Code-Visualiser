@@ -7,11 +7,13 @@ var auth = require('../lib/auth');
 router.get('/', function(req, res, next) {
 	
 	// req.session.passport.user doesn't exist before authorisation
-	try {
-		console.log('req.session.passport.user:', req.session.passport.user);
-	} catch (err) {
-		console.log(err);
-	}
+	// try {
+	// 	console.log('req.session.passport.user:', req.session.passport.user);
+	// } catch (err) {
+	// 	console.log(err);
+	// }
+
+	console.log('req.user:', req.user);
 
 	res.locals.message = req.flash();
 	res.render('index', { title: 'Home', menu_id: 'home' });

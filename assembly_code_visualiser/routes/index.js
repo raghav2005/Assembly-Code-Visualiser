@@ -16,7 +16,13 @@ router.get('/', function(req, res, next) {
 	console.log('req.user:', req.user);
 
 	res.locals.message = req.flash();
-	res.render('index', { title: 'Home', menu_id: 'home' });
+
+	if (typeof req.user == 'undefined') {
+		res.render('index', { title: 'Home', menu_id: 'home' });
+	} else {
+		res.render('index', { title: 'Home', menu_id: 'home', role: req.user.role });
+	}
+
 });
 
 router.post('/logout', function(req, res) {

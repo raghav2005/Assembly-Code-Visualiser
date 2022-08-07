@@ -19,6 +19,7 @@ var get_user_by_email = (email) => {
 					}
 
 					console.log(rows);
+
 					resolve(rows);
 				}
 			);
@@ -57,7 +58,11 @@ function initialize(passport) {
 				try {
 
 					if (await bcrypt.compare(password, rows[0].student_password)) {
+
+						// everything correct from login
+						rows[0].role = 'student';
 						return done(null, rows[0])
+
 					} else {
 						console.log('pwd incorrect', password, rows[0].student_password);
 						return done(null, false, { message: 'Password incorrect' })
@@ -86,7 +91,7 @@ function initialize(passport) {
 
 	passport.serializeUser(function(user, done) {
 		process.nextTick(function() {
-			done(null, { id: user.student_id, username: user.student_email });
+			done(null, { id: user.student_id, email: user.student_email, role: user.role });
 		});
 	});
 

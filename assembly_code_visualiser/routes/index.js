@@ -9,10 +9,15 @@ router.get('/', function(req, res, next) {
 	res.render('index', { title: 'Home', menu_id: 'home' });
 });
 
-// router.delete('/logout', function(req, res) {
-// 	res.locals.message = req.flash();
-// 	req.logOut();
-// 	res.redirect('/login');
-// })
+router.post('/logout', function(req, res) {
+	res.locals.message = req.flash();
+	req.logout(function(err) {
+		if (err) {
+			console.log(err);
+			return next(err);
+		}
+		res.redirect('/login');
+	})
+})
 
 module.exports = router;

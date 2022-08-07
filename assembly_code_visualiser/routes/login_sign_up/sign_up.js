@@ -15,6 +15,7 @@ router.get('/', auth.check_not_authenticated, function (req, res, next) {
 	res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'sign_up' });
 });
 
+// sign up form
 router.post('/', auth.check_not_authenticated, async function(req, res) {
 	try {
 		var hashed_password = await bcrypt.hash(req.body.password, 10);

@@ -15,6 +15,7 @@ router.get('/', auth.check_not_authenticated, function (req, res, next) {
 	res.render('login_sign_up/login', { title: 'Login', menu_id: 'login' });
 });
 
+// login form
 router.post('/', auth.check_not_authenticated, passport.authenticate('local', {
 	successRedirect: '/',
 	failureRedirect: '/login',

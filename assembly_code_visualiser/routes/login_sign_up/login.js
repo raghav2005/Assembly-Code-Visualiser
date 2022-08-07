@@ -21,6 +21,7 @@ router.post('/', auth.check_not_authenticated, passport.authenticate('local', {
 	failureFlash: true,
 	session: true
 }), function(req, res) {
+	// on successful authentication
 	res.redirect('/');
 });
 

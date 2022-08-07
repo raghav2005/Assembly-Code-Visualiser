@@ -12,7 +12,15 @@
 
 		<div class="row">
 			<div class="col-md-12">
-
+				<h4>
+					<% if (typeof email === "undefined" ) { %>
+						Welcome!
+					<%  } else { %>
+						Welcome, <b><%= email %></b>!
+					<% } %>
+					Your session ID is <b><%= session_id %></b>.
+					It expires in <b><%= session_expiry_time %></b>.
+				</h4>
 			</div>
 		</div>
 

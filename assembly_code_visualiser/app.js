@@ -11,6 +11,10 @@ var session = require('express-session');
 var passport = require('passport');
 var method_override = require('method-override');
 
+// redis for cookie and session management
+var connectRedis = require('connect-redis');
+var redisClient = require('./lib/redis');
+
 // all routes
 var index_router = require('./routes/index');
 var login_router = require('./routes/login_sign_up/login');
@@ -38,20 +42,26 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(cookieParser());
 
+// redis setup
+var RedisStore = connectRedis(session);
 // session
 app.use(session({
-	cookie: { maxAge: 60000 },
-	// store: new session.MemoryStore,
-	saveUninitialized: true,
+	cookie: {
+		secure: false, // if true, would only transmit cookies over https
+		httpOnly: false, // if true, would prevent client-side JS from reading cookies
+		maxAge: 7200000, // session max age in milliseconds (2 hours)
+	},
+	store: new RedisStore({ client: redisClient }),
+	saveUninitialized: false,
 	resave: false,
 	secret: process.env.SESSION_SECRET_KEY
-}))
+}));
 
 app.use(flash());
 
+// set up passport
 app.use(passport.initialize());
 app.use(passport.session());
-// set up passport
 var initializePassport = require('./lib/passport-config');
 initializePassport(passport);
 

@@ -18,9 +18,21 @@ router.get('/', function(req, res, next) {
 	res.locals.message = req.flash();
 
 	if (typeof req.user == 'undefined') {
-		res.render('index', { title: 'Home', menu_id: 'home' });
+		res.render('index', {
+			title: 'Home',
+			menu_id: 'home',
+			session_id: req.sessionID,
+			session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+		});
 	} else {
-		res.render('index', { title: 'Home', menu_id: 'home', role: req.user.role });
+		res.render('index', {
+			title: 'Home',
+			menu_id: 'home',
+			role: req.user.role,
+			email: req.user.email,
+			session_id: req.sessionID,
+			session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+		});
 	}
 
 });
@@ -28,12 +40,22 @@ router.get('/', function(req, res, next) {
 router.post('/logout', function(req, res) {
 	res.locals.message = req.flash();
 	req.logout(function(err) {
+		
 		if (err) {
 			console.log(err);
 			return next(err);
 		}
-		res.redirect('/login');
-	})
-})
+
+		req.session.destroy((error) => {
+			
+			if (error) {
+				console.log(error);
+				return next(error);
+			}
+			
+			res.redirect('/login');
+		});
+	});
+});
 
 module.exports = router;

@@ -1,8 +1,6 @@
 var LocalStrategy = require('passport-local').Strategy;
 var bcrypt = require('bcrypt');
 
-var { body, validationResult } = require('express-validator');
-
 // for connecting to database
 var db_connection = require('./db');
 
@@ -35,15 +33,24 @@ function initialize(passport) {
 	var authenticate_user = async (req, email, password, done) => {
 
 		// all user-side scripting for validation
-		body('email', 'Email is required').notEmpty();
-		body('email', 'Invalid email format').isEmail();
-		body('password', 'Password is required').notEmpty();
-		body('password', 'Password length must be at least 8 characters').isLength({ min: 8 });
 
-		var error = validationResult(req);
+		// ensure everything filled out
+		if (email.length === 0) {
+			return done(null, false, { message: 'Email is required' });
+		}
+		if (password.length === 0) {
+			return done(null, false, { message: 'Password is required' });
+		}
 
-		if (!error.isEmpty()) {
-			return done(null, false, { message: error });
+		// check email matches regex for student email
+		var regex_student = /^[A-Za-z]+\d{4}\@dubaicollege.org$/;
+		if (email.match(regex_student) === null) {
+			return done(null, false, { message: 'Invalid email format (DC email required)' });
+		}
+
+		// ensure password length is >= 8 characters
+		if (password.length < 8) {
+			return done(null, false, { message: 'Password length must be at least 8 characters' });
 		}
 
 		// all server-side scripting for validation
@@ -51,20 +58,17 @@ function initialize(passport) {
 
 			await get_user_by_email(email).then(async (rows) => {
 
-				if (!rows) {
+				if (!rows || rows.length <= 0) {
 					return done(null, false, { message: 'No user with that email' });
 				}
 
 				try {
 
 					if (await bcrypt.compare(password, rows[0].student_password)) {
-
 						// everything correct from login
 						rows[0].role = 'student';
 						return done(null, rows[0])
-
 					} else {
-						console.log('pwd incorrect', password, rows[0].student_password);
 						return done(null, false, { message: 'Password incorrect' })
 					}
 

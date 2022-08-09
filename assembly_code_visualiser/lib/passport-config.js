@@ -36,21 +36,21 @@ function initialize(passport) {
 
 		// ensure everything filled out
 		if (email.length === 0) {
-			return done(null, false, { message: 'Email is required' });
+			return done(null, false, { message: ' Email is required ' });
 		}
 		if (password.length === 0) {
-			return done(null, false, { message: 'Password is required' });
+			return done(null, false, { message: ' Password is required' });
 		}
 
 		// check email matches regex for student email
 		var regex_student = /^[A-Za-z]+\d{4}\@dubaicollege.org$/;
 		if (email.match(regex_student) === null) {
-			return done(null, false, { message: 'Invalid email format (DC email required)' });
+			return done(null, false, { message: ' Invalid email format (DC email required)' });
 		}
 
 		// ensure password length is >= 8 characters
 		if (password.length < 8) {
-			return done(null, false, { message: 'Password length must be at least 8 characters' });
+			return done(null, false, { message: ' Password length must be at least 8 characters' });
 		}
 
 		// all server-side scripting for validation
@@ -59,7 +59,7 @@ function initialize(passport) {
 			await get_user_by_email(email).then(async (rows) => {
 
 				if (!rows || rows.length <= 0) {
-					return done(null, false, { message: 'No user with that email' });
+					return done(null, false, { message: ' No user with that email' });
 				}
 
 				try {
@@ -69,7 +69,7 @@ function initialize(passport) {
 						rows[0].role = 'student';
 						return done(null, rows[0])
 					} else {
-						return done(null, false, { message: 'Password incorrect' })
+						return done(null, false, { message: ' Password incorrect' })
 					}
 
 				} catch (err) {

@@ -15,8 +15,7 @@
 
 				<!-- student form -->
 				<!-- TODO: student/teacher toggle -->
-				<!-- TODO: keep me logged in toggle -->
-				<form action="/login" method="post">
+				<form action="/login/student" method="post" id="student_form">
 				
 					<!-- student's email -->
 					<div class="row">
@@ -60,6 +59,52 @@
 				
 				</form>
 
+				<!-- teacher form -->
+				<!-- TODO: student/teacher toggle -->
+				<form action="/login/teacher" method="post" id="teacher_form">
+				
+					<!-- teacher's email -->
+					<div class="row">
+						<div class="col-md-3">
+							<label for="email_teacher">EMAIL ADDRESS</label>
+						</div>
+						<div class="col-md-9">
+							<!-- automatically check for correctly formatted teacher dc email -->
+							<input type="email" id="email_teacher" name="email_teacher" pattern="^[A-Za-z]+\.[A-Za-z]+\@dubaicollege.org$"
+								placeholder="teacher_first_name.teacher_last_name@dubaicollege.org" required />
+						</div>
+					</div>
+				
+					<!-- teacher's password -->
+					<div class="row">
+						<div class="col-md-3">
+							<label for="password_teacher">PASSWORD</label>
+						</div>
+						<div class="col-md-9">
+							<input type="password" id="password_teacher" name="password_teacher" placeholder="enter a password" required />
+						</div>
+					</div>
+				
+					<!-- submit button -->
+					<div class="row">
+						<div class="col-md-3"></div>
+						<div class="col-md-9">
+							<button type="submit" value="Login">LOGIN</button>
+						</div>
+					</div>
+				
+					<!-- remember me button -->
+					<div class="row">
+						<div class="col-md-3"></div>
+						<div class="col-md-2">
+							<label for="remember_me">REMEMBER ME</label>
+							<input type="checkbox" id="remember_me" name="remember_me" value="1" />
+						</div>
+						<div class="col-md-7"></div>
+					</div>
+				
+				</form>
+
 				<% if (message.error) { %>
 					<div class="alert alert-danger" role="alert">
 						<strong>
@@ -75,6 +120,8 @@
 						</strong>
 					</div>
 				<% } %>
+
+				<button onclick="change_form_login()">Student / Teacher</button>
 				
 				<h4>Don't have an account? <a href="/sign_up">Sign up...</a></h4>
 				
@@ -87,5 +134,6 @@
 </body>
 
 <% include ../partials/script %>
+<% include partials/script %>
 
 </html>

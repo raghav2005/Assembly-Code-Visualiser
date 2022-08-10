@@ -14,7 +14,6 @@
 			<div class="col-md-12">
 
 				<!-- student form -->
-				<!-- TODO: student/teacher toggle -->
 				<form action="/login/student" method="post" id="student_form">
 				
 					<!-- student's email -->
@@ -60,17 +59,16 @@
 				</form>
 
 				<!-- teacher form -->
-				<!-- TODO: student/teacher toggle -->
 				<form action="/login/teacher" method="post" id="teacher_form">
 				
 					<!-- teacher's email -->
 					<div class="row">
 						<div class="col-md-3">
-							<label for="email_teacher">EMAIL ADDRESS</label>
+							<label for="email">EMAIL ADDRESS</label>
 						</div>
 						<div class="col-md-9">
 							<!-- automatically check for correctly formatted teacher dc email -->
-							<input type="email" id="email_teacher" name="email_teacher" pattern="^[A-Za-z]+\.[A-Za-z]+\@dubaicollege.org$"
+							<input type="email" id="email" name="email" pattern="^[A-Za-z]+\.[A-Za-z]+\@dubaicollege.org$"
 								placeholder="teacher_first_name.teacher_last_name@dubaicollege.org" required />
 						</div>
 					</div>
@@ -78,10 +76,10 @@
 					<!-- teacher's password -->
 					<div class="row">
 						<div class="col-md-3">
-							<label for="password_teacher">PASSWORD</label>
+							<label for="password">PASSWORD</label>
 						</div>
 						<div class="col-md-9">
-							<input type="password" id="password_teacher" name="password_teacher" placeholder="enter a password" required />
+							<input type="password" id="password" name="password" placeholder="enter a password" required />
 						</div>
 					</div>
 				

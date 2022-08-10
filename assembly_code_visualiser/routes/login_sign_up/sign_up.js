@@ -17,7 +17,7 @@ router.get('/', auth.check_not_authenticated, function (req, res, next) {
 });
 
 // sign up form
-router.post('/', auth.check_not_authenticated, async function(req, res) {
+router.post('/student', auth.check_not_authenticated, async function(req, res) {
 	try {
 
 		// all user-side scripting for validation
@@ -91,6 +91,135 @@ router.post('/', auth.check_not_authenticated, async function(req, res) {
 				} else {
 					// bad, 1 email cannot be used multiple times
 					req.flash('error', ' Email is already being used');
+					res.locals.message = req.flash();
+					return res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'sign_up' });
+				}
+			}
+		);
+
+		// validation complete, so add all data to the database
+		var hashed_password = await bcrypt.hash(req.body.password, 10);
+		db_connection.query(
+			'INSERT INTO Student (student_email, student_name, student_number, student_password) VALUES (?, ?, ?, ?);',
+			[req.body.email, req.body.email.split('@')[0].slice(0, -4), req.body.email.split('@')[0].substr(-4), hashed_password],
+			function (err, rows) {
+				if (err) {
+					console.log(err);
+					req.flash('error', ' An error occured');
+					res.locals.message = req.flash();
+					return res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'sign_up' });
+				}
+				console.log(rows);
+			}
+		);
+		db_connection.query(
+			'INSERT INTO Students_In_Classes (student_id, class_id) VALUES ((SELECT student_id FROM Student WHERE student_email = ?), (SELECT class_id FROM Class WHERE year_group = ? AND teacher_id = (SELECT teacher_id FROM Teacher WHERE class_code = ?)));',
+			[req.body.email, req.body.year_group, req.body.teacher_initials],
+			function (err, rows) {
+				if (err) {
+					console.log(err);
+					req.flash('error', ' An error occured');
+					res.locals.message = req.flash();
+					return res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'sign_up' });
+				}
+				console.log(rows);
+			}
+		);
+		
+		return res.redirect('/login');
+
+	} catch {
+		return res.redirect('/sign_up');
+	}
+});
+
+// sign up form
+router.post('/teacher', auth.check_not_authenticated, async function(req, res) {
+	try {
+
+		// all user-side scripting for validation
+		var error_message = false;
+
+		// ensure everything filled out
+		if (req.body.email.length === 0) {
+			error_message = true;
+			req.flash('error', ' Email is required');
+		}
+		if (req.body.teacher_initials.length === 0) {
+			error_message = true;
+			req.flash('error', ' Class code is required');
+		}
+		if (req.body.password.length === 0) {
+			error_message = true;
+			req.flash('error', ' Password is required');
+		}
+		if (req.body.password_confirmation.length === 0) {
+			error_message = true;
+			req.flash('error', ' Confirm password is required');
+		}
+
+		// check email matches regex for student email
+		var regex_teacher = /^[A-Za-z]+\.[A-Za-z]+\@dubaicollege.org$/;
+		if (req.body.email.match(regex_teacher) === null) {
+			error_message = true;
+			req.flash('error', ' Invalid email format (DC email required)');
+		}
+
+		// ensure password length is >= 8 characters
+		if (req.body.password.length < 8) {
+			error_message = true;
+			req.flash('error', ' Password length must be at least 8 characters');
+		}
+
+		// ensure password contains at least 1 alphabet, 1 number, and 1 special character
+		var special_chars = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/; // regex for special characters
+		var alphabet_chars = /[a-zA-Z]/; // regex for alphabets
+		var number_chars = /\d/; // regex for digit
+		if (!(special_chars.test(req.body.password) && alphabet_chars.test(req.body.password) && number_chars.test(req.body.password))) {
+			error_message = true;
+			req.flash('error', ' Password must contain at least 1 alphabet, 1 integer, and 1 special character');
+		}
+
+		// ensure confirm password is the same as password
+		if (req.body.password !== req.body.password_confirmation) {
+			error_message = true;
+			req.flash('error', ' Confirm password does not match password');
+		}
+
+		// return with the error message
+		if (error_message) {
+			res.locals.message = req.flash();
+			return res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'sign_up' });
+		}
+
+		// all server-side scripting for validation
+
+		// ensure email is not already being used
+		db_connection.query(
+			'SELECT * FROM Teacher WHERE teacher_email = ?;', [req.body.email],
+			function (err, rows) {
+				if (!rows || rows.length <= 0) {
+					// good, do not want a result
+					// pass - nothing needs to happen
+				} else {
+					// bad, 1 email cannot be used multiple times
+					req.flash('error', ' Email is already being used');
+					res.locals.message = req.flash();
+					return res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'sign_up' });
+				}
+			}
+		);
+
+		// ensure class code is not already being used
+		db_connection.query(
+			'SELECT * FROM Teacher WHERE class_code = ?;', [req.body.teacher_initials],
+			function (err, rows) {
+				if (!rows || rows.length <= 0) {
+					// good, do not want a result
+					// pass - nothing needs to happen
+				} else {
+					// bad, 1 email cannot be used multiple times
+					req.flash('error', ' Class code is already being used');
 					res.locals.message = req.flash();
 					return res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'sign_up' });
 				}

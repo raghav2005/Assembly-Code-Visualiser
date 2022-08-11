@@ -12,8 +12,38 @@ const { format } = require('../../lib/db');
 
 // coming from index page -> sign_up
 router.get('/', auth.check_not_authenticated, function (req, res, next) {
-	res.locals.message = req.flash();
-	res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'sign_up' });
+
+	try {
+		
+		// want all class_codes from the Teacher table to fill out the options for the student sign up
+		db_connection.query(
+			'SELECT class_code FROM Teacher;',
+			function (err, rows) {
+				
+				if (err) {
+					console.log(err);
+					req.flash('error', ' An error occured');
+					res.locals.message = req.flash();
+					res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'sign_up' });
+				}
+
+				if (rows.length === 0) {
+					res.locals.message = req.flash();
+					res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'sign_up' });
+				} else {
+					// everything works
+					res.locals.message = req.flash();
+					res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'sign_up', class_codes: rows });
+				}
+			}
+		);
+
+	} catch (error) {
+	
+		res.locals.message = req.flash();
+		res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'sign_up' });
+
+	}
 });
 
 // sign up form - student
@@ -49,7 +79,13 @@ router.post('/student', auth.check_not_authenticated, async function(req, res) {
 		var regex_student = /^[A-Za-z]+\d{4}\@dubaicollege.org$/;
 		if (req.body.email.match(regex_student) === null) {
 			error_message = true;
-			req.flash('error', ' Invalid email format (DC email required)');
+			req.flash('error', ' Invalid email format (DC student email required)');
+		}
+
+		// ensure a teacher has signed up
+		if (req.body.teacher_initials === 'no_teacher') {
+			error_message = true;
+			req.flash('error', ' A teacher needs to sign up first');
 		}
 
 		// ensure password length is >= 8 characters
@@ -162,7 +198,7 @@ router.post('/teacher', auth.check_not_authenticated, async function(req, res) {
 		var regex_teacher = /^[A-Za-z]+\.[A-Za-z]+\@dubaicollege.org$/;
 		if (req.body.email.match(regex_teacher) === null) {
 			error_message = true;
-			req.flash('error', ' Invalid email format (DC email required)');
+			req.flash('error', ' Invalid email format (DC teacher email required)');
 		}
 
 		// ensure class code is 3 letters
@@ -234,9 +270,10 @@ router.post('/teacher', auth.check_not_authenticated, async function(req, res) {
 		);
 
 		// validation complete, so add all data to the database
+		// add teacher info to Teacher table
 		var hashed_password = await bcrypt.hash(req.body.password, 10);
 		db_connection.query(
-			'INSERT INTO Student (teacher_email, teacher_first_name, teacher_last_name, class_code, teacher_password) VALUES (?, ?, ?, ?, ?);',
+			'INSERT INTO Teacher (teacher_email, teacher_first_name, teacher_last_name, class_code, teacher_password) VALUES (?, ?, ?, ?, ?);',
 			[req.body.email, req.body.email.split('@')[0].split('.')[0].charAt(0).toUpperCase() + req.body.email.split('@')[0].split('.')[0].slice(1), req.body.email.split('@')[0].split('.')[1].charAt(0).toUpperCase() + req.body.email.split('@')[0].split('.')[1].slice(1), req.body.teacher_initials, hashed_password],
 			function (err, rows) {
 				if (err) {
@@ -248,20 +285,23 @@ router.post('/teacher', auth.check_not_authenticated, async function(req, res) {
 				console.log(rows);
 			}
 		);
-		db_connection.query(
-			'INSERT INTO Students_In_Classes (student_id, class_id) VALUES ((SELECT student_id FROM Student WHERE student_email = ?), (SELECT class_id FROM Class WHERE year_group = ? AND teacher_id = (SELECT teacher_id FROM Teacher WHERE class_code = ?)));',
-			[req.body.email, req.body.year_group, req.body.teacher_initials],
-			function (err, rows) {
-				if (err) {
-					console.log(err);
-					req.flash('error', ' An error occured');
-					res.locals.message = req.flash();
-					return res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'sign_up' });
+		// add 4 new classes (year 10-13 inclusive), with the teacher
+		for (var year = 10; year <= 13; year++) {
+			db_connection.query(
+				'INSERT INTO Class (year_group, teacher_id) VALUES (?, (SELECT teacher_id FROM Teacher WHERE teacher_email = ?));',
+				[year, req.body.email],
+				function (err, rows) {
+					if (err) {
+						console.log(err);
+						req.flash('error', ' An error occured');
+						res.locals.message = req.flash();
+						return res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'sign_up' });
+					}
+					console.log(rows);
 				}
-				console.log(rows);
-			}
-		);
-		
+			);
+		}
+
 		return res.redirect('/login');
 
 	} catch {

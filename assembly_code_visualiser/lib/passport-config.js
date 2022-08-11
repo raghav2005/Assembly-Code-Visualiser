@@ -35,17 +35,17 @@ var get_teacher_by_email = (email) => {
 				function (err, rows) {
 
 					if (err) {
-						console.log(err);
+						console.log('1:', err);
 						reject(err);
 					}
 
-					console.log(rows);
+					console.log('2:', rows);
 
 					resolve(rows);
 				}
 			);
 		} catch (error) {
-			reject(error);
+			reject('3:', error);
 		}
 	});
 };
@@ -150,8 +150,8 @@ function initialize(passport) {
 				}
 
 				try {
-
-					if (await bcrypt.compare(password, rows[0].student_password)) {
+					
+					if (await bcrypt.compare(password, rows[0].teacher_password)) {
 						// everything correct from login
 						rows[0].role = 'teacher';
 						return done(null, rows[0])
@@ -160,14 +160,14 @@ function initialize(passport) {
 					}
 
 				} catch (err) {
-					console.log(err);
+					console.log('4:', err);
 					return done(err)
 				}
 
 			});
 
 		} catch (error) {
-			console.log(error);
+			console.log('5:', error);
 			return done(null, false, { message: error });
 		}
 

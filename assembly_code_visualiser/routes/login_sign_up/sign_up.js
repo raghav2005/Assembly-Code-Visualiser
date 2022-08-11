@@ -16,7 +16,7 @@ router.get('/', auth.check_not_authenticated, function (req, res, next) {
 	res.render('login_sign_up/sign_up', { title: 'Sign Up', menu_id: 'sign_up' });
 });
 
-// sign up form
+// sign up form - student
 router.post('/student', auth.check_not_authenticated, async function(req, res) {
 	try {
 
@@ -133,7 +133,7 @@ router.post('/student', auth.check_not_authenticated, async function(req, res) {
 	}
 });
 
-// sign up form
+// sign up form - teacher
 router.post('/teacher', auth.check_not_authenticated, async function(req, res) {
 	try {
 
@@ -163,6 +163,13 @@ router.post('/teacher', auth.check_not_authenticated, async function(req, res) {
 		if (req.body.email.match(regex_teacher) === null) {
 			error_message = true;
 			req.flash('error', ' Invalid email format (DC email required)');
+		}
+
+		// ensure class code is 3 letters
+		var regex_class_code = /^[A-Z]{3}$/;
+		if (!(req.body.teacher_initials.match(regex_class_code))) {
+			error_message = true;
+			req.flash('error', ' Invalid class code format (3 capital letters)');
 		}
 
 		// ensure password length is >= 8 characters
@@ -229,8 +236,8 @@ router.post('/teacher', auth.check_not_authenticated, async function(req, res) {
 		// validation complete, so add all data to the database
 		var hashed_password = await bcrypt.hash(req.body.password, 10);
 		db_connection.query(
-			'INSERT INTO Student (student_email, student_name, student_number, student_password) VALUES (?, ?, ?, ?);',
-			[req.body.email, req.body.email.split('@')[0].slice(0, -4), req.body.email.split('@')[0].substr(-4), hashed_password],
+			'INSERT INTO Student (teacher_email, teacher_first_name, teacher_last_name, class_code, teacher_password) VALUES (?, ?, ?, ?, ?);',
+			[req.body.email, req.body.email.split('@')[0].split('.')[0].charAt(0).toUpperCase() + req.body.email.split('@')[0].split('.')[0].slice(1), req.body.email.split('@')[0].split('.')[1].charAt(0).toUpperCase() + req.body.email.split('@')[0].split('.')[1].slice(1), req.body.teacher_initials, hashed_password],
 			function (err, rows) {
 				if (err) {
 					console.log(err);

@@ -6,8 +6,37 @@
 </head>
 
 <body>
-	<% include partials/menu %>
+	<div class="container-fluid">
+
+		<% include partials/menu %>
+
+		<div class="row">
+			<div class="col-md-12">
+				<h4>
+					<% if (typeof email === "undefined" ) { %>
+						Welcome!
+					<%  } else { %>
+						Welcome, <b><%= email %></b>!
+					<% } %>
+					Your session ID is <b><%= session_id %></b>.
+					It expires in <b><%= session_expiry_time %></b>.
+				</h4>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-12">
+		
+				<form action="/logout" method="post">
+					<button type="submit">LOG OUT</button>
+				</form>
+		
+			</div>
+		</div>
+
+	</div>
 </body>
+
 <% include partials/script %>
 
 </html>

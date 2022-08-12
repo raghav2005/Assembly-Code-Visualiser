@@ -7,44 +7,61 @@
 					<ul class="navbar-nav nav_items_left">
 						<li>
 							<!-- coloured dot icon (3 diff colours for different possible accounts / no account) - needs to be coded -->
-							<img id="navbar_user_indicator" src="../public/images/" alt="User Indicator" />
+							<!-- tooltip should change depending on account type - no account: red; teacher: red, yellow, green; student: red, green; -->
+							<span>
+								<% if (typeof role === "undefined" ) { %>
+									<img class="tooltip-inner" id="navbar_user_indicator" src="/images/red_dot_indicator.png" alt="User Indicator" data-toggle="tooltip" data-placement="auto" title="red: no account" />
+								<% } else { %>
+									<% if (role === 'student') { %>
+										<img class="tooltip-inner" id="navbar_user_indicator" src="/images/green_dot_indicator.png" alt="User Indicator" data-toggle="tooltip" data-placement="auto" title="red: no account&#010;green: student account" />
+									<% } else { %>
+										<img class="tooltip-inner" id="navbar_user_indicator" src="/images/yellow_dot_indicator.png" alt="User Indicator" data-toggle="tooltip" data-placement="auto" title="red: no account&#010;yellow: teacher account&#010;green: student account" />
+									<% } %>
+								<% } %>
+							</span>
 						</li>
 						<li>
 							<span id="navbar_title">Assembly Code Visualiser</span>
 						</li>
 					</ul>
+				</div>
+
+
+				<div class="collapse navbar-collapse" id="main_navbar">
 					
-					<!-- collapsible menu w/ 3 horizontal lines for when screen too small -->
-					<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main_navbar" aria-controls="main_navbar" aria-expanded="false" aria-label="Toggle navigation">
-						<span class="navbar-toggler-icon"></span>
-					</button>
-					
-					<div class="collapse navbar-collapse" id="main_navbar">
-						
+					<div class="navbar_left">
 						<!-- main options on the left -->
-						<ul class="navbar-nav nav_items_left">
-							<li class="nav-item" id="home">
-								<a class="nav-link" href="/">HOME</a>
+						<ul class="navbar-nav nav_items_left" id="navbar_options">
+							<li class="nav-item">
+								<a class="nav-link" id="home" href="/">HOME</a>
 							</li>
-							<li class="nav-item" id="students">
-								<a class="nav-link" href="/students">STUDENTS</a>
+							<li class="nav-item">
+								<a class="nav-link" id="students" href="/students">STUDENTS</a>
 							</li>
-							<li class="nav-item" id="add_students">
-								<a class="nav-link" href="/students/add">ADD STUDENT</a>
+							<li class="nav-item">
+								<a class="nav-link" id="add_students" href="/students/add">ADD STUDENT</a>
 							</li>
 						</ul>
+					</div>
 
+					<div class="navbar_right">
+						<!-- login / sign up button on the right -->
+						<ul class="navbar-nav nav_items_right">
+							<li class="navbar-item">
+								<a class="nav-link navbar_right" id="login" href="/login">LOGIN</a>
+							</li>
+							<li class="navbar-item">
+								<a class="nav-link navbar_right" id="sign_up" href="/sign_up">SIGN UP</a>
+							</li>
+						</ul>
 					</div>
 				</div>
 
-				<div class="navbar_right">
-					<!-- login / sign up button on the right -->
-					<ul class="navbar-nav nav_items_right">
-						<li class="navbar-item" id="login_sign_up">
-							<a class="nav-link navbar_right" href="/login_sign_up">LOGIN / SIGN UP</a>
-						</li>
-					</ul>
-				</div>
+				<!-- collapsible menu w/ 3 horizontal lines for when screen too small -->
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main_navbar"
+					aria-controls="main_navbar" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
 
 			</div>
 		</nav>

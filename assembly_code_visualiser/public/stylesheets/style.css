@@ -6,10 +6,16 @@
 }
 
 body {
-	padding: 10px;
 	font-size: 1em;
 	font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
+	overflow-x: hidden;
 }
+
+.container-fluid {
+	margin: 0;
+	padding: 0;
+}
+
 
 /* all navbar stuff */
 .navbar {
@@ -19,6 +25,10 @@ body {
 	position: relative;
 	width: 100%;
 	font-size: 1em;
+	border-radius: 0.75em;
+	padding-top: 0.25em;
+	padding-bottom: 0.25em;
+	text-align: center;
 }
 
 .navbar_wrapper {
@@ -27,12 +37,12 @@ body {
 	width: 100%;
 	justify-content: space-around;
 	align-items: center;
+	vertical-align: middle;
 }
 
 .navbar_left, .navbar_right {
 	display: flex;
 	flex-flow: row nowrap;
-	z-index: 1;
 }
 
 .navbar_left {
@@ -45,8 +55,30 @@ body {
 	align-items: center;
 }
 
+/* so &#010; is a newline for the data of a tooltip */
+.tooltip-inner {
+	white-space: pre-wrap;
+}
+
+#navbar_user_indicator {
+	position: absolute;
+	max-height: 1.5em;
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: flex-start;
+	padding-top: 0.35em;
+	padding-bottom: 0.35em;
+	padding-left: 0.5em;
+}
+
 #navbar_title {
 	color: whitesmoke;
-	padding-left: 0.25em;
+	padding-left: 2em;
 	padding-right: 1.25em;
+}
+
+
+/* form stuff - will be changed later for sure */
+input {
+	width: 100%;
 }

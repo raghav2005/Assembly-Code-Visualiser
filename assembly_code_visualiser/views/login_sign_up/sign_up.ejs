@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<% include ../partials/head %>
+</head>
+
+<body>
+	<div class="container-fluid">
+		
+		<% include ../partials/menu %>
+
+		<div class="row">
+			<div class="col-md-12">
+
+				<!-- student form -->
+				<form action="/sign_up/student" method="POST" id="student_form">
+
+					<!-- student's email -->
+					<div class="row">
+						<div class="col-md-3">
+							<label for="email">EMAIL ADDRESS</label>
+						</div>
+						<div class="col-md-9">
+							<!-- automatically check for correctly formatted student dc email (regex in JavaScript: '\d{4}' is the same as '[0-9][0-9][0-9][0-9]' ) -->
+							<input type="email" id="email" name="email" pattern="^[A-Za-z]+\d{4}\@dubaicollege.org$" placeholder="student_name_and_number@dubaicollege.org" required />
+						</div>
+					</div>
+
+					<!-- student's year group -->
+					<div class="row">
+						<div class="col-md-3">
+							<label for="year_group">YEAR GROUP</label>
+						</div>
+						<div class="col-md-9">
+							<!-- drop-down menu options -->
+							<!-- NOTE: ASSUMPTION THAT EVERY TEACHER TEACHES EVERY YEAR (THIS MAKES IT EASIER TO SIGN UP, EVEN IF THOSE CLASSES DON'T ACTUALLY HAVE STUDENTS IN THEM) -->
+							<select id="year_group" name="year_group" required>
+								<option value="" selected hidden>select your year group</option>
+								<option value="10">Year 10</option>
+								<option value="11">Year 11</option>
+								<option value="12">Year 12</option>
+								<option value="13">Year 13</option>
+							</select>
+						</div>
+					</div>
+
+					<!-- student's teacher (3-letter code) -->
+					<div class="row">
+						<div class="col-md-3">
+							<label for="teacher_initials">CLASS (3-LETTER DC TEACHER IDENTIFICATION)</label>
+						</div>
+						<div class="col-md-9">
+							<!-- drop-down menu options -->
+							<!-- TODO: MAKE THESE OPTION VALUES DYNAMIC - FROM THE DATABASE -->
+							<select id="teacher_initials" name="teacher_initials" required>
+								<option value="" selected hidden>select your class</option>
+								<!-- <option value="MWD">MWD</option>
+								<option value="SCH">SCH</option>
+								<option value="ASY">ASY</option>
+								 -->
+								<% if (typeof class_codes === "undefined" ) { %>
+									<option value="no_teacher">no teacher has signed up yet</option>
+								<% } else { %>
+										<% for (var class_code_counter = 0; class_code_counter < class_codes.length; class_code_counter++) { %>
+											<option value="<%= class_codes[class_code_counter].class_code %>">
+												<%= class_codes[class_code_counter].class_code %>
+											</option>
+										<% } %>
+								<% } %>
+							
+							</select>
+						</div>
+					</div>
+
+					<!-- student's password -->
+					<div class="row">
+						<div class="col-md-3">
+							<label for="password">PASSWORD</label>
+						</div>
+						<div class="col-md-9">
+							<input type="password" id="password" name="password" placeholder="enter a password" required />
+						</div>
+					</div>
+
+					<!-- student's password confirmation -->
+					<div class="row">
+						<div class="col-md-3">
+							<label for="password_confirmation">CONFIRM PASSWORD</label>
+						</div>
+						<div class="col-md-9">
+							<input type="password" id="password_confirmation" name="password_confirmation" placeholder="enter the same password again" required />
+						</div>
+					</div>
+
+					<!-- submit button -->
+					<div class="row">
+						<div class="col-md-3"></div>
+						<div class="col-md-9">
+							<button type="submit">SIGN UP</button>
+						</div>
+					</div>
+
+				</form>
+
+				<!-- teacher form -->
+				<form action="/sign_up/teacher" method="POST" id="teacher_form">
+				
+					<!-- teacher's email -->
+					<div class="row">
+						<div class="col-md-3">
+							<label for="email">EMAIL ADDRESS</label>
+						</div>
+						<div class="col-md-9">
+							<!-- automatically check for correctly formatted teacher dc email -->
+							<input type="email" id="email" name="email" pattern="^[A-Za-z]+\.[A-Za-z]+\@dubaicollege.org$"
+								placeholder="teacher_first_name.teacher_last_name@dubaicollege.org" required />
+						</div>
+					</div>
+				
+					<!-- teacher's class code (3-letter code) -->
+					<div class="row">
+						<div class="col-md-3">
+							<label for="teacher_initials">CLASS CODE</label>
+						</div>
+						<div class="col-md-9">
+							<input type="text" id="teacher_initials" name="teacher_initials" pattern="^[A-Z]{3}$" placeholder="3-letter DC teacher identification" required />
+						</div>
+					</div>
+				
+					<!-- teacher's password -->
+					<div class="row">
+						<div class="col-md-3">
+							<label for="password">PASSWORD</label>
+						</div>
+						<div class="col-md-9">
+							<input type="password" id="password" name="password" placeholder="enter a password" required />
+						</div>
+					</div>
+				
+					<!-- teacher's password confirmation -->
+					<div class="row">
+						<div class="col-md-3">
+							<label for="password_confirmation">CONFIRM PASSWORD</label>
+						</div>
+						<div class="col-md-9">
+							<input type="password" id="password_confirmation" name="password_confirmation"
+								placeholder="enter the same password again" required />
+						</div>
+					</div>
+				
+					<!-- submit button -->
+					<div class="row">
+						<div class="col-md-3"></div>
+						<div class="col-md-9">
+							<button type="submit">SIGN UP</button>
+						</div>
+					</div>
+				
+				</form>
+
+				<% if (message.error) { %>
+					<div class="alert alert-danger" role="alert">
+						<strong>
+							<%= message.error %>
+						</strong>
+					</div>
+				<% } %>
+
+				<% if (message.success) { %>
+					<div class="alert alert-success" role="alert">
+						<strong>
+							<%= message.success %>
+						</strong>
+					</div>
+				<% } %>
+
+				<button onclick="change_form_login()">Student / Teacher</button>
+
+				<h4>
+					Already have an account? <a href="/login">Login...</a>
+				</h4>
+
+				<!-- TEACHER FORM: email, class code (3 letters), password, confirm password, student/teacher toggle -->
+			
+			</div>
+		</div>
+
+	</>
+</body>
+
+<% include ../partials/script %>
+<% include partials/script %>
+
+</html>

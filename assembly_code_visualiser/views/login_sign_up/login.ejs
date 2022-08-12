@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<% include ../partials/head %>
+</head>
+
+<body>
+	<div class="container-fluid">
+
+		<% include ../partials/menu %>
+
+		<div class="row">
+			<div class="col-md-12">
+
+				<!-- student form -->
+				<form action="/login/student" method="post" id="student_form">
+				
+					<!-- student's email -->
+					<div class="row">
+						<div class="col-md-3">
+							<label for="email">EMAIL ADDRESS</label>
+						</div>
+						<div class="col-md-9">
+							<!-- automatically check for correctly formatted student dc email (regex in JavaScript: '\d{4}' is the same as '[0-9][0-9][0-9][0-9]' ) -->
+							<input type="email" id="email" name="email" pattern="^[A-Za-z]+\d{4}\@dubaicollege.org$"
+								placeholder="student_name_and_number@dubaicollege.org" required />
+						</div>
+					</div>
+				
+					<!-- student's password -->
+					<div class="row">
+						<div class="col-md-3">
+							<label for="password">PASSWORD</label>
+						</div>
+						<div class="col-md-9">
+							<input type="password" id="password" name="password" placeholder="enter a password" required />
+						</div>
+					</div>
+				
+					<!-- submit button -->
+					<div class="row">
+						<div class="col-md-3"></div>
+						<div class="col-md-9">
+							<button type="submit" value="Login">LOGIN</button>
+						</div>
+					</div>
+
+					<!-- remember me button -->
+					<div class="row">
+						<div class="col-md-3"></div>
+						<div class="col-md-2">
+							<label for="remember_me">REMEMBER ME</label>
+							<input type="checkbox" id="remember_me" name="remember_me" value="1" />
+						</div>
+						<div class="col-md-7"></div>
+					</div>
+				
+				</form>
+
+				<!-- teacher form -->
+				<form action="/login/teacher" method="post" id="teacher_form">
+				
+					<!-- teacher's email -->
+					<div class="row">
+						<div class="col-md-3">
+							<label for="email">EMAIL ADDRESS</label>
+						</div>
+						<div class="col-md-9">
+							<!-- automatically check for correctly formatted teacher dc email -->
+							<input type="email" id="email" name="email" pattern="^[A-Za-z]+\.[A-Za-z]+\@dubaicollege.org$"
+								placeholder="teacher_first_name.teacher_last_name@dubaicollege.org" required />
+						</div>
+					</div>
+				
+					<!-- teacher's password -->
+					<div class="row">
+						<div class="col-md-3">
+							<label for="password">PASSWORD</label>
+						</div>
+						<div class="col-md-9">
+							<input type="password" id="password" name="password" placeholder="enter a password" required />
+						</div>
+					</div>
+				
+					<!-- submit button -->
+					<div class="row">
+						<div class="col-md-3"></div>
+						<div class="col-md-9">
+							<button type="submit" value="Login">LOGIN</button>
+						</div>
+					</div>
+				
+					<!-- remember me button -->
+					<div class="row">
+						<div class="col-md-3"></div>
+						<div class="col-md-2">
+							<label for="remember_me">REMEMBER ME</label>
+							<input type="checkbox" id="remember_me" name="remember_me" value="1" />
+						</div>
+						<div class="col-md-7"></div>
+					</div>
+				
+				</form>
+
+				<% if (message.error) { %>
+					<div class="alert alert-danger" role="alert">
+						<strong>
+							<%= message.error %>
+						</strong>
+					</div>
+				<% } %>
+				
+				<% if (message.success) { %>
+					<div class="alert alert-success" role="alert">
+						<strong>
+							<%= message.success %>
+						</strong>
+					</div>
+				<% } %>
+
+				<button onclick="change_form_login()">Student / Teacher</button>
+				
+				<h4>Don't have an account? <a href="/sign_up">Sign up...</a></h4>
+				
+				<!-- TEACHER FORM: email, password, student/teacher toggle, keep me logged in toggle -->
+
+			</div>
+		</div>
+
+	</div>
+</body>
+
+<% include ../partials/script %>
+<% include partials/script %>
+
+</html>

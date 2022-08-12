@@ -148,6 +148,7 @@ router.post('/student', auth.check_not_authenticated, async function(req, res) {
 				console.log(rows);
 			}
 		);
+		// cross-parameterised SQL (tells MySQL exactly where the parameters are supposed to go (where the ? marks are))
 		db_connection.query(
 			'INSERT INTO Students_In_Classes (student_id, class_id) VALUES ((SELECT student_id FROM Student WHERE student_email = ?), (SELECT class_id FROM Class WHERE year_group = ? AND teacher_id = (SELECT teacher_id FROM Teacher WHERE class_code = ?)));',
 			[req.body.email, req.body.year_group, req.body.teacher_initials],

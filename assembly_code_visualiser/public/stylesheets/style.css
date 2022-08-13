@@ -8,7 +8,8 @@
 body {
 	font-size: 1em;
 	font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
-	overflow-x: hidden;
+	/* TODO: UNCOMMENT THIS AFTER DONE TESTING STUFF FOR MAIN VISUALISATION */
+	/* overflow-x: hidden; */
 }
 
 .container-fluid {

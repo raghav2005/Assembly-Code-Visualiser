@@ -24,6 +24,17 @@ class Little_Man_Computer {
 		this.accumulator = 0;
 		this.program_counter = 0;
 
+		this.instruction_set = args.instruction_set || {};
+
+	};
+
+	get_opcode_from_mnemoic(mnemonic) {
+
+		console.log(this.instruction_set.mnemonic);
+		return this.instruction_set.mnemonic;
+
 	};
 
 };
+
+module.exports = Little_Man_Computer;

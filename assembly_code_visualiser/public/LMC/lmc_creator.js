@@ -26,6 +26,19 @@ class Little_Man_Computer {
 
 	};
 
+	load_RAM_from_backend() {
+		
+		for (var i = 0; i < this.RAM.length; i++) {
+			
+			while (this.RAM.toString().length < 3) {
+				this.RAM[i] = '0' + this.RAM[i];
+			};
+
+			document.getElementById("memory_location_" + i.toString()).value = this.RAM[i];
+
+		};
+	};
+
 	reset_RAM() {
 		for (var i = 0; i < this.RAM.length; i++) {
 			this.RAM[i] = 0;

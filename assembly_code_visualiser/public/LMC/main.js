@@ -120,7 +120,7 @@ console.log(LDR.get_operand_type(1));
 
 RAM = [];
 for (var i = 0; i < 100; i++) {
-	RAM.push(1);
+	RAM.push('000');
 };
 
 var LMC = new Little_Man_Computer({

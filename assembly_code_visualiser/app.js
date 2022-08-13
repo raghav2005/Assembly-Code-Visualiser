@@ -46,6 +46,7 @@ app.use(cookieParser());
 var RedisStore = connectRedis(session);
 // session
 app.use(session({
+	secret: process.env.SESSION_SECRET_KEY,
 	cookie: {
 		secure: false, // if true, would only transmit cookies over https
 		httpOnly: false, // if true, would prevent client-side JS from reading cookies
@@ -54,7 +55,6 @@ app.use(session({
 	store: new RedisStore({ client: redisClient }),
 	saveUninitialized: false,
 	resave: false,
-	secret: process.env.SESSION_SECRET_KEY
 }));
 
 app.use(flash());

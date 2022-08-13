@@ -15,11 +15,9 @@ class Little_Man_Computer {
 	constructor(args) {
 		
 		this.outputs = [];
-
 		this.inputs = args.inputs || [];
-		this.input_index = 0;
 
-		this.memory_locations = args.memory_locations || [];
+		this.RAM = args.RAM || [];
 
 		this.accumulator = 0;
 		this.program_counter = 0;
@@ -28,11 +26,20 @@ class Little_Man_Computer {
 
 	};
 
-	get_opcode_from_mnemoic(mnemonic) {
+	reset_RAM() {
+		for (var i = 0; i < this.RAM.length; i++) {
+			this.RAM[i] = 0;
+		};
+	};
 
-		console.log(this.instruction_set.mnemonic);
-		return this.instruction_set.mnemonic;
-
+	get_addressing_mode(operand) {
+		if (operand[0] === '#') {
+			return 'direct'
+		} else if (operand[0] === 'R') {
+			return 'immediate'
+		} else {
+			return 'error'
+		};
 	};
 
 };

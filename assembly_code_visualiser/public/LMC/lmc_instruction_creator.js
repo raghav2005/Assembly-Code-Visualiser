@@ -5,7 +5,7 @@ class Instruction {
 		this.name = args.name;
 		this.numerical_value = args.numerical_value;
 
-		this.operands = args.operands; // list of 'R' and/or 'M' for Register / Memory reference
+		this.operands = args.operands; // list of 'R's, 'M's, 'B's and/or 'L', where R = Register, M = Memory, B = Both/Either, L = Label (for Branch)
 
 	};
 

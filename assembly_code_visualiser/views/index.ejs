@@ -34,6 +34,11 @@
 			</div>
 		</div>
 
+		<% if (typeof role === "undefined" ) { %>
+		<% } else { %>
+			<% include partials/main_visualisation %>
+		<% } %>
+
 	</div>
 </body>
 

@@ -27,6 +27,7 @@ class Little_Man_Computer {
 		this.inputs = args.inputs || [];
 
 		this.RAM = args.RAM || [];
+		this.RAM_value_length = args.RAM_value_length || 3;
 
 		this.accumulator = 0;
 		this.program_counter = 0;
@@ -35,34 +36,63 @@ class Little_Man_Computer {
 
 	};
 
+	// ensure backend RAM values are 2 digits long
+	RAM_backend_to_RAM_value_length_digits(location) {
+		
+		if (this.RAM[location].length < this.RAM_value_length) {
+		
+			this.RAM[location] = '0' + this.RAM[location];
+		
+		} else if (this.RAM[location].length > this.RAM_value_length) {
+
+			var location_as_string = location.toString();
+
+			while (location_as_string.length < 2) {
+				location_as_string = '0' + location_as_string;
+			}
+
+			alert('RAM value at memory location ' + location_as_string + ' must be ' + this.RAM_value_length.toString() + ' or less digits long');
+
+			this.reset_specific_RAM(location);
+		
+		} else {
+			// do nothing - correct length
+		};
+
+	};
+
 	// populate frontend visualisation RAM locations with the values stored in this.RAM
 	load_RAM_from_backend() {
-
 		for (var i = 0; i < this.RAM.length; i++) {
-
-			while (this.RAM.length < 3) {
-				this.RAM[i] = '0' + this.RAM[i];
-			};
-
+			// will always be 2 digits long because backend is always 2 digits long
 			document.getElementById("memory_location_" + i.toString()).value = this.RAM[i];
-
 		};
 	};
 
 	// populate this.RAM with the values in the frontent visualisation RAM locations
 	load_RAM_from_frontend() {
+		
 		for (var i = 0; i < this.RAM.length; i++) {
-			this.RAM[i] = document.getElementById("memory_location_" + i.toString().value);
+			this.RAM[i] = document.getElementById("memory_location_" + i.toString()).value;
+			this.RAM_backend_to_RAM_value_length_digits(i);
 		};
-		console.log(this.RAM);
-		return this.RAM;
+
+		this.load_RAM_from_backend();
+	
 	};
 
-
+	// reset all values in RAM location in frontend + backend to 00
 	reset_RAM() {
 		for (var i = 0; i < this.RAM.length; i++) {
-			this.RAM[i] = '000';
+			this.RAM[i] = '0'.repeat(this.RAM_value_length);
 		};
+		this.load_RAM_from_backend();
+	};
+
+	// reset the value at a specific RAM location in frontend + backend to 00
+	reset_specific_RAM(location) {
+		this.RAM[location] = '0'.repeat(this.RAM_value_length);
+		document.getElementById("memory_location_" + location.toString()).value = this.RAM[location];
 	};
 
 	get_addressing_mode(operand) {
@@ -192,13 +222,16 @@ function initialise_LMC() {
 	};
 
 	RAM = [];
+	var RAM_value_length = 2;
+
 	for (var i = 0; i < 100; i++) {
-		RAM.push('000');
+		RAM.push('0'.repeat(RAM_value_length));
 	};
 
 	var LMC = new Little_Man_Computer({
 		instruction_set: instruction_set,
-		RAM: RAM
+		RAM: RAM,
+		RAM_value_length: RAM_value_length
 	});
 
 	return LMC
@@ -212,6 +245,7 @@ function initialise_LMC() {
 LMC = initialise_LMC();
 
 function test_onclick(LMC) {
-	$('#test_p').append(LMC.RAM.toString());
+	LMC.load_RAM_from_frontend();
 	alert(LMC.RAM);
+	// $('#test_p').append(LMC.RAM.toString() + '<br />');
 };

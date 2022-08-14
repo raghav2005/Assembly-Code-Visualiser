@@ -1,5 +1,6 @@
 <div class="row">
-	<div class="col-md-12">
+	<div class="col-md-7"></div>
+	<div class="col-md-5">
 		<div id=""RAM_wrapper">
 			Random Access Memory
 			<table id=""RAM">
@@ -12,11 +13,12 @@
 							<% var k = (i * 10) + j %>
 							<% var k_str = k.toString() %>
 
+							<%# for memory locations 0-9, we want to display 00, 01, etc. %>
 							<% while (k_str.length < 2) { %>
 								<% k_str = '0' + k_str %>
 							<% } %>
 
-							<td><%= k_str %><input id="memory_location_<%= k %>" type="text" value="000" /></td>
+							<td><%= k_str %><input id="memory_location_<%= k %>" type="text" value="00" /></td>
 						
 						<% } %>
 					</tr>

@@ -1,10 +1,43 @@
 <div class="row">
-	<div class="col-md-7"></div>
-	<div class="col-md-5">
-		<div id=""RAM_wrapper">
-			Random Access Memory
-			<table id=""RAM">
 
+	<div class="col-md-2">
+		<div id="code_wrapper">
+			
+			<!-- <button class="myButton" onclick="load();">Load Program in RAM</button>
+			<button class="myButtonRed" onclick="load(); run();">Run Program</button> -->
+			
+			<textarea id="code_area" rows=26 cols=28 wrap="off">
+ALL CODE BELOW
+			</textarea>
+
+		</div>
+	</div>
+	
+	<div class="col-md-4">
+		<div id="CPU_wrapper">
+
+			<div class="col-md-3" id="general_register_wrapper">
+				<!-- create General Purpose Registers (from 0 to 9) -->
+				<% for (var i = 0; i < 10; i++) { %>
+					<div id="register_<%= i %>_wrapper">
+						<tr>
+							<td>Register <%= i.toString() %><input readonly id="general_register_<%= i %>" type="text" value="00" /></td>
+						</tr>
+					</div>
+				<% } %>
+			</div>
+
+			<div class="col-md-9"></div>
+
+		</div>
+	</div>
+
+	<div class="col-md-1"></div>
+	
+	<div class="col-md-5">
+		<div id="RAM_wrapper">
+			
+			<table id="RAM">
 				<!-- create RAM (memory locations from 00 to 99) -->
 				<% for (var i = 0; i < 10; i++) { %>
 					<tr>
@@ -18,18 +51,18 @@
 								<% k_str = '0' + k_str %>
 							<% } %>
 
-							<td><%= k_str %><input id="memory_location_<%= k %>" type="text" value="00" /></td>
-						
+							<td id="memory_<%= k_str %>_wrapper"><%= k_str %><input id="memory_location_<%= k %>" type="text" value="00" /></td>
+
 						<% } %>
 					</tr>
 				<% } %>
-
 			</table>
 		</div>
+
 	</div>
 </div>
 
 <button onclick="test_onclick(LMC)">Click me</button>
-<p id="test_p"></p>
+<!-- <p id="test_p"></p> -->
 
 <% include ./lmc_script %>

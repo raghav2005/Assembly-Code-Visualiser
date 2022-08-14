@@ -27,7 +27,9 @@ class Little_Man_Computer {
 		this.inputs = args.inputs || [];
 
 		this.RAM = args.RAM || [];
-		this.RAM_value_length = args.RAM_value_length || 3;
+		this.RAM_value_length = args.RAM_value_length || 2; // same as general_registers_value_length
+
+		this.general_registers = args.general_registers || [];
 
 		this.accumulator = 0;
 		this.program_counter = 0;
@@ -93,6 +95,53 @@ class Little_Man_Computer {
 	reset_specific_RAM(location) {
 		this.RAM[location] = '0'.repeat(this.RAM_value_length);
 		document.getElementById("memory_location_" + location.toString()).value = this.RAM[location];
+	};
+
+	// ensure backend general registers' values are 2 digits long
+	general_registers_backend_to_RAM_value_length_digits(location) {
+
+		if (this.general_registers[location].length < this.RAM_value_length) {
+
+			this.general_registers[location] = '0' + this.general_registers[location];
+
+		} else if (this.general_registers[location].length > this.RAM_value_length) {
+
+			var location_as_string = location.toString();
+
+			while (location_as_string.length < 2) {
+				location_as_string = '0' + location_as_string;
+			}
+
+			alert('General Purpose Register ' + location_as_string + '\'s value must be ' + this.RAM_value_length.toString() + ' or less digits long');
+
+			this.reset_specific_general_register(location);
+
+		} else {
+			// do nothing - correct length
+		};
+
+	};
+
+	// populate frontend visualisation general purpose registers with the values stored in this.general_registers
+	load_general_registers_from_backend() {
+		for (var i = 0; i < this.general_registers.length; i++) {
+			// will always be 2 digits long because backend is always 2 digits long
+			document.getElementById("general_register_" + i.toString()).value = this.general_registers[i];
+		};
+	};
+
+	// reset all values in the general registers in backend (automatically update to frontend because read-only)
+	reset_general_registers() {
+		for (var i = 0; i < this.general_registers.length; i++) {
+			this.general_registers[i] = '0'.repeat(this.RAM_value_length);
+		};
+		this.load_general_registers_from_backend();
+	};
+
+	// reset the value of a specific general register in frontend + backend to 00
+	reset_specific_general_register(location) {
+		this.general_registers[location] = '0'.repeat(this.RAM_value_length);
+		document.getElementById("general_register_" + location.toString()).value = this.general_registers[location];
 	};
 
 	get_addressing_mode(operand) {
@@ -228,10 +277,17 @@ function initialise_LMC() {
 		RAM.push('0'.repeat(RAM_value_length));
 	};
 
+	general_registers = [];
+
+	for (var i = 0; i < 10; i++) {
+		general_registers.push('0'.repeat(RAM_value_length));
+	}
+
 	var LMC = new Little_Man_Computer({
 		instruction_set: instruction_set,
 		RAM: RAM,
-		RAM_value_length: RAM_value_length
+		RAM_value_length: RAM_value_length,
+		general_registers: general_registers
 	});
 
 	return LMC
@@ -241,11 +297,15 @@ function initialise_LMC() {
 // 	test_onclick(LMC);
 // });
 
-
 LMC = initialise_LMC();
+
+
+// functions called from HTML buttons
 
 function test_onclick(LMC) {
 	LMC.load_RAM_from_frontend();
+	LMC.load_general_registers_from_backend();
 	alert(LMC.RAM);
+	alert(LMC.general_registers);
 	// $('#test_p').append(LMC.RAM.toString() + '<br />');
 };

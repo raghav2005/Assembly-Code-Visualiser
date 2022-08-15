@@ -6,7 +6,7 @@
 			<!-- <button class="myButton" onclick="load();">Load Program in RAM</button>
 			<button class="myButtonRed" onclick="load(); run();">Run Program</button> -->
 			
-			<textarea id="code_area" rows=26 cols=28 wrap="off">
+			<textarea id="code_area" rows=26 wrap="off">
 ALL CODE BELOW
 			</textarea>
 
@@ -90,7 +90,15 @@ ALL CODE BELOW
 		</div>
 	</div>
 
-	<div class="col-md-1"></div>
+	<div class="col-md-1">
+
+		<!-- <div id="address_bus_wrapper">
+			Address Bus
+		</div> -->
+
+		<!-- <canvas id="arrows_canvas">Browser doesn't support address buses being shown</canvas> -->
+
+	</div>
 	
 	<div class="col-md-5">
 		<div id="RAM_wrapper">
@@ -120,7 +128,8 @@ ALL CODE BELOW
 	</div>
 </div>
 
-<button onclick="test_onclick(LMC)">Click me</button>
-<!-- <p id="test_p"></p> -->
+<!-- <button onclick="test_onclick(LMC)">Click me</button>
+<p id="test_p"></p> -->
 
 <% include ./lmc_script %>
+

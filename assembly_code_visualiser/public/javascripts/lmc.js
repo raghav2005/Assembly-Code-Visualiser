@@ -41,6 +41,7 @@ class Little_Man_Computer {
 	// ensure backend RAM values are 2 digits long
 	RAM_backend_to_RAM_value_length_digits(location) {
 		
+		// ensure 2 digits long
 		if (this.RAM[location].length < this.RAM_value_length) {
 		
 			this.RAM[location] = '0' + this.RAM[location];
@@ -49,7 +50,7 @@ class Little_Man_Computer {
 
 			var location_as_string = location.toString();
 
-			while (location_as_string.length < 2) {
+			while (location_as_string.length < this.RAM_value_length) {
 				location_as_string = '0' + location_as_string;
 			}
 
@@ -108,7 +109,7 @@ class Little_Man_Computer {
 
 			var location_as_string = location.toString();
 
-			while (location_as_string.length < 2) {
+			while (location_as_string.length < this.RAM_value_length) {
 				location_as_string = '0' + location_as_string;
 			}
 
@@ -299,13 +300,105 @@ function initialise_LMC() {
 
 LMC = initialise_LMC();
 
-
 // functions called from HTML buttons
+// function test_onclick(LMC) {
+// 	// LMC.load_RAM_from_frontend();
+// 	// LMC.load_general_registers_from_backend();
+// 	alert(LMC.RAM);
+// 	alert(LMC.general_registers);
+// 	// $('#test_p').append(LMC.RAM.toString() + '<br />');
+// };
 
-function test_onclick(LMC) {
+function create_buses() {
+
+	address_bus = new LeaderLine(
+		document.getElementById('MAR_wrapper'),
+		LeaderLine.pointAnchor(document.getElementById('memory_10_wrapper'), {
+			x: 0,
+			y: '25%'
+		}),
+		{
+			color: '#AAAAAA',
+			size: 8,
+			// outline: true,
+			// endPlugOutline: true,
+			// outlineColor: '#AAAAAA',
+			// endPlugSize: 0.75,
+			middleLabel: LeaderLine.pathLabel({
+				text: 'Address Bus',
+				color: 'black'
+			}),
+			path: 'straight',
+			startSocket: 'right',
+			endSocket: 'left',
+			endPlug: 'arrow3'
+		}
+	);
+
+	control_bus = new LeaderLine(
+		document.getElementById('control_unit_wrapper'),
+		LeaderLine.pointAnchor(document.getElementById('memory_50_wrapper'), {
+			x: 0,
+			y: '36%'
+		}),
+		{
+			color: '#AAAAAA',
+			size: 8,
+			// outline: true,
+			// endPlugOutline: true,
+			// outlineColor: '#AAAAAA',
+			// endPlugSize: 0.75,
+			middleLabel: LeaderLine.pathLabel({
+				text: 'Control Bus',
+				color: 'black'
+			}),
+			path: 'straight',
+			startSocket: 'right',
+			endSocket: 'left',
+			startPlug: 'arrow3',
+			endPlug: 'arrow3'
+		}
+	);
+
+	data_bus = new LeaderLine(
+		document.getElementById('MBR_wrapper'),
+		LeaderLine.pointAnchor(document.getElementById('memory_80_wrapper'), {
+			x: 0,
+			y: '87.5%'
+		}),
+		{
+			color: '#AAAAAA',
+			size: 8,
+			// outline: true,
+			// endPlugOutline: true,
+			// outlineColor: '#AAAAAA',
+			// endPlugSize: 0.75,
+			middleLabel: LeaderLine.pathLabel({
+				text: 'Data Bus',
+				color: 'black'
+			}),
+			path: 'straight',
+			startSocket: 'right',
+			endSocket: 'left',
+			startPlug: 'arrow3',
+			endPlug: 'arrow3'
+		}
+	);
+
+}
+
+// run everytime anything on the page is clicked
+window.addEventListener('click', function() {
+	
 	LMC.load_RAM_from_frontend();
 	LMC.load_general_registers_from_backend();
-	alert(LMC.RAM);
-	alert(LMC.general_registers);
-	// $('#test_p').append(LMC.RAM.toString() + '<br />');
-};
+	 
+	// // BELOW WORKS
+	// control_bus.setOptions({
+	// 	end: document.getElementById('memory_98_wrapper'),
+	// 	path: 'fluid'
+	// });
+
+});
+
+window.addEventListener('load', create_buses);

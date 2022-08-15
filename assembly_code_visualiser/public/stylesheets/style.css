@@ -86,14 +86,32 @@ input {
 
 
 /* main visualisation stuff */
-#RAM_wrapper, #CPU_wrapper, #general_register_wrapper, #ALU_wrapper, #accumulator_wrapper, #PC_wrapper, #decode_unit_wrapper, #CIR_wrapper {
+#main_visualisation_wrapper {
+	display: flex;
+	flex-direction: row;
+}
+
+#code_wrapper, #RAM_wrapper, #CPU_wrapper, #general_register_wrapper, #ALU_wrapper, #accumulator_wrapper, #PC_wrapper, #decode_unit_wrapper, #CIR_wrapper, #MAR_wrapper, #status_register_wrapper, #control_unit_wrapper, #clock_wrapper, #MBR_wrapper {
 	border: 0.2em #AAAAAA solid;
+}
+#code_wrapper:hover, #RAM_wrapper:hover, #CPU_wrapper:hover, #general_register_wrapper:hover, #ALU_wrapper:hover, #accumulator_wrapper:hover, #PC_wrapper:hover, #decode_unit_wrapper:hover, #CIR_wrapper:hover, #MAR_wrapper:hover, #status_register_wrapper:hover, #control_unit_wrapper:hover, #clock_wrapper:hover, #MBR_wrapper:hover {
+	border: 0.2em #FF4040 solid;
+}
+
+#code_wrapper {
+	height: 40em;
+	display: flex;
+	flex-direction: column;
+}
+#code_area {
+	resize: none;
 }
 
 #RAM_wrapper {
 	height: 40em;
 	display: flex;
 	text-align: center;
+	flex-grow: 1;
 }
 /* attributes with ids starting with "memory_location_" */
 [id^="memory_location_"] {
@@ -105,13 +123,19 @@ input {
 	padding: 0.15em;
 	margin: 0.2em 0;
 }
+/* same as above but when mouse hovering over it */
+[id^="memory_"][id$="_wrapper"]:hover {
+	border: 0.05em #FF4040 solid;
+}
 
 #code_wrapper {
 	float: left;
+	flex-grow: 1;
 }
 
 #CPU_wrapper {
-	height: 40em;
+	/* height: 40em; */
+	flex-grow: 1;
 }
 
 #general_register_wrapper {
@@ -127,19 +151,22 @@ input {
 	border: 0.05em #AAAAAA solid;
 	padding: 0.15em;
 }
+[id^="register_"][id$="_wrapper"]:hover {
+	border: 0.05em #FF4040 solid;
+}
 /* attributes with ids starting with "register_" AND ending with "_wrapper", but not attributes with id "register_0_wrapper" or "register_9_wrapper" */
 [id^="register_"][id$="_wrapper"]:not(#register_0_wrapper, #register_9_wrapper) {
 	margin: 0.15em 0;
 }
 
-#CPU_column_2 {
+#CPU_column_2, #CPU_column_3 {
 	margin-left: -1em;
 	text-align: center;
 	display: flex;
 	flex-direction: column;
 }
 
-#ALU_wrapper, #accumulator_wrapper, #PC_wrapper, #decode_unit_wrapper, #CIR_wrapper {
+#ALU_wrapper, #accumulator_wrapper, #PC_wrapper, #decode_unit_wrapper, #CIR_wrapper, #MAR_wrapper, #status_register_wrapper, #control_unit_wrapper, #clock_wrapper, #MBR_wrapper {
 	text-align: center;
 	padding: 0.5em;
 	margin: 0.075em 0 0.5em 0;
@@ -148,15 +175,15 @@ input {
 	flex-direction: column;
 }
 
-#ALU, #accumulator, #PC, #decode_unit, #CIR {
+#ALU, #accumulator, #PC, #decode_unit, #CIR, #MAR, #status_register, #control_unit, #clock, #MBR {
 	text-align: center;
 	flex-grow: 1;
 }
 
-#ALU_wrapper {
+#ALU_wrapper, #MAR_wrapper {
 	margin-top: 0.5em;
 }
 
-#CIR_wrapper {
+#CIR_wrapper, #MBR_wrapper {
 	margin-bottom: 0.5em;
 }

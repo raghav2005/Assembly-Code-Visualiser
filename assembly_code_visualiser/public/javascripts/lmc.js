@@ -381,18 +381,46 @@ function create_buses() {
 			startSocket: 'right',
 			endSocket: 'left',
 			startPlug: 'arrow3',
-			endPlug: 'arrow3'
+			endPlug: 'arrow3',
 		}
 	);
 
-}
+};
+
+window.addEventListener('load', create_buses);
+
+// document.querySelector('.leader-line:hover g > use:first-child').addEventListener('click'), function() {
+// 	address_bus.setOptions({
+// 		color: '#FF4040'
+// 	});
+// }.zIndex=999
+
+// document.getElementById('MAR_wrapper').addEventListener('mouseover', function () {
+// 	address_bus.setOptions({
+// 		color: '#FF4040'
+// 	});
+// });
+
+// document.getElementById('MAR_wrapper').addEventListener('mouseleave', function () {
+// 	address_bus.setOptions({
+// 		color: '#AAAAAA'
+// 	});
+// });
+
+// address_bus.addEventListener('mouseover', function() {
+// 	address_bus.setOptions({
+// 		color: '#FF4040'
+// 	});
+// });
 
 // run everytime anything on the page is clicked
 window.addEventListener('click', function() {
 	
 	LMC.load_RAM_from_frontend();
 	LMC.load_general_registers_from_backend();
-	 
+
+	this.alert(document.querySelectorAll('.leader-line')[0].outerHTML);
+
 	// // BELOW WORKS
 	// control_bus.setOptions({
 	// 	end: document.getElementById('memory_98_wrapper'),
@@ -401,4 +429,3 @@ window.addEventListener('click', function() {
 
 });
 
-window.addEventListener('load', create_buses);

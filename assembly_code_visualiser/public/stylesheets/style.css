@@ -187,3 +187,17 @@ input {
 #CIR_wrapper, #MBR_wrapper {
 	margin-bottom: 0.5em;
 }
+
+/* change color of leader-lines when hovered over */
+/* any events defined in css take precedence over js */
+svg.leader-line {
+	pointer-events: auto!important;
+}
+/* for any element with class "leader-line", when hovered, go to the g child element, and then the first use element */
+.leader-line:hover g > use:first-child {
+	stroke: #FF4040!important;
+}
+/* for any element with class "leader-line", when hovered, go to the element with id "#leader-line-x-plug-marker-y", then the g child element, then the first use element */
+.leader-line:hover #leader-line-1-plug-marker-0 > g > use:first-child, .leader-line:hover #leader-line-1-plug-marker-1 > g > use:first-child, .leader-line:hover #leader-line-2-plug-marker-0 > g > use:first-child, .leader-line:hover #leader-line-2-plug-marker-1 > g > use:first-child, .leader-line:hover #leader-line-3-plug-marker-0 > g > use:first-child, .leader-line:hover #leader-line-3-plug-marker-1 > g > use:first-child {
+	fill: #FF4040!important;
+}

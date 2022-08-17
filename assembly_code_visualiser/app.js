@@ -73,6 +73,7 @@ app.use('/login', login_router);
 app.use('/sign_up', sign_up_router);
 app.use('/logout', index_router);
 app.use('/instruction_set', index_router);
+app.use('/how_to_use', index_router);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

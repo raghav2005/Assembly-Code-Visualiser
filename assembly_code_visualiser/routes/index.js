@@ -43,18 +43,36 @@ router.get('/instruction_set', function (req, res, next) {
 	res.locals.message = req.flash();
 
 	if (typeof req.user == 'undefined') {
-		res.render('instruction_set', {
+		res.render('instructions/instruction_set', {
 			title: 'Instruction Set',
 			menu_id: 'instruction_set',
 		});
 	} else {
-		res.render('instruction_set', {
+		res.render('instructions/instruction_set', {
 			title: 'Instruction Set',
 			menu_id: 'instruction_set',
 			role: req.user.role,
 		});
 	}
+});
 
+/* GET how to use page */
+router.get('/how_to_use', function (req, res, next) {
+
+	res.locals.message = req.flash();
+
+	if (typeof req.user == 'undefined') {
+		res.render('instructions/how_to_use', {
+			title: 'How To Use This Resource',
+			menu_id: 'how_to_use',
+		});
+	} else {
+		res.render('instructions/how_to_use', {
+			title: 'How To Use This Resource',
+			menu_id: 'how_to_use',
+			role: req.user.role,
+		});
+	}
 });
 
 /* POST logout button request */

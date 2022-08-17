@@ -1,3 +1,6 @@
+// define classes
+
+// AQA A level instruction template
 class Instruction {
 
 	constructor(args) {
@@ -19,6 +22,7 @@ class Instruction {
 
 };
 
+// LMC template w/ methods used later
 class Little_Man_Computer {
 
 	constructor(args) {
@@ -157,6 +161,10 @@ class Little_Man_Computer {
 
 };
 
+
+// functions to initialize values
+
+// create instruction and LMC objects
 function initialise_LMC() {
 
 	var HALT = new Instruction({
@@ -294,21 +302,7 @@ function initialise_LMC() {
 	return LMC
 }
 
-// $('#test_btn').on('click', function() {
-// 	test_onclick(LMC);
-// });
-
-LMC = initialise_LMC();
-
-// functions called from HTML buttons
-// function test_onclick(LMC) {
-// 	// LMC.load_RAM_from_frontend();
-// 	// LMC.load_general_registers_from_backend();
-// 	alert(LMC.RAM);
-// 	alert(LMC.general_registers);
-// 	// $('#test_p').append(LMC.RAM.toString() + '<br />');
-// };
-
+// create leader-lines for address, control, & data buses
 function create_buses() {
 
 	address_bus = new LeaderLine(
@@ -387,6 +381,11 @@ function create_buses() {
 
 };
 
+
+LMC = initialise_LMC();
+
+
+// all window event listeners from HTML
 window.addEventListener('load', create_buses);
 
 // run everytime anything on the page is clicked
@@ -400,6 +399,23 @@ window.addEventListener('click', function() {
 	// 	end: document.getElementById('memory_98_wrapper'),
 	// 	path: 'fluid'
 	// });
-
 });
 
+
+// functions called from HTML buttons
+
+// remove all text froma assembly code editor
+function clear_editor() {
+	document.getElementById('code_area').value = '';
+};
+
+// set all values in RAM back to 00
+function reset_RAM(LMC) {
+	LMC.reset_RAM();
+};
+
+function view_instruction_set() {
+	// redirect to /instruction_set - ternary operator used in case window.location doesn't include '/', works as follows:
+	// bool_expr ? result_if_bool_expr_true : result_if_bool_expr_false;
+	window.location.href = window.location.toString() + (window.location.toString().includes('/') ? 'instruction_set' : '/instruction_set');
+};

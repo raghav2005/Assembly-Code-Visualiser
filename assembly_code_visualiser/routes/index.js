@@ -37,6 +37,27 @@ router.get('/', function(req, res, next) {
 
 });
 
+/* GET instruction set page */
+router.get('/instruction_set', function (req, res, next) {
+
+	res.locals.message = req.flash();
+
+	if (typeof req.user == 'undefined') {
+		res.render('instruction_set', {
+			title: 'Instruction Set',
+			menu_id: 'instruction_set',
+		});
+	} else {
+		res.render('instruction_set', {
+			title: 'Instruction Set',
+			menu_id: 'instruction_set',
+			role: req.user.role,
+		});
+	}
+
+});
+
+/* POST logout button request */
 router.post('/logout', function(req, res) {
 	res.locals.message = req.flash();
 	req.logout(function(err) {

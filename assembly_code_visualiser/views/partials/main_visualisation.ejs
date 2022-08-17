@@ -128,7 +128,7 @@ ALL CODE BELOW
 	</div>
 </div>
 
-<div class="row" id="main_visualisation_wrapper_row_2">
+<!-- <div class="row" id="main_visualisation_wrapper_row_2">
 
 	<div class="col-md-6" id="controlbox_wrapper">
 
@@ -148,7 +148,13 @@ ALL CODE BELOW
 		
 		</div>
 
-		<div class="col-md-3"></div>
+		<div class="col-md-3" id="controlbox_column_2">
+
+			<button id="upload_program" onclick="upload_program()">Upload Program</button>
+
+			<button id="reset" onclick="reset()">Reset</button>
+
+		</div>
 
 		<div class="col-md-3"></div>
 
@@ -158,6 +164,126 @@ ALL CODE BELOW
 	
 	<div class="col-md-3"></div>
 	
+	<div class="col-md-3"></div>
+
+</div> -->
+
+<div class="row" id="main_visualisation_wrapper_row_2">
+
+	<div class="col-md-6" id="controlbox_wrapper">
+
+		<div class="row">
+
+			<div class="col-md-3">
+				<div id="input_wrapper">
+					<tr>
+						<td>Input<input id="input" type="text" value="00" /></td>
+					</tr>
+				</div>
+			</div>
+
+			<div class="col-md-9">
+
+				<div class="row">
+
+					<div class="col-md-3">
+						<button id="upload_program" onclick="upload_program()">Upload Program</button>
+					</div>
+
+					<div class="col-md-3">
+						<button id="reset_RAM" onclick="reset_RAM(LMC)">Reset RAM</button>
+					</div>
+					
+					<div class="col-md-3">
+						<button id="load_into_RAM" onclick="load_into_RAM()">Load into RAM</button>
+					</div>
+					
+					<div class="col-md-3">
+						<button id="run_program" onclick="run_program()">Run Program</button>
+					</div>
+
+				</div>
+
+				<div class="row">
+				
+					<div class="col-md-4">
+						<button id="clear_editor" onclick="clear_editor()">Clear Editor</button>
+					</div>
+
+					<div class="col-md-4">
+						<select id="pre-created_programs" name="pre-created_programs">
+							<option value="" selected hidden>Pre-created Programs</option>
+							<option value="add">add</option>
+							<!-- TODO: all pre-created programs (either files from public or other directory, or perhaps from database (files seems most reasonable as I will have to figure out upload eventually)) -->
+						</select>
+					</div>
+				
+					<div class="col-md-4">
+						<button id="step_program" onclick="step_program()">Step Program</button>
+					</div>
+				
+				</div>
+
+			</div>
+
+		</div>
+
+		<div class="row">
+		
+			<div class="col-md-3">
+				<div id="output_wrapper">
+					<tr>
+						<td>Output<input readonly id="output" type="text" value="01" /></td>
+					</tr>
+				</div>
+			</div>
+		
+			<div class="col-md-9">
+
+				<div class="row" id="how_to_use_this_resource_wrapper">
+					<button id="how_to_use_this_resource" onclick="how_to_use_this_resource()">How to Use this Resource</button>
+				</div>
+
+				<div class="row">
+					<button id="view_instruction_set" onclick="view_instruction_set()">View Instruction Set</button>
+				</div>
+
+			</div>
+		
+		</div>
+
+		<!-- <div class="col-md-3" id="controlbox_column_1">
+
+			<div id="input_wrapper">
+				<tr>
+					<td>Input<input id="input" type="text" value="00" /></td>
+				</tr>
+			</div>
+
+			<div id="output_wrapper">
+				<tr>
+					<td>Output<input readonly id="output" type="text" value="01" /></td>
+				</tr>
+			</div>
+
+		</div>
+
+		<div class="col-md-3" id="controlbox_column_2">
+
+			<button id="upload_program" onclick="upload_program()">Upload Program</button>
+
+			<button id="reset" onclick="reset()">Reset</button>
+
+		</div>
+
+		<div class="col-md-3"></div>
+
+		<div class="col-md-3"></div> -->
+
+	</div>
+
+	<div class="col-md-3"></div>
+
 	<div class="col-md-3"></div>
 
 </div>

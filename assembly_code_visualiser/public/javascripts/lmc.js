@@ -414,8 +414,12 @@ function reset_RAM(LMC) {
 	LMC.reset_RAM();
 };
 
+// open new tab with /instruction_set 
 function view_instruction_set() {
-	// redirect to /instruction_set - ternary operator used in case window.location doesn't include '/', works as follows:
+	
+	// ternary operator used in case window.location doesn't include '/', works as follows:
 	// bool_expr ? result_if_bool_expr_true : result_if_bool_expr_false;
-	window.location.href = window.location.toString() + (window.location.toString().includes('/') ? 'instruction_set' : '/instruction_set');
+	var redirect_to = window.location.toString() + (window.location.toString().includes('/') ? 'instruction_set' : '/instruction_set');
+
+	window.open(redirect_to, '_blank');
 };

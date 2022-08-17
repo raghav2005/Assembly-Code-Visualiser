@@ -8,8 +8,8 @@
 body {
 	font-size: 1em;
 	font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
-	/* TODO: UNCOMMENT THIS AFTER DONE TESTING STUFF FOR MAIN VISUALISATION */
-	/* overflow-x: hidden; */
+	/* TODO: UNCOMMENT BELOW LINE AFTER DONE TESTING STUFF FOR MAIN VISUALISATION */
+	overflow-x: hidden;
 }
 
 .container-fluid {
@@ -86,15 +86,15 @@ input {
 
 
 /* main visualisation stuff */
-#main_visualisation_wrapper {
+#main_visualisation_wrapper_row_1, #main_visualisation_wrapper_row_2 {
 	display: flex;
 	flex-direction: row;
 }
 
-#code_wrapper, #RAM_wrapper, #CPU_wrapper, #general_register_wrapper, #ALU_wrapper, #accumulator_wrapper, #PC_wrapper, #decode_unit_wrapper, #CIR_wrapper, #MAR_wrapper, #status_register_wrapper, #control_unit_wrapper, #clock_wrapper, #MBR_wrapper {
+#code_wrapper, #RAM_wrapper, #CPU_wrapper, #general_register_wrapper, #ALU_wrapper, #accumulator_wrapper, #PC_wrapper, #decode_unit_wrapper, #CIR_wrapper, #MAR_wrapper, #status_register_wrapper, #control_unit_wrapper, #clock_wrapper, #MBR_wrapper, #controlbox_wrapper, #input_wrapper, #output_wrapper {
 	border: 0.2em #AAAAAA solid;
 }
-#code_wrapper:hover, #RAM_wrapper:hover, #CPU_wrapper:hover, #general_register_wrapper:hover, #ALU_wrapper:hover, #accumulator_wrapper:hover, #PC_wrapper:hover, #decode_unit_wrapper:hover, #CIR_wrapper:hover, #MAR_wrapper:hover, #status_register_wrapper:hover, #control_unit_wrapper:hover, #clock_wrapper:hover, #MBR_wrapper:hover {
+#code_wrapper:hover, #RAM_wrapper:hover, #CPU_wrapper:hover, #general_register_wrapper:hover, #ALU_wrapper:hover, #accumulator_wrapper:hover, #PC_wrapper:hover, #decode_unit_wrapper:hover, #CIR_wrapper:hover, #MAR_wrapper:hover, #status_register_wrapper:hover, #control_unit_wrapper:hover, #clock_wrapper:hover, #MBR_wrapper:hover, #controlbox_wrapper:hover, #input_wrapper:hover, #output_wrapper:hover {
 	border: 0.2em #FF4040 solid;
 }
 
@@ -102,6 +102,8 @@ input {
 	height: 40em;
 	display: flex;
 	flex-direction: column;
+	float: left;
+	flex-grow: 1;
 }
 #code_area {
 	resize: none;
@@ -128,20 +130,21 @@ input {
 	border: 0.05em #FF4040 solid;
 }
 
-#code_wrapper {
-	float: left;
-	flex-grow: 1;
-}
-
 #CPU_wrapper {
-	/* height: 40em; */
 	flex-grow: 1;
+	height: 40em;
+}
+#CPU_column_2, #CPU_column_3 {
+	margin-left: -1em;
+	text-align: center;
+	display: flex;
+	flex-direction: column;
 }
 
 #general_register_wrapper {
 	text-align: center;
 	padding: 0.5em;
-	margin: 0.075em 0.7875em;
+	margin: 0.175em 0.9em;
 	float: left;
 }
 [id^="general_register_"] {
@@ -159,13 +162,6 @@ input {
 	margin: 0.15em 0;
 }
 
-#CPU_column_2, #CPU_column_3 {
-	margin-left: -1em;
-	text-align: center;
-	display: flex;
-	flex-direction: column;
-}
-
 #ALU_wrapper, #accumulator_wrapper, #PC_wrapper, #decode_unit_wrapper, #CIR_wrapper, #MAR_wrapper, #status_register_wrapper, #control_unit_wrapper, #clock_wrapper, #MBR_wrapper {
 	text-align: center;
 	padding: 0.5em;
@@ -174,16 +170,13 @@ input {
 	display: flex;
 	flex-direction: column;
 }
-
 #ALU, #accumulator, #PC, #decode_unit, #CIR, #MAR, #status_register, #control_unit, #clock, #MBR {
 	text-align: center;
 	flex-grow: 1;
 }
-
 #ALU_wrapper, #MAR_wrapper {
 	margin-top: 0.5em;
 }
-
 #CIR_wrapper, #MBR_wrapper {
 	margin-bottom: 0.5em;
 }
@@ -200,4 +193,35 @@ svg.leader-line {
 /* for any element with class "leader-line", when hovered, go to the element with id "#leader-line-x-plug-marker-y", then the g child element, then the first use element */
 .leader-line:hover #leader-line-1-plug-marker-0 > g > use:first-child, .leader-line:hover #leader-line-1-plug-marker-1 > g > use:first-child, .leader-line:hover #leader-line-2-plug-marker-0 > g > use:first-child, .leader-line:hover #leader-line-2-plug-marker-1 > g > use:first-child, .leader-line:hover #leader-line-3-plug-marker-0 > g > use:first-child, .leader-line:hover #leader-line-3-plug-marker-1 > g > use:first-child {
 	fill: #FF4040!important;
+}
+
+#controlbox_wrapper {
+	flex-grow: 1;
+	float: left;
+	margin-top: 1em;
+}
+#controlbox_column_1 {
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+}
+
+#input_wrapper, #output_wrapper {
+	text-align: center;
+	padding: 0.5em;
+	margin: 0.075em 0 0.5em 0;
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+	height: 10em;
+}
+#input_wrapper {
+	margin-top: 0.5em;
+}
+#output_wrapper {
+	margin-bottom: 0.5em;
+}
+#input, #output {
+	text-align: center;
+	flex-grow: 1;
 }

@@ -91,10 +91,10 @@ input {
 	flex-direction: row;
 }
 
-#code_wrapper, #RAM_wrapper, #CPU_wrapper, #general_register_wrapper, #ALU_wrapper, #accumulator_wrapper, #PC_wrapper, #decode_unit_wrapper, #CIR_wrapper, #MAR_wrapper, #status_register_wrapper, #control_unit_wrapper, #clock_wrapper, #MBR_wrapper, #controlbox_wrapper, #input_wrapper, #output_wrapper {
+#code_wrapper, #RAM_wrapper, #CPU_wrapper, #general_register_wrapper, #ALU_wrapper, #accumulator_wrapper, #PC_wrapper, #decode_unit_wrapper, #CIR_wrapper, #MAR_wrapper, #status_register_wrapper, #control_unit_wrapper, #clock_wrapper, #MBR_wrapper, #controlbox_wrapper, #input_wrapper, #output_wrapper, #FDE_output_wrapper, #verbose_output_wrapper {
 	border: 0.2em #AAAAAA solid;
 }
-#code_wrapper:hover, #RAM_wrapper:hover, #CPU_wrapper:hover, #general_register_wrapper:hover, #ALU_wrapper:hover, #accumulator_wrapper:hover, #PC_wrapper:hover, #decode_unit_wrapper:hover, #CIR_wrapper:hover, #MAR_wrapper:hover, #status_register_wrapper:hover, #control_unit_wrapper:hover, #clock_wrapper:hover, #MBR_wrapper:hover, #controlbox_wrapper:hover, #input_wrapper:hover, #output_wrapper:hover {
+#code_wrapper:hover, #RAM_wrapper:hover, #CPU_wrapper:hover, #general_register_wrapper:hover, #ALU_wrapper:hover, #accumulator_wrapper:hover, #PC_wrapper:hover, #decode_unit_wrapper:hover, #CIR_wrapper:hover, #MAR_wrapper:hover, #status_register_wrapper:hover, #control_unit_wrapper:hover, #clock_wrapper:hover, #MBR_wrapper:hover, #controlbox_wrapper:hover, #input_wrapper:hover, #output_wrapper:hover, #FDE_output_wrapper:hover, #verbose_output_wrapper:hover {
 	border: 0.2em #FF4040 solid;
 }
 
@@ -133,6 +133,7 @@ input {
 #CPU_wrapper {
 	flex-grow: 1;
 	height: 40em;
+	margin-right: -0.725em;
 }
 #CPU_column_2, #CPU_column_3 {
 	margin-left: -1em;
@@ -279,4 +280,19 @@ svg.leader-line {
 }
 #how_to_use_this_resource {
 	margin-top: -0.375em;
+}
+
+#FDE_output_wrapper, #verbose_output_wrapper {
+	height: 22em;
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	margin-top: 1em;
+}
+#FDE_output, #verbose_output {
+	resize: none;
+	flex-grow: 1;
+}
+#verbose_output_wrapper {
+	margin-left: -0.75em;
 }

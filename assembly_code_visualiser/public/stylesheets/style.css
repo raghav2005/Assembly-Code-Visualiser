@@ -95,7 +95,7 @@ input {
 	border: 0.2em #AAAAAA solid;
 }
 #code_wrapper:hover, #RAM_wrapper:hover, #CPU_wrapper:hover, #general_register_wrapper:hover, #ALU_wrapper:hover, #accumulator_wrapper:hover, #PC_wrapper:hover, #decode_unit_wrapper:hover, #CIR_wrapper:hover, #MAR_wrapper:hover, #status_register_wrapper:hover, #control_unit_wrapper:hover, #clock_wrapper:hover, #MBR_wrapper:hover, #controlbox_wrapper:hover, #input_wrapper:hover, #output_wrapper:hover, #FDE_output_wrapper:hover, #verbose_output_wrapper:hover {
-	border: 0.2em #FF4040 solid;
+	border: 0.2em #FF4040 solid !important;
 }
 
 #code_wrapper {
@@ -127,7 +127,7 @@ input {
 }
 /* same as above but when mouse hovering over it */
 [id^="memory_"][id$="_wrapper"]:hover {
-	border: 0.05em #FF4040 solid;
+	border: 0.05em #FF4040 solid !important;
 }
 
 #CPU_wrapper {
@@ -156,7 +156,7 @@ input {
 	padding: 0.15em;
 }
 [id^="register_"][id$="_wrapper"]:hover {
-	border: 0.05em #FF4040 solid;
+	border: 0.05em #FF4040 solid !important;
 }
 /* attributes with ids starting with "register_" AND ending with "_wrapper", but not attributes with id "register_0_wrapper" or "register_9_wrapper" */
 [id^="register_"][id$="_wrapper"]:not(#register_0_wrapper, #register_9_wrapper) {
@@ -185,15 +185,15 @@ input {
 /* change color of leader-lines when hovered over */
 /* any events defined in css take precedence over js */
 svg.leader-line {
-	pointer-events: auto!important;
+	pointer-events: auto !important;
 }
 /* for any element with class "leader-line", when hovered, go to the g child element, and then the first use element */
 .leader-line:hover g > use:first-child {
-	stroke: #FF4040!important;
+	stroke: #FF4040 !important;
 }
 /* for any element with class "leader-line", when hovered, go to the element with id "#leader-line-x-plug-marker-y", then the g child element, then the first use element */
 .leader-line:hover #leader-line-1-plug-marker-0 > g > use:first-child, .leader-line:hover #leader-line-1-plug-marker-1 > g > use:first-child, .leader-line:hover #leader-line-2-plug-marker-0 > g > use:first-child, .leader-line:hover #leader-line-2-plug-marker-1 > g > use:first-child, .leader-line:hover #leader-line-3-plug-marker-0 > g > use:first-child, .leader-line:hover #leader-line-3-plug-marker-1 > g > use:first-child {
-	fill: #FF4040!important;
+	fill: #FF4040 !important;
 }
 
 #controlbox_wrapper {
@@ -212,7 +212,7 @@ svg.leader-line {
 	flex-direction: column;
 }
 #how_to_use_this_resource:hover, #view_instruction_set:hover, #upload_program:hover, #reset_RAM:hover, #load_into_RAM:hover, #run_program:hover, #clear_editor:hover, #step_program:hover {
-	border-color: #FF4040!important;
+	border-color: #FF4040 !important;
 	border-style: solid;
 }
 
@@ -272,7 +272,7 @@ svg.leader-line {
 	text-align: center;
 }
 #pre-created_programs:hover {
-	border-color: #FF4040;
+	border-color: #FF4040 !important;
 }
 #how_to_use_this_resource_wrapper, #view_instruction_set_wrapper {
 	flex-grow: 1;

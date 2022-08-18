@@ -149,6 +149,7 @@ class Little_Man_Computer {
 		document.getElementById("general_register_" + location.toString()).value = this.general_registers[location];
 	};
 
+	// get operand and see if memory location required, or if register required
 	get_addressing_mode(operand) {
 		if (operand[0] === '#') {
 			return 'direct'
@@ -156,6 +157,18 @@ class Little_Man_Computer {
 			return 'immediate'
 		} else {
 			return 'error'
+		};
+	};
+
+	// change border color of element to blue if blue
+	activate_deactivate_wrapper(element) {
+	
+		var element_info = document.getElementById(element);
+
+		if ($(element_info).css('border-color') !== 'rgb(64, 64, 255)') {
+			$(element_info).css('border-color', '#4040FF');
+		} else {
+			$(element_info).css('border-color', '#AAAAAA');
 		};
 	};
 
@@ -257,6 +270,16 @@ function initialise_LMC() {
 		numerical_value: 45,
 		operands: ['R', 'R', 'B']
 	});
+	var INP = new Instruction({
+		name: 'INP',
+		numerical_value: 50,
+		operands: []
+	});
+	var OUT = new Instruction({
+		name: 'OUT',
+		numerical_value: 51,
+		operands: []
+	});
 
 	var instruction_set = {
 		'LDR': LDR,
@@ -276,6 +299,8 @@ function initialise_LMC() {
 		'MVN': MVN,
 		'LSL': LSL,
 		'LSR': LSR,
+		'INP': INP,
+		'OUT': OUT,
 		'HALT': HALT
 	};
 
@@ -423,3 +448,8 @@ function open_link_new_tab(location) {
 
 	window.open(redirect_to, '_blank');
 };
+
+// ! WILL NOT DO THIS - THIS IS JUST AN EXAMPLE FOR FUTURE USE IN LMC METHOD
+function upload_program(LMC) {
+	LMC.activate_deactivate_wrapper('ALU_wrapper');
+}

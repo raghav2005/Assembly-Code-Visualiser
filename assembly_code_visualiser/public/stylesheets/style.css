@@ -205,6 +205,15 @@ svg.leader-line {
 	display: flex;
 	flex-direction: column;
 }
+#controlbox_top_two_rows_column_2, #controlbox_bottom_two_rows_column_2 {
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+}
+#how_to_use_this_resource:hover, #view_instruction_set:hover, #upload_program:hover, #reset_RAM:hover, #load_into_RAM:hover, #run_program:hover, #clear_editor:hover, #step_program:hover {
+	border-color: #FF4040!important;
+	border-style: solid;
+}
 
 #input_wrapper, #output_wrapper {
 	text-align: center;
@@ -224,4 +233,50 @@ svg.leader-line {
 #input, #output {
 	text-align: center;
 	flex-grow: 1;
+}
+
+#controlbox_row_1_column_2, #controlbox_row_2_column_2, #upload_program_wrapper, #reset_RAM_wrapper, #load_into_RAM_wrapper, #run_program_wrapper {
+	display: flex;
+	flex-direction: row;
+	padding: 0.5em;
+	flex-grow: 1;
+}
+#clear_editor_wrapper, #pre-created_programs_wrapper, #step_program_wrapper {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+}
+#upload_program, #reset_RAM, #load_into_RAM, #run_program, #clear_editor, #pre-created_programs, #step_program {
+	flex-grow: 1;
+	padding: 0.5em;
+	margin-top: -0.5em;
+}
+#upload_program {
+	margin-left: -0.5em;
+}
+#clear_editor {
+	margin-left: -0.75em;
+	margin-right: 2.5em;
+}
+#run_program {
+	margin-right: -0.5em;
+}
+#step_program {
+	margin-left: 2.5em;
+	margin-right: -0.75em;
+}
+#pre-created_programs {
+	margin-left: -3em;
+	margin-right: -3em;
+	text-align: center;
+}
+#pre-created_programs:hover {
+	border-color: #FF4040;
+}
+#how_to_use_this_resource_wrapper, #view_instruction_set_wrapper {
+	flex-grow: 1;
+	padding: 0.5em;
+}
+#how_to_use_this_resource {
+	margin-top: -0.375em;
 }

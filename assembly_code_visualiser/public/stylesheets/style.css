@@ -99,7 +99,7 @@ input {
 }
 
 #code_wrapper {
-	height: 40em;
+	height: 41.5em;
 	display: flex;
 	flex-direction: column;
 	float: left;
@@ -110,7 +110,7 @@ input {
 }
 
 #RAM_wrapper {
-	height: 40em;
+	height: 41.5em;
 	display: flex;
 	text-align: center;
 	flex-grow: 1;
@@ -132,7 +132,7 @@ input {
 
 #CPU_wrapper {
 	flex-grow: 1;
-	height: 40em;
+	height: 41.5em;
 	margin-right: -0.725em;
 }
 #CPU_column_2, #CPU_column_3 {
@@ -176,10 +176,10 @@ input {
 	flex-grow: 1;
 }
 #ALU_wrapper, #MAR_wrapper {
-	margin-top: 0.5em;
+	margin-top: -1.32em;
 }
 #CIR_wrapper, #MBR_wrapper {
-	margin-bottom: 0.5em;
+	margin-bottom: 0.18em;
 }
 
 /* change color of leader-lines when hovered over */
@@ -295,4 +295,12 @@ svg.leader-line {
 }
 #verbose_output_wrapper {
 	margin-left: -0.75em;
+}
+
+#second_title_text_row {
+	margin-top: 0.5em;
+	margin-bottom: -1em;
+}
+#verbose_output_title {
+	margin-left: -0.7em;
 }

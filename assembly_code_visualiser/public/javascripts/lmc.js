@@ -334,7 +334,7 @@ function create_buses() {
 		document.getElementById('MAR_wrapper'),
 		LeaderLine.pointAnchor(document.getElementById('memory_10_wrapper'), {
 			x: 0,
-			y: '30%'
+			y: '23%'
 		}),
 		{
 			color: '#AAAAAA',
@@ -358,7 +358,7 @@ function create_buses() {
 		document.getElementById('control_unit_wrapper'),
 		LeaderLine.pointAnchor(document.getElementById('memory_50_wrapper'), {
 			x: 0,
-			y: '20%'
+			y: '18%'
 		}),
 		{
 			color: '#AAAAAA',
@@ -383,7 +383,7 @@ function create_buses() {
 		document.getElementById('MBR_wrapper'),
 		LeaderLine.pointAnchor(document.getElementById('memory_80_wrapper'), {
 			x: 0,
-			y: '89%'
+			y: '95%'
 		}),
 		{
 			color: '#AAAAAA',

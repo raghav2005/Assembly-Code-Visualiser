@@ -44,7 +44,7 @@ ALL CODE BELOW
 					<% for (var i = 0; i < 10; i++) { %>
 						<div id="register_<%= i %>_wrapper">
 							<tr>
-								<td>Register <%= i.toString() %><input readonly id="general_register_<%= i %>" type="text" value="00" /></td>
+								<td>Register <%= i.toString() %><input readonly id="general_register_<%= i %>" type="text" value="000" /></td>
 							</tr>
 						</div>
 					<% } %>
@@ -131,7 +131,7 @@ ALL CODE BELOW
 								<% k_str = '0' + k_str %>
 							<% } %>
 
-							<td id="memory_<%= k_str %>_wrapper"><%= k_str %><input id="memory_location_<%= k %>" type="text" value="00" /></td>
+							<td id="memory_<%= k_str %>_wrapper"><%= k_str %><input id="memory_location_<%= k %>" type="text" value="000" /></td>
 
 						<% } %>
 					</tr>

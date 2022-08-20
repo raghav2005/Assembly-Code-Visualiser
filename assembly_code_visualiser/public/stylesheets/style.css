@@ -114,15 +114,17 @@ input {
 	display: flex;
 	text-align: center;
 	flex-grow: 1;
+	margin-left: -0.75em;
 }
 /* attributes with ids starting with "memory_location_" */
 [id^="memory_location_"] {
 	text-align: center;
+	font-size: medium;
 }
 /* attributes with ids starting with "memory_" AND ending with "_wrapper" */
 [id^="memory_"][id$="_wrapper"] {
 	border: 0.05em #AAAAAA solid;
-	padding: 0.15em;
+	padding: 0.1em;
 	margin: 0.2em 0;
 }
 /* same as above but when mouse hovering over it */

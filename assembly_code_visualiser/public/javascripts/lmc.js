@@ -31,7 +31,7 @@ class Little_Man_Computer {
 		this.inputs = args.inputs || [];
 
 		this.RAM = args.RAM || [];
-		this.RAM_value_length = args.RAM_value_length || 2; // same as general_registers_value_length
+		this.RAM_value_length = args.RAM_value_length || 3; // same as general_registers_value_length
 
 		this.general_registers = args.general_registers || [];
 
@@ -48,13 +48,15 @@ class Little_Man_Computer {
 		// ensure 2 digits long
 		if (this.RAM[location].length < this.RAM_value_length) {
 		
-			this.RAM[location] = '0' + this.RAM[location];
+			while (this.RAM[location].length < this.RAM_value_length) {
+				this.RAM[location] = '0' + this.RAM[location];
+			}
 		
 		} else if (this.RAM[location].length > this.RAM_value_length) {
 
 			var location_as_string = location.toString();
 
-			while (location_as_string.length < this.RAM_value_length) {
+			while (location_as_string.length < 2) {
 				location_as_string = '0' + location_as_string;
 			}
 
@@ -107,7 +109,9 @@ class Little_Man_Computer {
 
 		if (this.general_registers[location].length < this.RAM_value_length) {
 
-			this.general_registers[location] = '0' + this.general_registers[location];
+			while (this.general_registers[location].length < this.RAM_value_length) {
+				this.general_registers[location] = '0' + this.general_registers[location];
+			}
 
 		} else if (this.general_registers[location].length > this.RAM_value_length) {
 
@@ -305,7 +309,7 @@ function initialise_LMC() {
 	};
 
 	RAM = [];
-	var RAM_value_length = 2;
+	var RAM_value_length = 3;
 
 	for (var i = 0; i < 100; i++) {
 		RAM.push('0'.repeat(RAM_value_length));
@@ -425,7 +429,6 @@ window.addEventListener('click', function() {
 	// 	path: 'fluid'
 	// });
 });
-
 
 // functions called from HTML buttons
 

@@ -276,8 +276,6 @@ class Little_Man_Computer {
 			mem_loc++;
 		};
 
-		alert(this.RAM);
-
 		this.load_RAM_from_backend();
 
 	};
@@ -450,7 +448,7 @@ function create_buses() {
 		document.getElementById('MAR_wrapper'),
 		LeaderLine.pointAnchor(document.getElementById('memory_10_wrapper'), {
 			x: 0,
-			y: '23%'
+			y: '19%'
 		}),
 		{
 			color: '#AAAAAA',
@@ -474,7 +472,7 @@ function create_buses() {
 		document.getElementById('control_unit_wrapper'),
 		LeaderLine.pointAnchor(document.getElementById('memory_50_wrapper'), {
 			x: 0,
-			y: '18%'
+			y: '36%'
 		}),
 		{
 			color: '#AAAAAA',
@@ -499,7 +497,7 @@ function create_buses() {
 		document.getElementById('MBR_wrapper'),
 		LeaderLine.pointAnchor(document.getElementById('memory_80_wrapper'), {
 			x: 0,
-			y: '95%'
+			y: '99%'
 		}),
 		{
 			color: '#AAAAAA',
@@ -526,7 +524,9 @@ function create_buses() {
 LMC = initialise_LMC();
 
 
-// all window event listeners from HTML
+// all event listeners from HTML
+
+// on loading the page
 window.addEventListener('load', create_buses);
 
 // run everytime anything on the page is clicked
@@ -541,6 +541,192 @@ window.addEventListener('click', function() {
 	// 	path: 'fluid'
 	// });
 });
+
+// create line numbers for assembly code area
+var assembly_code_area = document.getElementById('code_area');
+var line_numbers = document.querySelector('.line-numbers');
+assembly_code_area.addEventListener('keyup', event => {
+	var number_of_lines = event.target.value.split('\n').length;
+	line_numbers.innerHTML = Array(number_of_lines).fill('<span></span>').join('');
+});
+
+// make line numbers scroll with assembly code area
+(function ($) {
+
+	var methods = {
+
+		/**
+		 * @var options default options
+		 */
+		options: {
+			/**
+			 * @var eventTimeOut time in milliseconds 
+			 */
+			eventTimeOut: 200,
+
+			/**
+			 * @var scrollSpeed time in milliseconds the other light boxes should take to scroll to their relevant point.
+			 */
+			scrollSpeed: 100
+		},
+
+		/**
+		 * init
+		 *
+		 * method that applies brings everything together
+		 *
+		 * @param options object an object that overwrites the default options
+		 * @return null
+		 */
+		init: function (options) {
+			// overwrite defaults
+			$.extend(methods.options, options);
+
+			/**
+			 * @var $this object cached global jQuery variable
+			 */
+			var $this = $(this);
+
+			// Assign IDs. Used to prevent jittering of element that is calling.
+			var id_num = 0;
+			$(this).each(function () {
+				$(this).data("scrollid", id_num);
+				id_num++;
+			});
+
+			// bind on scroll
+			var callback = function (el) {
+
+				var
+					/**
+					 * @var scroll_percent number percentage of top of element scrolled
+					 */
+					scroll_percent = methods.convertScrollToPercent.call(el),
+					/**
+					 * @var me number scroll id of element calling the scroll method
+					 */
+					me = el.data("scrollid");
+
+				// Loop through each
+				$.each($this, function () {
+					// Set scroll to false to prevent this element from calling same event
+					$(this).data("scroll", false);
+					// if it's the same element, skip
+					if (me !== $(this).data("scrollid")) {
+						// Scroll the element to percent
+						methods.scrollToPercent.call(this, scroll_percent);
+					}
+					// Turn scroll back on
+					$(this).data("scroll", true);
+				});
+
+			}
+
+			// Assign scroll handler
+			$(this).scroll(function (event) {
+				/**
+				 * @var scroll_on boolean get scroll data value to see if it's safe to scroll
+				 */
+				var scroll_on = $(this).data("scroll");
+
+				// cancel call if it's not safe
+				if (scroll_on == false) return;
+
+				// Call method callback 
+				callback($(this));
+			});
+
+		},
+
+		/**
+		 * convertScrollToPercent
+		 *
+		 * converts the scroll position to percent and returns it.
+		 *
+		 * @return number the percentage (duh)
+		 */
+		convertScrollToPercent: function () {
+			// Defaults
+
+			var
+				horrizontal = $(this).data("horizontal") || false,
+				scrollStyle = (horrizontal != false ? "scrollLeft" : "scrollTop"),
+				scrollWidth = (horrizontal != false ? "scrollWidth" : "scrollHeight");
+			// get top and scroll position
+
+			var
+				top = $(this)[scrollStyle](),
+				height = (horrizontal ? $(this)[0].scrollWidth - $(this).width() : $(this)[0].scrollHeight - $(this).height());
+
+			// console.log("top :" + top + ", height :" + height);
+			// height == 100 then what does top equal? ()
+			var
+				answer = 100 * top,
+				answer = answer / height
+
+			//   return answer;
+			return Math.round(answer);
+
+		},
+
+		/**
+		 * scrollToPercent
+		 *
+		 * This method takes a percent and scrolls an element to that given point.
+		 *
+		 * @param percent numher the percent to which the element will be scrolled to.
+		 */
+		scrollToPercent: function (percent) {
+
+			var
+				/**
+				 * @var horrizontal boolean what type of scroll to use. Horizontal or vertical
+				 */
+				horrizontal = $(this).data("horizontal") || false,
+				/**
+				 * @var height number the height or width of the element
+				 */
+				height = (horrizontal ? $(this)[0].scrollWidth - $(this).width() : $(this)[0].scrollHeight - $(this).height()),
+				// Perform equation to determin relative scroll positon
+				answer = percent * height,
+				/**
+				 * @var answer number the top or left position
+				 */
+				answer = answer / 100;
+
+			// scroll element to answer position
+			if (horrizontal == true) {
+				$(this).scrollLeft(answer);
+			}
+			else {
+				$(this).scrollTop(answer);
+			}
+		}
+	}
+
+	/**
+	 * bindScroll
+	 *
+	 * a jqeury plugin that will bind the scroll to the given elements.
+	 * each element should have a data attribute called scrollid. This
+	 * will let the plugin know not to apply the scrolling bind to that active
+	 * element. If element is to be a horizontal scroll, specify by setting
+	 * data-horizontal attribute to true.
+	 *
+	 * @param options object object with options (currently no options exist);
+	 * @return object returns the jQuery DOM object to maintain chainability
+	 */
+	$.fn.bindScroll = function (options) {
+		methods.init.call(this, options);
+		return this;
+	}
+
+})($);
+$(document).ready(function () {
+	// apply bindScroll to all elements with .scroll.
+	$(".scroll_together").bindScroll();
+});
+
 
 // functions called from HTML buttons
 
@@ -568,7 +754,6 @@ function open_link_new_tab(location) {
 function upload_program(LMC) {
 	// LMC.activate_deactivate_wrapper('ALU_wrapper');
 	// LMC.activate_deactivate_wrapper('memory_01_wrapper');
-	alert(LMC.RAM);
 };
 
 function load_into_RAM(LMC) {

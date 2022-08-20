@@ -100,13 +100,35 @@ input {
 
 #code_wrapper {
 	height: 41.5em;
-	display: flex;
-	flex-direction: column;
-	float: left;
+	display: inline-flex;
+	/* flex-direction: column; */
+	/* float: left; */
 	flex-grow: 1;
 }
 #code_area {
 	resize: none;
+	margin-left: 1em;
+	float: right;
+}
+.line-numbers {
+	text-align: left;
+	float: left;
+	height: 41em;
+	overflow-y: scroll;
+	/* below for Firefox */
+	scrollbar-width: none;
+	margin-right: -2em;
+}
+/* below for Safari & Chrome */
+.line-numbers::-webkit-scrollbar {
+	display: none;
+}
+.line-numbers span {
+	counter-increment: linenumber;
+}
+.line-numbers span::before {
+	content: counter(linenumber);
+	display: block;
 }
 
 #RAM_wrapper {
@@ -136,6 +158,8 @@ input {
 	flex-grow: 1;
 	height: 41.5em;
 	margin-right: -0.725em;
+	/* TODO changed this */
+	margin-left: 0.5em;
 }
 #CPU_column_2, #CPU_column_3 {
 	margin-left: -1em;

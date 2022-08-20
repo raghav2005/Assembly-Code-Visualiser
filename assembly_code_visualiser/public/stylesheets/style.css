@@ -304,3 +304,7 @@ svg.leader-line {
 #verbose_output_title {
 	margin-left: -0.7em;
 }
+#general_registers_title {
+	white-space: nowrap;
+	font-size: small;
+}

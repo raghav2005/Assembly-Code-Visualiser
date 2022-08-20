@@ -20,9 +20,7 @@
 
 	<div class="col-md-2">
 		<div id="code_wrapper">
-			<textarea id="code_area" rows=27 wrap="off">
-ALL CODE BELOW
-			</textarea>
+			<textarea id="code_area" rows=27 wrap="off">LDR R1, 23</textarea>
 		</div>
 	</div>
 
@@ -103,7 +101,7 @@ ALL CODE BELOW
 					
 					<div id="MBR_wrapper">
 						Memory Buffer Register
-						<input readonly id="MBR" type="text" value="00" />
+						<input readonly id="MBR" type="text" value="000" />
 					</div>
 
 				</div>
@@ -183,7 +181,7 @@ ALL CODE BELOW
 					</div>
 					
 					<div class="col-md-3" id="load_into_RAM_wrapper">
-						<button id="load_into_RAM" onclick="load_into_RAM()">Load into RAM</button>
+						<button id="load_into_RAM" onclick="load_into_RAM(LMC)">Load into RAM</button>
 					</div>
 					
 					<div class="col-md-3" id="run_program_wrapper">
@@ -242,17 +240,13 @@ ALL CODE BELOW
 
 	<div class="col-md-3">
 		<div id="FDE_output_wrapper">
-			<textarea id="FDE_output" wrap="on">
-Output of FDE cycle
-			</textarea>
+			<textarea id="FDE_output" wrap="on">Output of FDE cycle</textarea>
 		</div>
 	</div>
 
 	<div class="col-md-3">
 		<div id="verbose_output_wrapper">
-			<textarea id="verbose_output" wrap="on">
-Verbose Output
-			</textarea>
+			<textarea id="verbose_output" wrap="on">Verbose Output</textarea>
 		</div>
 	</div>
 

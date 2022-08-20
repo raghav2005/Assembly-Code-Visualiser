@@ -40,6 +40,9 @@ class Little_Man_Computer {
 
 		this.instruction_set = args.instruction_set || {};
 
+		this.clock = 50;
+		this.time_lapse = 10000;
+		this.labels = {};
 	};
 
 	// ensure backend RAM values are 2 digits long
@@ -153,6 +156,22 @@ class Little_Man_Computer {
 		document.getElementById("general_register_" + location.toString()).value = this.general_registers[location];
 	};
 
+	reset_all_registers() {
+		this.reset_general_registers();
+		document.getElementById('MAR').value = '00';
+		document.getElementById('accumulator').value = '00';
+		document.getElementById('status_register').value = '00';
+		document.getElementById('CIR').value = '00';
+		document.getElementById('MBR').value = '000';
+	};
+
+	reset_all_inp_out() {
+		document.getElementById('input').value = '';
+		document.getElementById('output').value = '';
+		document.getElementById('FDE_output').value = '';
+		document.getElementById('verbose_output').value = '';
+	};
+
 	// get operand and see if memory location required, or if register required
 	get_addressing_mode(operand) {
 		if (operand[0] === '#') {
@@ -174,6 +193,93 @@ class Little_Man_Computer {
 		} else {
 			$(element_info).css('border-color', '#AAAAAA');
 		};
+	};
+
+	// log to FDE Cycle Output (based on reset), and to Verbose Output
+	log(text, reset = false) {
+		
+		if (reset) {
+			docuemt.getElementById('FDE_output').value = text.replace('   ', '&nbsp;&nbsp;&nbsp;') + '<br />';
+		} else {
+			document.getElementById('FDE_output').value = document.getElementById('FDE_output').value + text.replace('   ', '&nbsp;&nbsp;&nbsp;') + '<br />';
+		}
+
+		document.getElementById('verbose_output').value = document.getElementById('verbose_output').value + text.replace('   ', '&nbsp;&nbsp;&nbsp;') + '<br />';
+
+	};
+
+	load() {
+
+		this.paused = true;
+		this.labels = {};
+
+		// reset all registers (general purpose and special purpose)
+		this.reset_all_registers();
+		// reset all inputs / outputs / displays
+		this.reset_all_inp_out();
+		// reset RAM
+		this.reset_RAM();
+		// reset general registers
+		this.reset_general_registers();
+
+		// load program in RAM
+		var code = document.getElementById('code_area').value.toUpperCase();
+		var mem_loc = 0;
+		var lines = code.split('\n');
+
+		for (var i = 0; i < lines.length; i++) {
+
+			var line = lines[i].trim();
+
+			// will need to do checks around here (get rid of , is str.replaceAll(',', ''))
+
+			if (line != '') {
+			
+				var instruction = line.split(/\s+/);
+
+				if (instruction.length == 1) {
+					if (instruction[0].slice(-1) == ':') {
+						this.labels[instruction[0].slice(0, -1)] = i;
+					} else {
+						// TODO: stuff for HALT
+					}
+				} else if (instruction.length == 2) {
+
+					// TODO: stuff for branching
+
+				} else {
+
+					var opcode = instruction[0];
+
+					if (opcode in this.instruction_set) {
+
+						this.RAM[mem_loc] = this.instruction_set[opcode].numerical_value;
+
+					} else {
+						// TODO: error handling for not in instruction set
+					}
+
+					instruction.shift();
+
+					for (var j = 0; j < instruction.length; j++) {
+						mem_loc++
+						if (instruction[j].slice(-1) == ',') {
+							this.RAM[mem_loc] = instruction[j].slice(0, -1);
+						} else {
+							this.RAM[mem_loc] = instruction[j];
+						}
+					};
+
+				}
+
+			}
+			mem_loc++;
+		};
+
+		alert(this.RAM);
+
+		this.load_RAM_from_backend();
+
 	};
 
 };
@@ -284,6 +390,11 @@ function initialise_LMC() {
 		numerical_value: 51,
 		operands: []
 	});
+	var VAR = new Instruction({
+		name: 'VAR',
+		numerical_value: 60,
+		operands: []
+	});
 
 	var instruction_set = {
 		'LDR': LDR,
@@ -305,6 +416,7 @@ function initialise_LMC() {
 		'LSR': LSR,
 		'INP': INP,
 		'OUT': OUT,
+		'VAR': VAR,
 		'HALT': HALT
 	};
 
@@ -454,5 +566,11 @@ function open_link_new_tab(location) {
 
 // ! WILL NOT DO THIS - THIS IS JUST AN EXAMPLE FOR FUTURE USE IN LMC METHOD
 function upload_program(LMC) {
-	LMC.activate_deactivate_wrapper('ALU_wrapper');
-}
+	// LMC.activate_deactivate_wrapper('ALU_wrapper');
+	// LMC.activate_deactivate_wrapper('memory_01_wrapper');
+	alert(LMC.RAM);
+};
+
+function load_into_RAM(LMC) {
+	LMC.load();
+};

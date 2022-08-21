@@ -339,3 +339,10 @@ svg.leader-line {
 	white-space: nowrap;
 	font-size: small;
 }
+
+.opcode_highlight {
+	color: #4040FF;
+}
+.other_highlight {
+	color: black;
+}

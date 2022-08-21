@@ -390,7 +390,7 @@ function initialise_LMC() {
 	});
 	var VAR = new Instruction({
 		name: 'VAR',
-		numerical_value: 60,
+		numerical_value: 900,
 		operands: []
 	});
 
@@ -524,7 +524,7 @@ function create_buses() {
 LMC = initialise_LMC();
 
 
-// all event listeners from HTML
+// all window event listeners from HTML
 
 // on loading the page
 window.addEventListener('load', create_buses);
@@ -541,6 +541,9 @@ window.addEventListener('click', function() {
 	// 	path: 'fluid'
 	// });
 });
+
+
+// all other initialisations / scripts
 
 // create line numbers for assembly code area
 var assembly_code_area = document.getElementById('code_area');
@@ -726,6 +729,79 @@ $(document).ready(function () {
 	// apply bindScroll to all elements with .scroll.
 	$(".scroll_together").bindScroll();
 });
+
+// syntax highlighting for assembly code area
+// list of names of all instructions in instruction set
+var opcode_words = Object.keys(LMC.instruction_set);
+
+$('#code_area').on('keyup', function (key) {
+	// space key pressed
+	if (key.keyCode == 32) {
+
+		var lines = $(this).children('div');
+
+		lines.each(function (line_index) {
+			
+			var new_HTML = '';
+			var curr_line = lines[line_index].innerHTML;
+
+			if (curr_line.length >= 1) {
+
+				// regex to replace unnecessary spans and &nbsp; (makes sure that nothing changes even if line has been syntax highlighted before)
+				curr_line = curr_line.replace(/<\/?span[^>]*>/g, "");
+				curr_line = curr_line.replace(/&nbsp;/g, ' ');
+
+				curr_line.replace(/[\s]+/g, ' ').trim().split(' ').forEach(function (each_word) {
+					if (each_word.length > 1) {
+						try {
+
+							// random error handling
+							each_word = each_word.replace(/\/?color="#[^>]*>/g, "");
+							each_word = each_word.replace(/\/?<>/g, "");
+							each_word = each_word.replace(/\/?span="">/g, "");
+
+							if (opcode_words.includes(each_word.toUpperCase())) {
+								new_HTML += '<span class="opcode_highlight">' + each_word + '&nbsp;</span>';
+							} else {
+								new_HTML += '<span class="other_highlight">' + each_word + '&nbsp;</span>';
+							}
+						} catch (error) {
+							// val is not a word of just alphabets
+							alert(error);
+						}
+					}
+				});
+
+				new_div = document.createElement('div');
+				new_div.innerHTML = new_HTML;
+
+				lines[line_index].replaceWith(new_div);
+			} else {
+				lines[line_index].remove();
+			}
+
+			// set cursor position to end of text
+			var child = $('#code_area').children().children();
+			var range = document.createRange();
+			var select = window.getSelection();
+
+			range.setStart(child[child.length - 1], 1);
+			range.collapse(true);
+			select.removeAllRanges();
+			select.addRange(range);
+			$('#code_area').focus();
+
+		});
+	};
+});
+
+
+// window.addEventListener('load', function () {
+// 	this.alert(opcode_words);
+// 	this.alert(typeof opcode_words);
+// 	this.alert(opcode_words.at(-1));
+// 	this.alert(typeof opcode_words.at(-1));
+// })
 
 
 // functions called from HTML buttons

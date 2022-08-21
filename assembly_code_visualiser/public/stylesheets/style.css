@@ -109,6 +109,11 @@ input {
 	resize: none;
 	margin-left: 1em;
 	float: right;
+	overflow-y: scroll;
+	height: 41em;
+	width: 14em;
+	white-space: nowrap;
+	margin-right: 0.05em;
 }
 .line-numbers {
 	text-align: left;

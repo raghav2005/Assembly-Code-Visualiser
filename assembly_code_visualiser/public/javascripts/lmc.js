@@ -546,7 +546,7 @@ window.addEventListener('click', function() {
 var assembly_code_area = document.getElementById('code_area');
 var line_numbers = document.querySelector('.line-numbers');
 assembly_code_area.addEventListener('keyup', event => {
-	var number_of_lines = event.target.value.split('\n').length;
+	var number_of_lines = event.target.getElementsByTagName('div').length;
 	line_numbers.innerHTML = Array(number_of_lines).fill('<span></span>').join('');
 });
 
@@ -757,5 +757,11 @@ function upload_program(LMC) {
 };
 
 function load_into_RAM(LMC) {
-	LMC.load();
+	// LMC.load();
+	try {
+		alert(document.getElementById('code_area').getElementsByTagName('div')[0].innerHTML);
+	} catch(err) {
+		alert(err);
+		alert(document.getElementById('code_area').getElementsByTagName('br'));
+	}
 };

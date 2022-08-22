@@ -352,3 +352,6 @@ svg.leader-line {
 .other_highlight {
 	color: black;
 }
+.error_highlight {
+	color: #FF4040;
+}

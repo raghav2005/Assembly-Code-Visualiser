@@ -43,6 +43,8 @@ class Little_Man_Computer {
 		this.clock = 50;
 		this.time_lapse = 10000;
 		this.labels = {};
+
+		this.is_error = false;
 	};
 
 	// ensure backend RAM values are 2 digits long
@@ -165,11 +167,15 @@ class Little_Man_Computer {
 		document.getElementById('MBR').value = '000';
 	};
 
+	reset_verbose_output() {
+		document.getElementById('verbose_output').value = '';
+	};
+
 	reset_all_inp_out() {
 		document.getElementById('input').value = '';
 		document.getElementById('output').value = '';
 		document.getElementById('FDE_output').value = '';
-		document.getElementById('verbose_output').value = '';
+		this.reset_verbose_output();
 	};
 
 	// get operand and see if memory location required, or if register required
@@ -208,76 +214,92 @@ class Little_Man_Computer {
 
 	};
 
+	assembly_code_error(line_no, message) {
+		document.getElementById('verbose_output').value += 'Error at line ' + line_no.toString() + ': ' + message;
+		this.is_error = true;
+	};
+
+	set_no_errors() {
+		this.is_error = false;
+	};
+
 	load() {
 
-		this.paused = true;
-		this.labels = {};
+		if (this.is_error) {
 
-		// reset all registers (general purpose and special purpose)
-		this.reset_all_registers();
-		// reset all inputs / outputs / displays
-		this.reset_all_inp_out();
-		// reset RAM
-		this.reset_RAM();
-		// reset general registers
-		this.reset_general_registers();
+			alert('there is an error with the assembly code!');
 
-		// load program in RAM
-		var code = document.getElementById('code_area').value.toUpperCase();
-		var mem_loc = 0;
-		var lines = code.split('\n');
+		} else {
 
-		for (var i = 0; i < lines.length; i++) {
+			this.paused = true;
+			this.labels = {};
 
-			var line = lines[i].trim();
+			// reset all registers (general purpose and special purpose)
+			this.reset_all_registers();
+			// reset all inputs / outputs / displays
+			this.reset_all_inp_out();
+			// reset RAM
+			this.reset_RAM();
+			// reset general registers
+			this.reset_general_registers();
 
-			// will need to do checks around here (get rid of , is str.replaceAll(',', ''))
+			// load program in RAM
+			var code = document.getElementById('code_area').value.toUpperCase();
+			var mem_loc = 0;
+			var lines = code.split('\n');
 
-			if (line != '') {
-			
-				var instruction = line.split(/\s+/);
+			for (var i = 0; i < lines.length; i++) {
 
-				if (instruction.length == 1) {
-					if (instruction[0].slice(-1) == ':') {
-						this.labels[instruction[0].slice(0, -1)] = i;
-					} else {
-						// TODO: stuff for HALT
-					}
-				} else if (instruction.length == 2) {
+				var line = lines[i].trim();
 
-					// TODO: stuff for branching
+				// will need to do checks around here (get rid of , is str.replaceAll(',', ''))
 
-				} else {
+				if (line != '') {
+				
+					var instruction = line.split(/\s+/);
 
-					var opcode = instruction[0];
-
-					if (opcode in this.instruction_set) {
-
-						this.RAM[mem_loc] = this.instruction_set[opcode].numerical_value;
-
-					} else {
-						// TODO: error handling for not in instruction set
-					}
-
-					instruction.shift();
-
-					for (var j = 0; j < instruction.length; j++) {
-						mem_loc++
-						if (instruction[j].slice(-1) == ',') {
-							this.RAM[mem_loc] = instruction[j].slice(0, -1);
+					if (instruction.length == 1) {
+						if (instruction[0].slice(-1) == ':') {
+							this.labels[instruction[0].slice(0, -1)] = i;
 						} else {
-							this.RAM[mem_loc] = instruction[j];
+							// TODO: stuff for HALT
 						}
-					};
+					} else if (instruction.length == 2) {
+
+						// TODO: stuff for branching
+
+					} else {
+
+						var opcode = instruction[0];
+
+						if (opcode in this.instruction_set) {
+
+							this.RAM[mem_loc] = this.instruction_set[opcode].numerical_value;
+
+						} else {
+							// TODO: error handling for not in instruction set
+						}
+
+						instruction.shift();
+
+						for (var j = 0; j < instruction.length; j++) {
+							mem_loc++
+							if (instruction[j].slice(-1) == ',') {
+								this.RAM[mem_loc] = instruction[j].slice(0, -1);
+							} else {
+								this.RAM[mem_loc] = instruction[j];
+							}
+						};
+
+					}
 
 				}
+				mem_loc++;
+			};
 
-			}
-			mem_loc++;
+			this.load_RAM_from_backend();
+
 		};
-
-		this.load_RAM_from_backend();
-
 	};
 
 };
@@ -738,12 +760,15 @@ $('#code_area').on('keyup', function (key) {
 	// space key pressed
 	if (key.keyCode == 32) {
 
+		LMC.reset_verbose_output();
+
 		var lines = $(this).children('div');
 
 		lines.each(function (line_index) {
 			
 			var new_HTML = '';
 			var curr_line = lines[line_index].innerHTML;
+			var errors = [];
 
 			if (curr_line.length >= 1) {
 
@@ -762,7 +787,16 @@ $('#code_area').on('keyup', function (key) {
 
 							// ? perhaps separate toUpperCase to display error for wrong syntax but still an opcode
 							if (opcode_words.includes(each_word.toUpperCase())) { // valid opcode
-								new_HTML += '<span class="opcode_highlight">' + each_word + '&nbsp;</span>';
+
+								// correctly capitalised opcode
+								if (opcode_words.includes(each_word)) {
+									new_HTML += '<span class="opcode_highlight">' + each_word + '&nbsp;</span>';
+								} else {
+									new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
+									LMC.assembly_code_error(line_index + 1, 'opcode not capitalised');
+									errors.push(line_index + 1);
+								};
+
 							} else if (each_word[0] == 'R' && !isNaN(each_word[1])) { // register operands
 								if (each_word.length == 2) { // no comma after
 									new_HTML += '<span class="register_highlight">' + each_word + '&nbsp;</span>';
@@ -773,6 +807,7 @@ $('#code_area').on('keyup', function (key) {
 							} else {
 								new_HTML += '<span class="other_highlight">' + each_word + '&nbsp;</span>';
 							}
+
 						} catch (error) {
 							// val is not a word of just alphabets
 							alert(error);
@@ -786,6 +821,10 @@ $('#code_area').on('keyup', function (key) {
 				lines[line_index].replaceWith(new_div);
 			} else {
 				lines[line_index].remove();
+			}
+
+			if (errors.length == 0) {
+				LMC.set_no_errors();
 			}
 
 			// set cursor position to end of text

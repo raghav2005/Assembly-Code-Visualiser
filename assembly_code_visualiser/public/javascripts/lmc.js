@@ -436,8 +436,8 @@ function initialise_LMC() {
 		'LSR': LSR,
 		'INP': INP,
 		'OUT': OUT,
-		'VAR': VAR,
-		'HALT': HALT
+		'HALT': HALT,
+		'VAR': VAR
 	};
 
 	RAM = [];
@@ -549,7 +549,12 @@ LMC = initialise_LMC();
 // all window event listeners from HTML
 
 // on loading the page
-window.addEventListener('load', create_buses);
+window.addEventListener('load', function() {
+	// draw leaderlines for 3 buses
+	create_buses();
+	// disable spellcheck for all input/output fields
+	$('body').attr("spellcheck", false);
+});
 
 // run everytime anything on the page is clicked
 window.addEventListener('click', function() {
@@ -753,14 +758,17 @@ $(document).ready(function () {
 });
 
 // syntax highlighting for assembly code area
-// list of names of all instructions in instruction set
-var opcode_words = Object.keys(LMC.instruction_set);
+// list of names of all instructions in instruction set (but not 'VAR' - only for RAM to know where loops start, not an actual opcode)
+var opcode_words = Object.keys(LMC.instruction_set).slice(0, -1);
 
 $('#code_area').on('keyup', function (key) {
-	// space key pressed
+	// space key pressed - syntax highlighting
 	if (key.keyCode == 32) {
 
 		LMC.reset_verbose_output();
+
+		// store loop names as keys with their values as the line number they exist at
+		var labels = {};
 
 		var lines = $(this).children('div');
 
@@ -770,57 +778,179 @@ $('#code_area').on('keyup', function (key) {
 			var curr_line = lines[line_index].innerHTML;
 			var errors = [];
 
-			if (curr_line.length >= 1) {
+			if (curr_line.length >= 1) { // something in the line
 
 				// regex to replace unnecessary spans and &nbsp; (makes sure that nothing changes even if line has been syntax highlighted before)
 				curr_line = curr_line.replace(/<\/?span[^>]*>/g, "");
 				curr_line = curr_line.replace(/&nbsp;/g, ' ');
 
-				curr_line.replace(/[\s]+/g, ' ').trim().split(' ').forEach(function (each_word) {
-					if (each_word.length > 1) {
-						try {
+				curr_line_as_arr = curr_line.replace(/[\s]+/g, ' ').trim().split(' ');
 
-							// random error handling
-							each_word = each_word.replace(/\/?color="#[^>]*>/g, "");
-							each_word = each_word.replace(/\/?<>/g, "");
-							each_word = each_word.replace(/\/?span="">/g, "");
+				if (curr_line_as_arr.length == 1) {
+					
+					curr_line_as_arr.forEach(function (each_word) {
 
-							// ? perhaps separate toUpperCase to display error for wrong syntax but still an opcode
-							if (opcode_words.includes(each_word.toUpperCase())) { // valid opcode
+						var opcode_words_with_no_operands = Object.keys(LMC.instruction_set).filter(key => LMC.instruction_set[key].operands.length === 0).slice(0, -1);
 
-								// correctly capitalised opcode
-								if (opcode_words.includes(each_word)) {
-									new_HTML += '<span class="opcode_highlight">' + each_word + '&nbsp;</span>';
-								} else {
+						if (each_word.slice(-1) == ':') { // loops
+						
+							labels[each_word.slice(0, -1)] = line_index;
+							new_HTML += '<span class="loop_highlight">' + each_word.slice(0, -1) + '</span>';
+							new_HTML += '<span class="other_highlight">:&nbsp;</span>';
+						
+						} else if (opcode_words_with_no_operands.includes(each_word.toUpperCase())) { // valid opcode from INP, OUT, HALT
+
+							if (opcode_words.includes(each_word)) { // correctly capitalised opcode
+								new_HTML += '<span class="command_highlight">' + each_word + '&nbsp;</span>';
+							} else { // incorrectly capitalised opcode
+								new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
+								LMC.assembly_code_error(line_index + 1, 'opcode not capitalised');
+								errors.push(line_index + 1);
+							};
+						
+						} else { // no other valid 1 word lines
+						
+							if (opcode_words.includes(each_word.toUpperCase())) { // missing operands for an opcode
+								new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
+								LMC.assembly_code_error(line_index + 1, 'missing operands for opcode ' + each_word.toUpperCase());
+								errors.push(line_index + 1);
+							} else { // some other unknown error
+								new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
+								LMC.assembly_code_error(line_index + 1, 'invalid instruction');
+								errors.push(line_index + 1);
+							};
+
+						};
+
+					});
+
+				} else if (curr_line_as_arr.length == 2) {
+
+					var opcode_words_with_1_operand = Object.keys(LMC.instruction_set).filter(key => LMC.instruction_set[key].operands.length === 1);
+
+					var word_counter = 0;
+					var specific_branching_error = 0;
+
+					curr_line_as_arr.forEach(function (each_word) {
+
+						if (word_counter == 0) { // first word in the line
+
+							// ? TODO: CHECK IF PREVIOUS LINE HAS A CMP (MUST HAVE WHEN BRANCHING!!!)
+
+							if (opcode_words_with_1_operand.includes(each_word.toUpperCase())) {
+
+								if (opcode_words.includes(each_word)) { // correctly capitalised opcode
+									new_HTML += '<span class="branch_highlight">' + each_word + '&nbsp;</span>';
+								} else { // incorrectly capitalised opcode
 									new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
 									LMC.assembly_code_error(line_index + 1, 'opcode not capitalised');
 									errors.push(line_index + 1);
+									specific_branching_error = 1;
 								};
 
-							} else if (each_word[0] == 'R' && !isNaN(each_word[1])) { // register operands
-								if (each_word.length == 2) { // no comma after
-									new_HTML += '<span class="register_highlight">' + each_word + '&nbsp;</span>';
-								} else { // comma after
-									new_HTML += '<span class="register_highlight">' + each_word.slice(0, 2) + '</span>';
-									new_HTML += '<span class="punctuation_highlight">' + each_word.slice(2) + '&nbsp;</span>';
-								}
-							} else {
-								new_HTML += '<span class="other_highlight">' + each_word + '&nbsp;</span>';
-							}
+							} else { // no other valid 2 word lines
 
-						} catch (error) {
-							// val is not a word of just alphabets
-							alert(error);
-						}
-					}
-				});
+								if (opcode_words.includes(each_word.toUpperCase())) { // missing operands for an opcode
+									new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
+									LMC.assembly_code_error(line_index + 1, 'missing operands for opcode ' + each_word.toUpperCase());
+									errors.push(line_index + 1);
+								} else { // some other unknown error
+									new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
+									LMC.assembly_code_error(line_index + 1, 'invalid instruction');
+									errors.push(line_index + 1);
+								};
+
+							};
+
+						} else { // second word in the line
+
+							if (specific_branching_error == 0) { // no errors from previous word
+
+								if (Object.keys(labels).includes(each_word)) {
+									new_HTML += '<span class="loop_highlight">' + each_word + '</span>';
+								} else {
+									new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
+									LMC.assembly_code_error(line_index + 1, 'loop name not found');
+									errors.push(line_index + 1);
+								};
+
+							} else { // cannot check for error here if previous word incorrect
+								new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
+							};
+						};
+
+						word_counter++;
+
+					});
+
+				} else if (curr_line_as_arr.length == 3) {
+
+
+
+				} else if (curr_line_as_arr.length == 4) {
+
+
+
+				} else {
+
+					curr_line_as_arr.forEach(function (each_word) {
+						new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
+					});
+
+					LMC.assembly_code_error(line_index + 1, 'too many variables in the line');
+					errors.push(line_index + 1);
+
+				};
+
+				// curr_line_as_arr.forEach(function (each_word) {
+				// 	if (each_word.length > 1) {
+				// 		try {
+
+				// 			// random error handling
+				// 			each_word = each_word.replace(/\/?color="#[^>]*>/g, "");
+				// 			each_word = each_word.replace(/\/?<>/g, "");
+				// 			each_word = each_word.replace(/\/?span="">/g, "");
+
+							// // ? perhaps separate toUpperCase to display error for wrong syntax but still an opcode
+							// if (opcode_words.includes(each_word.toUpperCase())) { // valid opcode
+
+							// 	// correctly capitalised opcode
+							// 	if (opcode_words.includes(each_word)) {
+							// 		new_HTML += '<span class="opcode_highlight">' + each_word + '&nbsp;</span>';
+							// 	} else {
+							// 		new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
+							// 		LMC.assembly_code_error(line_index + 1, 'opcode not capitalised');
+							// 		errors.push(line_index + 1);
+							// 	};
+
+							// } else if (each_word[0] == 'R' && !isNaN(each_word[1])) { // register operands
+							// 	if (each_word.length == 2) { // no comma after
+							// 		new_HTML += '<span class="register_highlight">' + each_word + '&nbsp;</span>';
+							// 	} else { // comma after
+							// 		new_HTML += '<span class="register_highlight">' + each_word.slice(0, 2) + '</span>';
+							// 		new_HTML += '<span class="punctuation_highlight">' + each_word.slice(2) + '&nbsp;</span>';
+							// 	}
+							// } else {
+							// 	new_HTML += '<span class="other_highlight">' + each_word + '&nbsp;</span>';
+							// }
+
+				// 		} catch (error) {
+				// 			// val is not a word of just alphabets
+				// 			alert(error);
+				// 		}
+				// 	}
+				// });
 
 				new_div = document.createElement('div');
 				new_div.innerHTML = new_HTML;
 
 				lines[line_index].replaceWith(new_div);
-			} else {
-				lines[line_index].remove();
+			
+			} else { // nothing in the line
+				if (line_index != 0) {
+					// only remove line if not the very first line
+					lines[line_index].remove();
+				};
 			}
 
 			if (errors.length == 0) {
@@ -832,15 +962,45 @@ $('#code_area').on('keyup', function (key) {
 			var range = document.createRange();
 			var select = window.getSelection();
 
-			range.setStart(child[child.length - 1], 1);
-			range.collapse(true);
-			select.removeAllRanges();
-			select.addRange(range);
-			$('#code_area').focus();
+			try {
+			
+				range.setStart(child[child.length - 1], 1);
+				range.collapse(true);
+				select.removeAllRanges();
+				select.addRange(range);
+				$('#code_area').focus();
+				
+			} catch (error) {
+				alert(error);
+			}
 
 		});
-	};
+	}
 });
+
+// ! NO TABs IN ASSEMBLY TEXT AREA
+// // add &emsp; - 2 spaces for a tab
+// function insert_tab() {
+	
+// 	var selection = window.getSelection();
+// 	var node = selection.anchorNode;
+// 	var text = node.textContent.slice(0, selection.focusOffset);
+
+// 	alert(selection.toString());
+// 	alert(node);
+// 	alert(text);
+
+// }
+
+// // tab pressed - don't go to next element, insert a tab as if writing code
+// $('#code_area').on('keydown', function (key) {
+// 	if (key.keyCode == 9) {
+// 		// add tab
+// 		insert_tab();
+// 		// prevent focusing on next element
+// 		key.preventDefault();
+// 	}
+// });
 
 
 // window.addEventListener('load', function () {

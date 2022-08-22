@@ -341,17 +341,23 @@ svg.leader-line {
 }
 
 .opcode_highlight {
-	color: #4040FF;
+	color: #3d62f5;
 }
 .register_highlight {
-	color: #34AC90;
+	color: #29a329;
 }
-.punctuation_highlight {
+.loop_highlight {
 	color: #8A00C2;
 }
+.command_highlight {
+	color: #87711d;
+}
+.branch_highlight {
+	color: #F28C28;
+}
 .other_highlight {
-	color: black;
+	color: #131513;
 }
 .error_highlight {
-	color: #FF4040;
+	color: #e6193c;
 }

@@ -343,6 +343,12 @@ svg.leader-line {
 .opcode_highlight {
 	color: #4040FF;
 }
+.register_highlight {
+	color: #34AC90;
+}
+.punctuation_highlight {
+	color: #8A00C2;
+}
 .other_highlight {
 	color: black;
 }

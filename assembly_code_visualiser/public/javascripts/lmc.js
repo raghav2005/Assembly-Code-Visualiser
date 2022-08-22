@@ -760,8 +760,16 @@ $('#code_area').on('keyup', function (key) {
 							each_word = each_word.replace(/\/?<>/g, "");
 							each_word = each_word.replace(/\/?span="">/g, "");
 
-							if (opcode_words.includes(each_word.toUpperCase())) {
+							// ? perhaps separate toUpperCase to display error for wrong syntax but still an opcode
+							if (opcode_words.includes(each_word.toUpperCase())) { // valid opcode
 								new_HTML += '<span class="opcode_highlight">' + each_word + '&nbsp;</span>';
+							} else if (each_word[0] == 'R' && !isNaN(each_word[1])) { // register operands
+								if (each_word.length == 2) { // no comma after
+									new_HTML += '<span class="register_highlight">' + each_word + '&nbsp;</span>';
+								} else { // comma after
+									new_HTML += '<span class="register_highlight">' + each_word.slice(0, 2) + '</span>';
+									new_HTML += '<span class="punctuation_highlight">' + each_word.slice(2) + '&nbsp;</span>';
+								}
 							} else {
 								new_HTML += '<span class="other_highlight">' + each_word + '&nbsp;</span>';
 							}

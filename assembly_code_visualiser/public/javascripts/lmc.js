@@ -835,12 +835,40 @@ $('#code_area').on('keyup', function (key) {
 
 						if (word_counter == 0) { // first word in the line
 
-							// ? TODO: CHECK IF PREVIOUS LINE HAS A CMP (MUST HAVE WHEN BRANCHING!!!)
-
 							if (opcode_words_with_1_operand.includes(each_word.toUpperCase())) {
 
 								if (opcode_words.includes(each_word)) { // correctly capitalised opcode
-									new_HTML += '<span class="branch_highlight">' + each_word + '&nbsp;</span>';
+
+									if (each_word == opcode_words_with_1_operand[0]) { // condition-less branch
+										new_HTML += '<span class="branch_highlight">' + each_word + '&nbsp;</span>';	
+									}
+									else { // branch with condition
+										
+										if (line_index == 0) { // branch with condition cannot be the first line
+											new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
+											LMC.assembly_code_error(line_index + 1, 'branch cannot be the first opcode');
+											errors.push(line_index + 1);
+											specific_branching_error = 1;
+										} else {
+											
+											// previous line operand must be CMP
+											prev_line = lines[line_index - 1].innerHTML;
+											prev_line = prev_line.replace(/<\/?span[^>]*>/g, "");
+											prev_line = prev_line.replace(/&nbsp;/g, ' ');
+
+											prev_line_as_arr = prev.replace(/[\s]+/g, ' ').trim().split(' ');
+
+											if (specific_branching_error == 0 && prev_line_as_arr[0]) { // no errors and previous line is correct
+												new_HTML += '<span class="branch_highlight">' + each_word + '&nbsp;</span>';
+											} else { // error related to CMP
+												new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
+												LMC.assembly_code_error(line_index + 1, 'conditional branch required CMP in previous line');
+												errors.push(line_index + 1);
+											};
+
+										};
+									};
+
 								} else { // incorrectly capitalised opcode
 									new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
 									LMC.assembly_code_error(line_index + 1, 'opcode not capitalised');

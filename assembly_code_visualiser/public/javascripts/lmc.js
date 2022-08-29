@@ -43,8 +43,11 @@ class Little_Man_Computer {
 		this.clock = 50;
 		this.time_lapse = 10000;
 
+		// for syntax highlighting + loading into RAM
 		this.labels = {};
 		this.errors = [];
+		this.label_order = {};
+
 	};
 
 	// ensure backend RAM values are 2 digits long
@@ -222,81 +225,72 @@ class Little_Man_Computer {
 
 		// ! REDO ALL OF THIS
 
-		if (this.is_error) {
+		// reset all registers (general purpose and special purpose)
+		this.reset_all_registers();
+		// reset all inputs / outputs / displays
+		this.reset_all_inp_out();
+		// reset RAM
+		this.reset_RAM();
+		// reset general registers
+		this.reset_general_registers();
 
-			alert('there is an error with the assembly code!');
+		// load program in RAM
+		var lines = $('#code_area').children('div');
 
-		} else {
+		// get numerical values to represent each label (not line)
+		var list_of_labels = Object.keys(this.labels);
+		for (var i = 0; i < list_of_labels.length; i++) {
+			this.label_order[list_of_labels[i]] = i + 1;
+		};
 
-			this.paused = true;
-			this.labels = {};
+		// ? Because JavaScript is stupid, define local variables to store all necessary information in the lines and curr_line_as_arr each and forEach function, and then once those functions are finished running, set this.values to the values of the local variables (because can't go up the scope for `this` keyword)
+		var curr_RAM = this.RAM;
+		var curr_RAM_value_length = this.RAM_value_length;
+		var curr_label_order = this.label_order;
+		var curr_instruction_set = this.instruction_set;
 
-			// reset all registers (general purpose and special purpose)
-			this.reset_all_registers();
-			// reset all inputs / outputs / displays
-			this.reset_all_inp_out();
-			// reset RAM
-			this.reset_RAM();
-			// reset general registers
-			this.reset_general_registers();
+		lines.each(function (line_index) {
 
-			// load program in RAM
-			var code = document.getElementById('code_area').value.toUpperCase();
-			var mem_loc = 0;
-			var lines = code.split('\n');
+			var curr_line = lines[line_index].innerHTML;
 
-			for (var i = 0; i < lines.length; i++) {
+			if (curr_line.length >= 1) { // something in the line
 
-				var line = lines[i].trim();
+				// regex to replace unnecessary spans and &nbsp; (makes sure that nothing changes even if line has been syntax highlighted before)
+				curr_line = curr_line.replace(/<\/?span[^>]*>/g, "");
+				curr_line = curr_line.replace(/&nbsp;/g, ' ');
+				curr_line = curr_line.replace(/\/?color="[^"]*">/g, ' ');
+				curr_line = curr_line.replace(/\/?style="[^"]*">/g, ' ');
 
-				// will need to do checks around here (get rid of , is str.replaceAll(',', ''))
+				curr_line_as_arr = curr_line.replace(/[\s]+/g, ' ').trim().split(' ');
 
-				if (line != '') {
+				curr_line_as_arr.forEach(function (each_word) {
 
-					var instruction = line.split(/\s+/);
-
-					if (instruction.length == 1) {
-						if (instruction[0].slice(-1) == ':') {
-							this.labels[instruction[0].slice(0, -1)] = i;
-						} else {
-							// TODO: stuff for HALT
-						}
-					} else if (instruction.length == 2) {
-
-						// TODO: stuff for branching
-
-					} else {
-
-						var opcode = instruction[0];
-
-						if (opcode in this.instruction_set) {
-
-							this.RAM[mem_loc] = this.instruction_set[opcode].numerical_value;
-
-						} else {
-							// TODO: error handling for not in instruction set
-						}
-
-						instruction.shift();
-
-						for (var j = 0; j < instruction.length; j++) {
-							mem_loc++
-							if (instruction[j].slice(-1) == ',') {
-								this.RAM[mem_loc] = instruction[j].slice(0, -1);
-							} else {
-								this.RAM[mem_loc] = instruction[j];
-							}
+					// get next free location in RAM
+					var next_free_location;
+					for (var i = 0; i < curr_RAM.length; i++) {
+						if (curr_RAM[i] == '0'.repeat(curr_RAM_value_length)) {
+							next_free_location = i;
+							break;
 						};
+					};
 
+					// loops
+					if (each_word.slice(0, -1) in curr_label_order) {
+						curr_RAM[next_free_location] = (curr_instruction_set['VAR'].numerical_value + curr_label_order[each_word.slice(0, -1)]).toString();
 					}
 
-				}
-				mem_loc++;
-			};
+				});
+			}
 
-			this.load_RAM_from_backend();
+		});
 
-		};
+		this.RAM = curr_RAM;
+		this.RAM_value_length = curr_RAM_value_length;
+		this.label_order = curr_label_order;
+		this.instruction_set = curr_instruction_set;
+
+		this.load_RAM_from_backend();
+
 	};
 
 };
@@ -757,6 +751,7 @@ $(document).ready(function () {
 // syntax highlighting for assembly code area
 // list of names of all instructions in instruction set (but not 'VAR' - only for RAM to know where loops start, not an actual opcode)
 var opcode_words = Object.keys(LMC.instruction_set).slice(0, -1);
+// ! SYNTAX HIGHLIGHTING FOR 3 AND 4 WORD LINES STILL LEFT
 $('#code_area').on('keyup', function (key) {
 	// space key pressed - syntax highlighting
 	if (key.keyCode == 32) {
@@ -1038,11 +1033,10 @@ function upload_program(LMC) {
 };
 
 function load_into_RAM(LMC) {
-	// LMC.load();
-	try {
-		alert(document.getElementById('code_area').getElementsByTagName('div')[0].innerHTML);
-	} catch (err) {
-		alert(err);
-		alert(document.getElementById('code_area').getElementsByTagName('br'));
-	}
+	
+	if (LMC.errors.length >= 1) {
+		alert('The assembly code has an error! Cannot load into RAM with an error!');
+	} else {
+		LMC.load();
+	};
 };

@@ -862,7 +862,8 @@ $('#code_area').on('keyup', function (key) {
 												new_HTML += '<span class="branch_highlight">' + each_word + '&nbsp;</span>';
 											} else { // error related to CMP
 												new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
-												LMC.assembly_code_error(line_index + 1, 'conditional branch required CMP in previous line');
+												alert('here');
+												LMC.assembly_code_error(line_index + 1, 'CMP required in previous line');
 												errors.push(line_index + 1);
 											};
 
@@ -902,8 +903,12 @@ $('#code_area').on('keyup', function (key) {
 									errors.push(line_index + 1);
 								};
 
+								// ! CHECK CMP previous line for conditional branching here - move to here (because of how the new_HTML += works, this is the only way for it to work!)
+
 							} else { // cannot check for error here if previous word incorrect
 								new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
+								LMC.assembly_code_error(line_index + 1, 'error with opcode');
+								errors.push(line_index + 1);
 							};
 						};
 

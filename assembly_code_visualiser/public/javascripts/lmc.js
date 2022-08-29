@@ -223,7 +223,8 @@ class Little_Man_Computer {
 
 	load() {
 
-		// ! REDO ALL OF THIS
+		// assuming everything is correctly formatted because this function will not be called unless there are no errors in the assembly code editor
+		// * NOTE: if user is manually entering values in to RAM, then load function is not used, but that still needs to be checked!
 
 		// reset all registers (general purpose and special purpose)
 		this.reset_all_registers();

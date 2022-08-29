@@ -361,3 +361,8 @@ svg.leader-line {
 .error_highlight {
 	color: #e6193c;
 }
+
+
+#instruction_set_viewer {
+	height: 40em;
+}

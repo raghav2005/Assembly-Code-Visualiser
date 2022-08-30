@@ -264,6 +264,8 @@ class Little_Man_Computer {
 
 				curr_line_as_arr = curr_line.replace(/[\s]+/g, ' ').trim().split(' ');
 
+				var word_counter = 0;
+
 				curr_line_as_arr.forEach(function (each_word) {
 
 					// get next free location in RAM
@@ -278,7 +280,16 @@ class Little_Man_Computer {
 					// loops
 					if (each_word.slice(0, -1) in curr_label_order) {
 						curr_RAM[next_free_location] = (curr_instruction_set['VAR'].numerical_value + curr_label_order[each_word.slice(0, -1)]).toString();
-					}
+					} else { // 
+
+						if (word_counter == 0) {
+							curr_RAM[next_free_location] = curr_instruction_set[each_word].numerical_value.toString();
+							this.RAM_backend_to_RAM_value_length_digits(next_free_location);
+						}
+
+					};
+
+					word_counter++;
 
 				});
 			}

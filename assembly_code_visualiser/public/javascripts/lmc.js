@@ -42,18 +42,20 @@ class Little_Man_Computer {
 
 		this.clock = 50;
 		this.time_lapse = 10000;
+		this.paused = true;
 
-		// for syntax highlighting + loading into RAM
 		this.labels = {};
 		this.errors = [];
-		this.label_order = {};
+		this.inp;
+		this.carry_on;
+		this.cycles = 0;
 
 	};
 
 	// ensure backend RAM values are 2 digits long
 	RAM_backend_to_RAM_value_length_digits(location) {
 
-		// ensure 2 digits long
+		// ensure 4 digits long
 		if (this.RAM[location].length < this.RAM_value_length) {
 
 			while (this.RAM[location].length < this.RAM_value_length) {
@@ -167,7 +169,7 @@ class Little_Man_Computer {
 		document.getElementById('accumulator').value = '00';
 		document.getElementById('status_register').value = '00';
 		document.getElementById('CIR').value = '00';
-		document.getElementById('MBR').value = '000';
+		document.getElementById('MBR').value = '0'.repeat(this.RAM_value_length);
 	};
 
 	reset_verbose_output() {
@@ -208,23 +210,66 @@ class Little_Man_Computer {
 	log(text, reset = false) {
 
 		if (reset) {
-			docuemt.getElementById('FDE_output').value = text.replace('   ', '&nbsp;&nbsp;&nbsp;') + '<br />';
+			document.getElementById('FDE_output').value = text.replace('   ', '&nbsp;&nbsp;&nbsp;') + '\r\n';
 		} else {
-			document.getElementById('FDE_output').value = document.getElementById('FDE_output').value + text.replace('   ', '&nbsp;&nbsp;&nbsp;') + '<br />';
+			document.getElementById('FDE_output').value = document.getElementById('FDE_output').value + text.replace('   ', '&nbsp;&nbsp;&nbsp;') + '\r\n';
 		}
 
-		document.getElementById('verbose_output').value = document.getElementById('verbose_output').value + text.replace('   ', '&nbsp;&nbsp;&nbsp;') + '<br />';
+		document.getElementById('verbose_output').value = document.getElementById('verbose_output').value + text.replace('   ', '&nbsp;&nbsp;&nbsp;') + '\r\n';
+		document.getElementById('verbose_output').scrollTop = document.getElementById('verbose_output').scrollHeight;
 
 	};
 
-	assembly_code_error(line_no, message) {
-		document.getElementById('verbose_output').value += 'Error at line ' + line_no.toString() + ': ' + message;
+	scan_code() {
+
+		this.labels = {};
+		var counter = 0;
+		var assembly_code = document.getElementById('code_area').value.toUpperCase();
+		var lines = assembly_code.split('\n');
+
+		for (var i = 0; i < lines.length; i++) {
+
+			var line = lines[i].trim();
+
+			if (line != '') {
+				
+				var instruction = line.split(/\s+/);
+
+				if (instruction.length == 2) {
+					
+					if (instruction[1] == 'DAT') {
+						this.labels[instruction[0]] = counter;
+						this.reset_specific_RAM(counter);
+					} else if (!(instruction[0] in this.instruction_set)) {
+						this.labels[instruction[0]] = counter;
+					};
+
+				};
+
+				if (instruction.length == 3) {
+
+					if (instruction[1] == 'DAT') {
+						this.labels[instruction[0]] = counter;
+						this.RAM[counter] = instruction[2].toString();
+					} else if (!(instruction[0] in this.instruction_set)) {
+						this.labels[instruction[0]] = counter;
+					}
+
+				};
+
+				counter++;
+
+			};
+		};
 	};
 
 	load() {
 
-		// assuming everything is correctly formatted because this function will not be called unless there are no errors in the assembly code editor
-		// * NOTE: if user is manually entering values in to RAM, then load function is not used, but that still needs to be checked!
+		clearInterval(this.carry_on);
+
+		this.paused = true;
+		this.activate_deactivate_wrapper('step_program');
+		this.cycles = 0;
 
 		// reset all registers (general purpose and special purpose)
 		this.reset_all_registers();
@@ -235,75 +280,257 @@ class Little_Man_Computer {
 		// reset general registers
 		this.reset_general_registers();
 
+		// scan code for labels
+		this.scan_code();
+
 		// load program in RAM
-		var lines = $('#code_area').children('div');
+		var counter = 0;
+		var assembly_code = document.getElementById('code_area').value.toUpperCase();
+		var lines = assembly_code.split('\n');
 
-		// get numerical values to represent each label (not line)
-		var list_of_labels = Object.keys(this.labels);
-		for (var i = 0; i < list_of_labels.length; i++) {
-			this.label_order[list_of_labels[i]] = i + 1;
-		};
+		for (var i = 0; i < lines.length; i++) {
 
-		// ? Because JavaScript is stupid, define local variables to store all necessary information in the lines and curr_line_as_arr each and forEach function, and then once those functions are finished running, set this.values to the values of the local variables (because can't go up the scope for `this` keyword)
-		var curr_RAM = this.RAM;
-		var curr_RAM_value_length = this.RAM_value_length;
-		var curr_label_order = this.label_order;
-		var curr_instruction_set = this.instruction_set;
+			var line = lines[i].trim();
 
-		lines.each(function (line_index) {
+			if (line != '') {
 
-			var curr_line = lines[line_index].innerHTML;
+				var instruction = line.split(/\s+/);
 
-			if (curr_line.length >= 1) { // something in the line
+				if (instruction.length == 3) {
+					
+					var label = instruction[0];
+					var opcode = instruction[1];
+					var operand = instruction[2];
 
-				// regex to replace unnecessary spans and &nbsp; (makes sure that nothing changes even if line has been syntax highlighted before)
-				curr_line = curr_line.replace(/<\/?span[^>]*>/g, "");
-				curr_line = curr_line.replace(/&nbsp;/g, ' ');
-				curr_line = curr_line.replace(/\/?color="[^"]*">/g, ' ');
-				curr_line = curr_line.replace(/\/?style="[^"]*">/g, ' ');
+					this.labels[label] = counter;
 
-				curr_line_as_arr = curr_line.replace(/[\s]+/g, ' ').trim().split(' ');
+					if (operand in this.labels) {
+						operand = this.labels[operand];
+					};
 
-				var word_counter = 0;
+					if (operand.length > 1) {
 
-				curr_line_as_arr.forEach(function (each_word) {
+						if (operand.substring(0, 1) == '@') {
+						
+							operand = operand.substring(1);
+						
+							if (isNaN(operand)) {
+								if (operand in this.labels) {
+									operand = '@' + this.labels[operand];
+								};
+							} else {
+								operand = '@' + operand;
+							};
 
-					// get next free location in RAM
-					var next_free_location;
-					for (var i = 0; i < curr_RAM.length; i++) {
-						if (curr_RAM[i] == '0'.repeat(curr_RAM_value_length)) {
-							next_free_location = i;
-							break;
+						} else if (operand.substring(0, 1) == '#') {
+
+							operand = operand.substring(1);
+
+							if (isNaN(operand)) {
+								if (operand in this.labels) {
+									operand = '#' + this.labels[operand];
+								};
+							} else {
+								operand = '#' + operand;
+							};
+
 						};
-					};
-
-					// loops
-					if (each_word.slice(0, -1) in curr_label_order) {
-						curr_RAM[next_free_location] = (curr_instruction_set['VAR'].numerical_value + curr_label_order[each_word.slice(0, -1)]).toString();
-					} else { // 
-
-						if (word_counter == 0) {
-							curr_RAM[next_free_location] = curr_instruction_set[each_word].numerical_value.toString();
-							this.RAM_backend_to_RAM_value_length_digits(next_free_location);
-						}
 
 					};
 
-					word_counter++;
+					if (opcode in this.instruction_set) {
 
-				});
-			}
+						var encode = this.instruction_set[opcode].numerical_value + operand;
+						this.RAM[counter] = encode.toString();
 
-		});
+						counter++;
 
-		this.RAM = curr_RAM;
-		this.RAM_value_length = curr_RAM_value_length;
-		this.label_order = curr_label_order;
-		this.instruction_set = curr_instruction_set;
+					} else if (opcode == 'DAT') {
+					
+						counter++;
+					
+					} else {
 
-		this.load_RAM_from_backend();
+						this.log('Error at line ' + counter + ': Invalid opcode');
 
+					};
+
+				} else if (instruction.length == 2) {
+
+					if (instruction[0] in this.instruction_set) {
+						
+						var opcode = instruction[0];
+						var operand = instruction[1];
+
+						if (operand in this.labels) {
+							operand = this.labels[operand];
+						};
+						
+						//Indirect Addressing
+						if (operand.length > 1) {
+
+							if (operand.substring(0, 1) == '@') {
+								
+								operand = operand.substring(1);
+								
+								if (isNaN(operand)) {
+									if (operand in this.labels) {
+										operand = '@' + this.labels[operand];
+									};
+								} else {
+									operand = '@' + operand;
+								};
+
+							} else if (operand.substring(0, 1) == '#') {
+								
+								operand = operand.substring(1);
+								
+								if (isNaN(operand)) {
+									if (operand in this.labels) {
+										operand = '#' + this.labels[operand];
+									};
+								} else {
+									operand = '#' + operand;
+								};
+							
+							};
+						
+						};
+
+						var encode = this.instruction_set[opcode].numerical_value + operand;
+						this.RAM[counter] = encode.toString();
+
+						counter++;
+					
+					} else {
+
+						this.labels[instruction[0]] = counter;
+						var opcode = instruction[1];
+
+						if (opcode in this.instruction_set) {
+
+							var encode = this.instruction_set[opcode].numerical_value;
+							this.RAM[counter] = encode.toString();
+
+							counter++;
+
+						} else if (instruction[1] == 'DAT') {
+
+							counter++;
+
+						} else {
+
+							this.log('Error at line ' + counter + ': Invalid instruction');
+
+						};
+
+					};
+
+				} else {
+
+					if (line in this.instruction_set) {
+						this.RAM[counter] = this.instruction_set[line].numerical_value;
+						counter++;
+					} else {
+						this.log('Error at line ' + counter + ': Invalid instruction');
+					};
+
+				};
+
+			};
+
+			this.load_RAM_from_backend();
+
+		};
 	};
+
+	// assembly_code_error(line_no, message) {
+	// 	document.getElementById('verbose_output').value += 'Error at line ' + line_no.toString() + ': ' + message;
+	// };
+
+	// load() {
+
+	// 	// assuming everything is correctly formatted because this function will not be called unless there are no errors in the assembly code editor
+	// 	// * NOTE: if user is manually entering values in to RAM, then load function is not used, but that still needs to be checked!
+
+	// 	// reset all registers (general purpose and special purpose)
+	// 	this.reset_all_registers();
+	// 	// reset all inputs / outputs / displays
+	// 	this.reset_all_inp_out();
+	// 	// reset RAM
+	// 	this.reset_RAM();
+	// 	// reset general registers
+	// 	this.reset_general_registers();
+
+	// 	// load program in RAM
+	// 	var lines = $('#code_area').children('div');
+
+	// 	// get numerical values to represent each label (not line)
+	// 	var list_of_labels = Object.keys(this.labels);
+	// 	for (var i = 0; i < list_of_labels.length; i++) {
+	// 		this.label_order[list_of_labels[i]] = i + 1;
+	// 	};
+
+	// 	// ? Because JavaScript is stupid, define local variables to store all necessary information in the lines and curr_line_as_arr each and forEach function, and then once those functions are finished running, set this.values to the values of the local variables (because can't go up the scope for `this` keyword)
+	// 	var curr_RAM = this.RAM;
+	// 	var curr_RAM_value_length = this.RAM_value_length;
+	// 	var curr_label_order = this.label_order;
+	// 	var curr_instruction_set = this.instruction_set;
+
+	// 	lines.each(function (line_index) {
+
+	// 		var curr_line = lines[line_index].innerHTML;
+
+	// 		if (curr_line.length >= 1) { // something in the line
+
+	// 			// regex to replace unnecessary spans and &nbsp; (makes sure that nothing changes even if line has been syntax highlighted before)
+	// 			curr_line = curr_line.replace(/<\/?span[^>]*>/g, "");
+	// 			curr_line = curr_line.replace(/&nbsp;/g, ' ');
+	// 			curr_line = curr_line.replace(/\/?color="[^"]*">/g, ' ');
+	// 			curr_line = curr_line.replace(/\/?style="[^"]*">/g, ' ');
+
+	// 			curr_line_as_arr = curr_line.replace(/[\s]+/g, ' ').trim().split(' ');
+
+	// 			var word_counter = 0;
+
+	// 			curr_line_as_arr.forEach(function (each_word) {
+
+	// 				// get next free location in RAM
+	// 				var next_free_location;
+	// 				for (var i = 0; i < curr_RAM.length; i++) {
+	// 					if (curr_RAM[i] == '0'.repeat(curr_RAM_value_length)) {
+	// 						next_free_location = i;
+	// 						break;
+	// 					};
+	// 				};
+
+	// 				// loops
+	// 				if (each_word.slice(0, -1) in curr_label_order) {
+	// 					curr_RAM[next_free_location] = (curr_instruction_set['VAR'].numerical_value + curr_label_order[each_word.slice(0, -1)]).toString();
+	// 				} else { // 
+
+	// 					if (word_counter == 0) {
+	// 						curr_RAM[next_free_location] = curr_instruction_set[each_word].numerical_value.toString();
+	// 						this.RAM_backend_to_RAM_value_length_digits(next_free_location);
+	// 					}
+
+	// 				};
+
+	// 				word_counter++;
+
+	// 			});
+	// 		}
+
+	// 	});
+
+	// 	this.RAM = curr_RAM;
+	// 	this.RAM_value_length = curr_RAM_value_length;
+	// 	this.label_order = curr_label_order;
+	// 	this.instruction_set = curr_instruction_set;
+
+	// 	this.load_RAM_from_backend();
+
+	// };
 
 };
 
@@ -312,6 +539,8 @@ class Little_Man_Computer {
 
 // create instruction and LMC objects
 function initialise_LMC() {
+
+	// ! CHANGE NUMERICAL VALUE TO BE A STRING
 
 	var HALT = new Instruction({
 		name: 'HALT',
@@ -444,7 +673,7 @@ function initialise_LMC() {
 	};
 
 	RAM = [];
-	var RAM_value_length = 3;
+	var RAM_value_length = 4;
 
 	for (var i = 0; i < 100; i++) {
 		RAM.push('0'.repeat(RAM_value_length));
@@ -579,7 +808,11 @@ window.addEventListener('click', function () {
 var assembly_code_area = document.getElementById('code_area');
 var line_numbers = document.querySelector('.line-numbers');
 assembly_code_area.addEventListener('keyup', event => {
-	var number_of_lines = event.target.getElementsByTagName('div').length;
+	var number_of_lines = event.target.value.split('\n').length;
+	line_numbers.innerHTML = Array(number_of_lines).fill('<span></span>').join('');
+});
+$(document).ready(function () {
+	var number_of_lines = assembly_code_area.value.split('\n').length;
 	line_numbers.innerHTML = Array(number_of_lines).fill('<span></span>').join('');
 });
 
@@ -1045,10 +1278,5 @@ function upload_program(LMC) {
 };
 
 function load_into_RAM(LMC) {
-	
-	if (LMC.errors.length >= 1) {
-		alert('The assembly code has an error! Cannot load into RAM with an error!');
-	} else {
-		LMC.load();
-	};
+	LMC.load();
 };

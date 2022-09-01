@@ -542,134 +542,206 @@ function initialise_LMC() {
 
 	// ! CHANGE NUMERICAL VALUE TO BE A STRING
 
-	var HALT = new Instruction({
-		name: 'HALT',
-		numerical_value: 0,
-		operands: []
-	});
-	var LDR = new Instruction({
-		name: 'LDR',
-		numerical_value: 10,
-		operands: ['R', 'M']
-	});
-	var STR = new Instruction({
-		name: 'STR',
-		numerical_value: 11,
-		operands: ['R', 'M']
-	});
-	var MOV = new Instruction({
-		name: 'MOV',
-		numerical_value: 12,
-		operands: ['R', 'B']
-	});
-	var ADD = new Instruction({
-		name: 'ADD',
-		numerical_value: 20,
-		operands: ['R', 'R', 'B']
-	});
-	var SUB = new Instruction({
-		name: 'SUB',
-		numerical_value: 21,
-		operands: ['R', 'R', 'B']
-	});
-	var B = new Instruction({
-		name: 'B',
-		numerical_value: 30,
-		operands: ['L']
-	});
-	var BEQ = new Instruction({
-		name: 'BEQ',
-		numerical_value: 31,
-		operands: ['L']
-	});
-	var BNE = new Instruction({
-		name: 'BNE',
-		numerical_value: 32,
-		operands: ['L']
-	});
-	var BGT = new Instruction({
-		name: 'BGT',
-		numerical_value: 33,
-		operands: ['L']
-	});
-	var BLT = new Instruction({
-		name: 'BLT',
-		numerical_value: 34,
-		operands: ['L']
-	});
-	var CMP = new Instruction({
-		name: 'CMP',
-		numerical_value: 35,
-		operands: ['R', 'B']
-	});
-	var AND = new Instruction({
-		name: 'AND',
-		numerical_value: 40,
-		operands: ['R', 'R', 'B']
-	});
-	var ORR = new Instruction({
-		name: 'ORR',
-		numerical_value: 41,
-		operands: ['R', 'R', 'B']
-	});
-	var EOR = new Instruction({
-		name: 'EOR',
-		numerical_value: 42,
-		operands: ['R', 'R', 'B']
-	});
-	var MVN = new Instruction({
-		name: 'MVN',
-		numerical_value: 43,
-		operands: ['R', 'B']
-	});
-	var LSL = new Instruction({
-		name: 'LSL',
-		numerical_value: 44,
-		operands: ['R', 'R', 'B']
-	});
-	var LSR = new Instruction({
-		name: 'LSR',
-		numerical_value: 45,
-		operands: ['R', 'R', 'B']
-	});
-	var INP = new Instruction({
+	// var HALT = new Instruction({
+	// 	name: 'HALT',
+	// 	numerical_value: 0,
+	// 	operands: []
+	// });
+	// var LDR = new Instruction({
+	// 	name: 'LDR',
+	// 	numerical_value: 10,
+	// 	operands: ['R', 'M']
+	// });
+	// var STR = new Instruction({
+	// 	name: 'STR',
+	// 	numerical_value: 11,
+	// 	operands: ['R', 'M']
+	// });
+	// var MOV = new Instruction({
+	// 	name: 'MOV',
+	// 	numerical_value: 12,
+	// 	operands: ['R', 'B']
+	// });
+	// var ADD = new Instruction({
+	// 	name: 'ADD',
+	// 	numerical_value: 20,
+	// 	operands: ['R', 'R', 'B']
+	// });
+	// var SUB = new Instruction({
+	// 	name: 'SUB',
+	// 	numerical_value: 21,
+	// 	operands: ['R', 'R', 'B']
+	// });
+	// var B = new Instruction({
+	// 	name: 'B',
+	// 	numerical_value: 30,
+	// 	operands: ['L']
+	// });
+	// var BEQ = new Instruction({
+	// 	name: 'BEQ',
+	// 	numerical_value: 31,
+	// 	operands: ['L']
+	// });
+	// var BNE = new Instruction({
+	// 	name: 'BNE',
+	// 	numerical_value: 32,
+	// 	operands: ['L']
+	// });
+	// var BGT = new Instruction({
+	// 	name: 'BGT',
+	// 	numerical_value: 33,
+	// 	operands: ['L']
+	// });
+	// var BLT = new Instruction({
+	// 	name: 'BLT',
+	// 	numerical_value: 34,
+	// 	operands: ['L']
+	// });
+	// var CMP = new Instruction({
+	// 	name: 'CMP',
+	// 	numerical_value: 35,
+	// 	operands: ['R', 'B']
+	// });
+	// var AND = new Instruction({
+	// 	name: 'AND',
+	// 	numerical_value: 40,
+	// 	operands: ['R', 'R', 'B']
+	// });
+	// var ORR = new Instruction({
+	// 	name: 'ORR',
+	// 	numerical_value: 41,
+	// 	operands: ['R', 'R', 'B']
+	// });
+	// var EOR = new Instruction({
+	// 	name: 'EOR',
+	// 	numerical_value: 42,
+	// 	operands: ['R', 'R', 'B']
+	// });
+	// var MVN = new Instruction({
+	// 	name: 'MVN',
+	// 	numerical_value: 43,
+	// 	operands: ['R', 'B']
+	// });
+	// var LSL = new Instruction({
+	// 	name: 'LSL',
+	// 	numerical_value: 44,
+	// 	operands: ['R', 'R', 'B']
+	// });
+	// var LSR = new Instruction({
+	// 	name: 'LSR',
+	// 	numerical_value: 45,
+	// 	operands: ['R', 'R', 'B']
+	// });
+	// var INP = new Instruction({
+	// 	name: 'INP',
+	// 	numerical_value: 50,
+	// 	operands: []
+	// });
+	// var OUT = new Instruction({
+	// 	name: 'OUT',
+	// 	numerical_value: 51,
+	// 	operands: []
+	// });
+	// var VAR = new Instruction({
+	// 	name: 'VAR',
+	// 	numerical_value: 900,
+	// 	operands: []
+	// });
+
+	// var instruction_set = {
+	// 	'LDR': LDR,
+	// 	'STR': STR,
+	// 	'ADD': ADD,
+	// 	'SUB': SUB,
+	// 	'MOV': MOV,
+	// 	'CMP': CMP,
+	// 	'B': B,
+	// 	'BEQ': BEQ,
+	// 	'BNE': BNE,
+	// 	'BGT': BGT,
+	// 	'BLT': BLT,
+	// 	'AND': AND,
+	// 	'ORR': ORR,
+	// 	'EOR': EOR,
+	// 	'MVN': MVN,
+	// 	'LSL': LSL,
+	// 	'LSR': LSR,
+	// 	'INP': INP,
+	// 	'OUT': OUT,
+	// 	'HALT': HALT,
+	// 	'VAR': VAR
+	// };
+
+	// ! OPERANDS WILL NOT BE USED FOR INITIAL TRANSLATION - WILL HAVE TO LATER FIGURE OUT HOW TO DO EVERYTHING USING THE GENERAL PURPOSE REGISTERS
+	
+	var INP = new Instruction({ // get user input + store in accumulator
 		name: 'INP',
-		numerical_value: 50,
+		numerical_value: '901',
 		operands: []
 	});
-	var OUT = new Instruction({
+	var OUT = new Instruction({ // output value stored in accumulator
 		name: 'OUT',
-		numerical_value: 51,
+		numerical_value: '902',
 		operands: []
 	});
-	var VAR = new Instruction({
-		name: 'VAR',
-		numerical_value: 900,
+	var LDA = new Instruction({ // load accumulator w/ contents of given RAM address
+		name: 'LDA',
+		numerical_value: '5',
+		operands: ['M']
+	});
+	var STA = new Instruction({ // store value in accumulator to RAM address OR register
+		name: 'STA',
+		numerical_value: '3',
+		operands: ['B']
+	});
+	var ADD = new Instruction({ // add accumulator value to RAM address value OR register value
+		name: 'ADD',
+		numerical_value: '1',
+		operands: ['B']
+	});
+	var SUB = new Instruction({ // subtract contents of RAM address OR register contents from accumulator value
+		name: 'SUB',
+		numerical_value: '2',
+		operands: ['B']
+	});
+	var BRP = new Instruction({ // branch to RAM address if accumulator value is zero or positive
+		name: 'BRP',
+		numerical_value: '8',
+		operands: ['M']
+	});
+	var BRZ = new Instruction({ // branch to RAM address if accumulator value is zero
+		name: 'BRZ',
+		numerical_value: '7',
+		operands: ['M']
+	});
+	var BRA = new Instruction({ // branch to RAM address
+		name: 'BRA',
+		numerical_value: '6',
+		operands: ['M']
+	});
+	var HLT = new Instruction({ // stop assembly code
+		name: 'HLT',
+		numerical_value: '000',
 		operands: []
+	});
+	var DAT = new Instruction({ // associates a label to a free RAM address. optional value used to store at RAM address
+		name: 'DAT',
+		numerical_value: '', // will be 4 or something like that
+		operands: [] // will be number, RAM address
 	});
 
 	var instruction_set = {
-		'LDR': LDR,
-		'STR': STR,
-		'ADD': ADD,
-		'SUB': SUB,
-		'MOV': MOV,
-		'CMP': CMP,
-		'B': B,
-		'BEQ': BEQ,
-		'BNE': BNE,
-		'BGT': BGT,
-		'BLT': BLT,
-		'AND': AND,
-		'ORR': ORR,
-		'EOR': EOR,
-		'MVN': MVN,
-		'LSL': LSL,
-		'LSR': LSR,
-		'INP': INP,
-		'OUT': OUT,
-		'HALT': HALT,
-		'VAR': VAR
+	'INP': INP,
+	'OUT': OUT,
+	'LDA': LDA,
+	'STA': STA,
+	'ADD': ADD,
+	'SUB': SUB,
+	'BRP': BRP,
+	'BRZ': BRZ,
+	'BRA': BRA,
+	'HLT': HLT,
+	'DAT': DAT
 	};
 
 	RAM = [];

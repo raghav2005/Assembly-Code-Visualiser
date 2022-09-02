@@ -444,6 +444,72 @@ class Little_Man_Computer {
 		};
 	};
 
+	process_instruction() {
+
+		this.program_counter = parseInt(document.getElementById('PC').value);
+		this.activate_deactivate_wrapper('PC_wrapper');
+
+		// fetch instruction
+
+		this.log('####################', true);
+		this.log('Fetching instruction...');
+
+		var instruction = document.getElementById('PC').value;
+		this.log('Set MAR to value of PC: ' + this.program_counter);
+		document.getElementById('MAR').value = this.program_counter;
+		
+		this.log('Increment PC by 1');
+		this.program_counter++;
+		document.getElementById('PC').value = this.program_counter;
+
+		this.log('Fetch instruction from address stored in MAR');;
+		this.log('Fetched instruction ' + instruction + ' stored in MDR');
+		this.log('Copy instruction from MDR to CIR');
+
+		document.getElementById('MDR').value = instruction;
+		document.getElementById('CIR').value = instruction;
+
+		this.log('Decoding instruction stored in CIR...');
+
+		// halt instruction
+		if (instruction.slice(-3) == '000') {
+
+			this.log('HALT');
+			this.log('Executing instruction...');
+			this.log('Program stopped');
+
+			this.cycles++;
+
+			this.log('####################');
+			this.log('Program executed in ' + this.cycles + ' FDE cycles');
+
+			this.cycles = 0;
+			this.paused = true;
+
+			document.getElementById('pausebtn').innerHTML = '<i class="fa fa-play"></i>';
+
+			clearInterval(carry_on);
+
+		} else if (instruction.slice(-3) == '901') { // input instruction
+
+			this.log('INPUT');
+			this.log('Executing instruction...');
+			this.log('Waiting for user input...');
+			this.cycles++;
+
+			// ! MAKE THIS WORK SO CAN'T DO ANYTHING UNTIL SOMETHING INPUTTED INTO INPUT BOX IN CONTROLBOX
+
+			inp = prompt('User input:');
+			document.getElementById('input').value = document.getElementById('input').value + inp + '\n';
+			document.getElementById('input').scrollTop = document.getElementById('input').scrollHeight;
+
+			this.log('Store user input in Accumulator: ' + inp);
+			document.getElementById('accumulator').value = inp;
+
+		}
+
+	};
+
 	// assembly_code_error(line_no, message) {
 	// 	document.getElementById('verbose_output').value += 'Error at line ' + line_no.toString() + ': ' + message;
 	// };

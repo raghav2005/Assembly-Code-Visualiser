@@ -169,7 +169,9 @@ class Little_Man_Computer {
 		document.getElementById('accumulator').value = '00';
 		document.getElementById('status_register').value = '00';
 		document.getElementById('CIR').value = '00';
+		document.getElementById('PC').value = '00';
 		document.getElementById('MBR').value = '0'.repeat(this.RAM_value_length);
+		this.program_counter = 0;
 	};
 
 	reset_verbose_output() {
@@ -184,15 +186,15 @@ class Little_Man_Computer {
 	};
 
 	// get operand and see if memory location required, or if register required
-	get_addressing_mode(operand) {
-		if (operand[0] === '#') {
-			return 'direct'
-		} else if (operand[0] === 'R') {
-			return 'immediate'
-		} else {
-			return 'error'
-		};
-	};
+	// get_addressing_mode(operand) {
+	// 	if (operand[0] === '#') {
+	// 		return 'direct'
+	// 	} else if (operand[0] === 'R') {
+	// 		return 'immediate'
+	// 	} else {
+	// 		return 'error'
+	// 	};
+	// };
 
 	// change border color of element to blue if blue
 	activate_deactivate_wrapper(element) {
@@ -266,6 +268,7 @@ class Little_Man_Computer {
 	load() {
 
 		// clearInterval(this.carry_on);
+		this.load_RAM_from_frontend();
 
 		this.paused = true;
 		// this.activate_deactivate_wrapper('step_program');
@@ -1668,6 +1671,9 @@ function clear_editor() {
 // set all values in RAM back to 00
 function reset_RAM(LMC) {
 	LMC.reset_RAM();
+	LMC.reset_all_registers();
+	LMC.reset_all_inp_out();
+	LMC.stop = false;
 };
 
 // open new tab with /instruction_set 
@@ -1690,6 +1696,28 @@ function load_into_RAM(LMC) {
 	LMC.load();
 };
 function run_program(LMC) {
-	load_into_RAM(LMC);
-	LMC.run();
+	
+	if (LMC.RAM[0] == '0000') {
+		load_into_RAM(LMC);
+	};
+
+	if (!LMC.stop) {
+		LMC.run();
+	} else {
+		alert('Program finished. To re-run, please reset RAM and load the program into RAM again.');
+	};
+
+};
+function step_program(LMC) {
+	
+	if (LMC.RAM[0] == '0000') {
+		load_into_RAM(LMC);
+	};
+
+	if (!LMC.stop) {
+		LMC.step();
+	} else {
+		alert('Program finished. To re-run, please reset RAM and load the program into RAM again.');
+	};
+
 };

@@ -48,6 +48,8 @@ class Little_Man_Computer {
 		this.carry_on;
 		this.cycles = 0;
 
+		this.stop = false;
+
 	};
 
 	// ensure backend RAM values are 2 digits long
@@ -91,7 +93,7 @@ class Little_Man_Computer {
 
 		for (var i = 0; i < this.RAM.length; i++) {
 			this.RAM[i] = document.getElementById("memory_location_" + i.toString()).value;
-			this.RAM_backend_to_RAM_value_length_digits(i);
+			// this.RAM_backend_to_RAM_value_length_digits(i);
 		};
 
 		this.load_RAM_from_backend();
@@ -440,6 +442,13 @@ class Little_Man_Computer {
 			this.load_RAM_from_backend();
 
 		};
+
+		for (var i = 0; i < this.RAM.length; i++) {
+			if (this.RAM[i] == '') {
+				this.reset_specific_RAM(i);
+			};
+		};
+		this.load_RAM_from_backend();
 	};
 
 	process_instruction() {
@@ -453,12 +462,12 @@ class Little_Man_Computer {
 		this.log_output('Fetching instruction...');
 
 		var instruction = document.getElementById('memory_location_' + this.program_counter).value;
-		if (instruction != '0'.repeat(this.RAM_value_length) || instruction != '00') { // remove all leading 0s
-			instruction = instruction.replace(/^0+/, '');
-			if (instruction == '') {
-				instruction = '0';
-			};
-		};
+		// if (instruction != '0'.repeat(this.RAM_value_length) || instruction != '00') { // remove all leading 0s
+		// 	instruction = instruction.replace(/^0+/, '');
+		// 	if (instruction == '') {
+		// 		instruction = '0';
+		// 	};
+		// };
 
 		this.log_output('Set MAR to value of PC: ' + this.program_counter);
 		document.getElementById('MAR').value = this.program_counter;
@@ -477,7 +486,7 @@ class Little_Man_Computer {
 		this.log_output('Decoding instruction stored in CIR...');
 
 		// halt instruction
-		if (instruction.slice(-3) == '000') {
+		if (instruction == '000') {
 
 			this.log_output('HLT');
 			this.log_output('Executing instruction...');
@@ -491,11 +500,13 @@ class Little_Man_Computer {
 			this.cycles = 0;
 			this.paused = true;
 
-			document.getElementById('pausebtn').innerHTML = '<i class="fa fa-play"></i>';
+			this.stop = true;
+
+			// document.getElementById('pausebtn').innerHTML = '<i class="fa fa-play"></i>';
 
 			// clearInterval(this.carry_on);
 
-		} else if (instruction.slice(-3) == '901') { // input instruction
+		} else if (instruction == '901') { // input instruction
 
 			this.log_output('INP');
 			this.log_output('Executing instruction...');
@@ -504,14 +515,17 @@ class Little_Man_Computer {
 
 			// ! MAKE THIS WORK SO CAN'T DO ANYTHING UNTIL SOMETHING INPUTTED INTO INPUT BOX IN CONTROLBOX
 
+			
+
 			this.inp = prompt('User input:');
-			document.getElementById('input').value = document.getElementById('input').value + this.inp + '\n';
+			document.getElementById('input').value = this.inp;
+			// document.getElementById('input').value = document.getElementById('input').value + this.inp + '\n';
 			document.getElementById('input').scrollTop = document.getElementById('input').scrollHeight;
 
 			this.log_output('Store user input in Accumulator: ' + this.inp);
 			document.getElementById('accumulator').value = this.inp;
 
-		} else if (instruction.slice(-3) == '902') { // output instruction
+		} else if (instruction == '902') { // output instruction
 
 			this.log_output('OUT');
 			this.log_output('Executing instruction...');
@@ -519,7 +533,8 @@ class Little_Man_Computer {
 
 			this.cycles++;
 
-			document.getElementById('output').value = document.getElementById('output').value + document.getElementById('accumulator').value + '\n';
+			// document.getElementById('output').value = document.getElementById('output').value + document.getElementById('accumulator').value + '\n';
+			document.getElementById('output').value = document.getElementById('accumulator').value;
 			document.getElementById('output').scrollTop = document.getElementById('output').scrollHeight;
 
 		} else {
@@ -695,6 +710,7 @@ class Little_Man_Computer {
 
 		// clearInterval(this.carry_on);
 		this.cycles = 0;
+		this.stop = false;
 
 		this.reset_all_registers();
 		this.reset_all_inp_out();
@@ -706,17 +722,7 @@ class Little_Man_Computer {
 		// document.getElementById('pausebtn').innerHTML = '<i class="fa fa-pause"></i>';
 		// this.carry_on = setInterval(this.process_instruction(), parseInt(this.time_lapse / this.clock));
 
-		var pc = parseInt(document.getElementById('PC').value);
-
-		var instruction = document.getElementById('memory_location_' + pc).value;
-		if (instruction != '0'.repeat(this.RAM_value_length) || instruction != '00') { // remove all leading 0s
-			instruction = instruction.replace(/^0+/, '');
-			if (instruction == '') {
-				instruction = '0';
-			};
-		};
-
-		while (instruction.slice(-3) != '000') {
+		while (!this.stop) {
 			this.process_instruction();
 		};
 

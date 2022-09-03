@@ -147,6 +147,8 @@ input {
 [id^="memory_location_"] {
 	text-align: center;
 	font-size: medium;
+	border-color: #AAAAAA;
+	border-style: solid;
 }
 /* attributes with ids starting with "memory_" AND ending with "_wrapper" */
 [id^="memory_"][id$="_wrapper"] {
@@ -154,9 +156,9 @@ input {
 	padding: 0.1em;
 	margin: 0.2em 0;
 }
-/* same as above but when mouse hovering over it */
-[id^="memory_"][id$="_wrapper"]:hover {
-	border: 0.05em #FF4040 solid !important;
+/* same as above but when mouse hovering over it & change for second expression only */
+[id^="memory_"][id$="_wrapper"]:hover > [id^="memory_location_"] {
+	border-color: #FF4040;
 }
 
 #CPU_wrapper {
@@ -181,13 +183,15 @@ input {
 }
 [id^="general_register_"] {
 	text-align: center;
+	border-color: #AAAAAA;
+	border-style: solid;
 }
 [id^="register_"][id$="_wrapper"] {
 	border: 0.05em #AAAAAA solid;
 	padding: 0.15em;
 }
-[id^="register_"][id$="_wrapper"]:hover {
-	border: 0.05em #FF4040 solid !important;
+[id^="register_"][id$="_wrapper"]:hover > [id^="general_register_"] {
+	border-color: #FF4040;
 }
 /* attributes with ids starting with "register_" AND ending with "_wrapper", but not attributes with id "register_0_wrapper" or "register_9_wrapper" */
 [id^="register_"][id$="_wrapper"]:not(#register_0_wrapper, #register_9_wrapper) {
@@ -339,29 +343,6 @@ svg.leader-line {
 	white-space: nowrap;
 	font-size: small;
 }
-
-.opcode_highlight {
-	color: #3d62f5;
-}
-.register_highlight {
-	color: #29a329;
-}
-.loop_highlight {
-	color: #8A00C2;
-}
-.command_highlight {
-	color: #87711d;
-}
-.branch_highlight {
-	color: #F28C28;
-}
-.other_highlight {
-	color: #131513;
-}
-.error_highlight {
-	color: #e6193c;
-}
-
 
 #instruction_set_viewer {
 	height: 40em;

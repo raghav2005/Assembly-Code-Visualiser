@@ -50,6 +50,8 @@ class Little_Man_Computer {
 
 		this.stop = false;
 
+		this.animation_interval = 300; // milliseconds
+
 	};
 
 	// ensure backend RAM values are 2 digits long
@@ -454,44 +456,120 @@ class Little_Man_Computer {
 		this.load_RAM_from_backend();
 	};
 
-	process_instruction() {
+	process_instruction_main_beginning() {
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			var instruction, k_str;
+			this.carry_on = setInterval(() => {
+				// fetch instruction
+				if (i == 0) {
+					this.log_output('####################', true);
+					this.log_output('Fetching instruction...');
+				} else if (i == 1) {
+					this.activate_deactivate_wrapper('PC_wrapper');
+				} else if (i == 2) {
+					this.activate_deactivate_wrapper('MAR_wrapper');
+					this.program_counter = parseInt(document.getElementById('PC').value);
+					document.getElementById('MAR').value = this.program_counter;
+				} else if (i == 3) {
+					this.activate_deactivate_wrapper('PC_wrapper');
+					this.activate_deactivate_wrapper('MAR_wrapper');
+					this.log_output('Set MAR to value of PC: ' + this.program_counter);
+				} else if (i == 4) {
+					this.activate_deactivate_wrapper('PC_wrapper');
+					this.program_counter++;
+					document.getElementById('PC').value = this.program_counter;
+				} else if (i == 5) {
+					this.activate_deactivate_wrapper('PC_wrapper');
+					this.log_output('Increment PC by 1');
+				} else if (i == 6) {
+					this.log_output('Fetch instruction from address stored in MAR');
+				} else if (i == 7) {
+					instruction = document.getElementById('memory_location_' + this.program_counter).value;
+					this.activate_deactivate_wrapper('MAR_wrapper');
+				} else if (i == 8) {
+
+					// get memory wrapper location as 2 digits e.g. 00, 01, 92, etc.
+					k_str = this.program_counter.toString();
+					while (k_str.length < 2) {
+						k_str = '0' + k_str;
+					};
+
+					// move address bus + change color
+					address_bus.setOptions({
+						end: document.getElementById('memory_' + k_str + '_wrapper'),
+						path: 'fluid',
+						color: '#4040FF'
+					});
+
+				} else if (i == 9) {
+					this.activate_deactivate_wrapper('memory_location_' + this.program_counter);
+				} else if (i == 10) {
+					// move data bus + change color
+					data_bus.setOptions({
+						end: document.getElementById('memory_' + k_str + '_wrapper'),
+						path: 'fluid',
+						color: '#4040FF'
+					});
+				} else if (i == 11) {
+					this.activate_deactivate_wrapper('MBR_wrapper');
+					document.getElementById('MBR').value = instruction;
+				} else if (i == 12) {
+					
+					// leaderlines + wrappers back to normal
+					address_bus.setOptions({
+						end: LeaderLine.pointAnchor(document.getElementById('memory_10_wrapper'), {
+							x: 0,
+							y: '19%'
+						}),
+						path: 'straight',
+						color: '#AAAAAA'
+					});
+					data_bus.setOptions({
+						end: LeaderLine.pointAnchor(document.getElementById('memory_80_wrapper'), {
+							x: 0,
+							y: '99%'
+						}),
+						path: 'straight',
+						color: '#AAAAAA'
+					});
+
+					this.activate_deactivate_wrapper('MAR_wrapper');
+					this.activate_deactivate_wrapper('memory_location_' + this.program_counter);
+					this.activate_deactivate_wrapper('MBR_wrapper');
+
+					this.log_output('Fetched instruction ' + instruction + ' stored in MBR');
+
+				} else if (i == 13) {
+					this.activate_deactivate_wrapper('MBR_wrapper');
+				} else if (i == 14) {
+					this.activate_deactivate_wrapper('CIR_wrapper');
+					document.getElementById('CIR').value = instruction;
+				} else if (i == 15) {
+					this.activate_deactivate_wrapper('MBR_wrapper');
+					this.activate_deactivate_wrapper('CIR_wrapper');
+					this.log_output('Copied instruction from MBR to CIR');
+				} else {
+					this.log_output('Decoding instruction stored in CIR...');
+					resolve(instruction);
+					clearInterval(this.carry_on);
+				}
+				i++;
+			}, this.animation_interval);
+		});
+	};
+
+	// asynchronous so order of events is followed
+	async process_instruction() {
 
 		// ! NEED TO UPDATE STATUS REGISTER (EVEN IF NOT USED) - WHENEVER LOOP BEING USED / BRANCHING / ERROR
 		// ! NEED TO INCLUDE ALL HIGHLIGHTING
 
-		this.program_counter = parseInt(document.getElementById('PC').value);
-		this.activate_deactivate_wrapper('PC_wrapper');
-		// alert('running');
+		// ! NOTE THAT THERE IS A PROBLEM: DOESN'T ASK FOR INPUT, SO ORDER OF THINGS IN THE FUNCTION BEING AWAITED IS A BIT MESSED UP - REFER TO PREVIOUS VERSION OF CODE ON GITHUB WITH CORRECT ORDER!!!
 
-		// fetch instruction
-
-		this.log_output('####################', true);
-		this.log_output('Fetching instruction...');
-
-		var instruction = document.getElementById('memory_location_' + this.program_counter).value;
-		// if (instruction != '0'.repeat(this.RAM_value_length) || instruction != '00') { // remove all leading 0s
-		// 	instruction = instruction.replace(/^0+/, '');
-		// 	if (instruction == '') {
-		// 		instruction = '0';
-		// 	};
-		// };
-
-		this.log_output('Set MAR to value of PC: ' + this.program_counter);
-		document.getElementById('MAR').value = this.program_counter;
+		// must be done in order, so await is used
+		var instruction = await this.process_instruction_main_beginning();
 		
-		this.log_output('Increment PC by 1');
-		this.program_counter++;
-		document.getElementById('PC').value = this.program_counter;
-
-		this.log_output('Fetch instruction from address stored in MAR');;
-		this.log_output('Fetched instruction ' + instruction + ' stored in MBR');
-		this.log_output('Copy instruction from MBR to CIR');
-
-		document.getElementById('MBR').value = instruction;
-		document.getElementById('CIR').value = instruction;
-
-		this.log_output('Decoding instruction stored in CIR...');
-
 		// halt instruction
 		if (instruction == '000') {
 
@@ -727,21 +805,21 @@ class Little_Man_Computer {
 		// document.getElementById('pausebtn').innerHTML = '<i class="fa fa-pause"></i>';
 		// this.carry_on = setInterval(this.process_instruction(), parseInt(this.time_lapse / this.clock));
 
-		// while (!this.stop) {
-		// 	this.process_instruction();
-		// };
+		while (!this.stop) {
+			this.process_instruction();
+		};
 
 		// while (!this.stop) {
 		// 	setTimeout(this.process_instruction(), 10000);
 		// };
 
-		this.carry_on = setInterval(() => {
-			if (this.stop) {
-				clearInterval(this.carry_on);
-			} else {
-				this.process_instruction();
-			};
-		}, this.time_lapse / this.clock);
+		// this.carry_on = setInterval(() => {
+		// 	if (this.stop) {
+		// 		clearInterval(this.carry_on);
+		// 	} else {
+		// 		this.process_instruction();
+		// 	};
+		// }, this.time_lapse / this.clock);
 
 	};
 
@@ -778,90 +856,6 @@ class Little_Man_Computer {
 
 	// assembly_code_error(line_no, message) {
 	// 	document.getElementById('verbose_output').value += 'Error at line ' + line_no.toString() + ': ' + message;
-	// };
-
-	// load() {
-
-	// 	// assuming everything is correctly formatted because this function will not be called unless there are no errors in the assembly code editor
-	// 	// * NOTE: if user is manually entering values in to RAM, then load function is not used, but that still needs to be checked!
-
-	// 	// reset all registers (general purpose and special purpose)
-	// 	this.reset_all_registers();
-	// 	// reset all inputs / outputs / displays
-	// 	this.reset_all_inp_out();
-	// 	// reset RAM
-	// 	this.reset_RAM();
-	// 	// reset general registers
-	// 	this.reset_general_registers();
-
-	// 	// load program in RAM
-	// 	var lines = $('#code_area').children('div');
-
-	// 	// get numerical values to represent each label (not line)
-	// 	var list_of_labels = Object.keys(this.labels);
-	// 	for (var i = 0; i < list_of_labels.length; i++) {
-	// 		this.label_order[list_of_labels[i]] = i + 1;
-	// 	};
-
-	// 	// ? Because JavaScript is stupid, define local variables to store all necessary information in the lines and curr_line_as_arr each and forEach function, and then once those functions are finished running, set this.values to the values of the local variables (because can't go up the scope for `this` keyword)
-	// 	var curr_RAM = this.RAM;
-	// 	var curr_RAM_value_length = this.RAM_value_length;
-	// 	var curr_label_order = this.label_order;
-	// 	var curr_instruction_set = this.instruction_set;
-
-	// 	lines.each(function (line_index) {
-
-	// 		var curr_line = lines[line_index].innerHTML;
-
-	// 		if (curr_line.length >= 1) { // something in the line
-
-	// 			// regex to replace unnecessary spans and &nbsp; (makes sure that nothing changes even if line has been syntax highlighted before)
-	// 			curr_line = curr_line.replace(/<\/?span[^>]*>/g, "");
-	// 			curr_line = curr_line.replace(/&nbsp;/g, ' ');
-	// 			curr_line = curr_line.replace(/\/?color="[^"]*">/g, ' ');
-	// 			curr_line = curr_line.replace(/\/?style="[^"]*">/g, ' ');
-
-	// 			curr_line_as_arr = curr_line.replace(/[\s]+/g, ' ').trim().split(' ');
-
-	// 			var word_counter = 0;
-
-	// 			curr_line_as_arr.forEach(function (each_word) {
-
-	// 				// get next free location in RAM
-	// 				var next_free_location;
-	// 				for (var i = 0; i < curr_RAM.length; i++) {
-	// 					if (curr_RAM[i] == '0'.repeat(curr_RAM_value_length)) {
-	// 						next_free_location = i;
-	// 						break;
-	// 					};
-	// 				};
-
-	// 				// loops
-	// 				if (each_word.slice(0, -1) in curr_label_order) {
-	// 					curr_RAM[next_free_location] = (curr_instruction_set['VAR'].numerical_value + curr_label_order[each_word.slice(0, -1)]).toString();
-	// 				} else { // 
-
-	// 					if (word_counter == 0) {
-	// 						curr_RAM[next_free_location] = curr_instruction_set[each_word].numerical_value.toString();
-	// 						this.RAM_backend_to_RAM_value_length_digits(next_free_location);
-	// 					}
-
-	// 				};
-
-	// 				word_counter++;
-
-	// 			});
-	// 		}
-
-	// 	});
-
-	// 	this.RAM = curr_RAM;
-	// 	this.RAM_value_length = curr_RAM_value_length;
-	// 	this.label_order = curr_label_order;
-	// 	this.instruction_set = curr_instruction_set;
-
-	// 	this.load_RAM_from_backend();
-
 	// };
 
 };
@@ -1397,228 +1391,6 @@ $(document).ready(function () {
 	$(".scroll_together").bindScroll();
 });
 
-// syntax highlighting for assembly code area
-// list of names of all instructions in instruction set (but not 'VAR' - only for RAM to know where loops start, not an actual opcode)
-var opcode_words = Object.keys(LMC.instruction_set).slice(0, -1);
-// ! SYNTAX HIGHLIGHTING FOR 3 AND 4 WORD LINES STILL LEFT
-$('#code_area').on('keyup', function (key) {
-	// space key pressed - syntax highlighting
-	if (key.keyCode == 32) {
-
-		LMC.reset_verbose_output();
-
-		// store loop names as keys with their values as the line number they exist at
-		var labels = {};
-		var errors = [];
-
-		var lines = $(this).children('div');
-
-		lines.each(function (line_index) {
-
-			var new_HTML = '';
-			var curr_line = lines[line_index].innerHTML;
-
-			if (curr_line.length >= 1) { // something in the line
-
-				// regex to replace unnecessary spans and &nbsp; (makes sure that nothing changes even if line has been syntax highlighted before)
-				curr_line = curr_line.replace(/<\/?span[^>]*>/g, "");
-				curr_line = curr_line.replace(/&nbsp;/g, ' ');
-				curr_line = curr_line.replace(/\/?color="[^"]*">/g, ' ');
-				curr_line = curr_line.replace(/\/?style="[^"]*">/g, ' ');
-
-				curr_line_as_arr = curr_line.replace(/[\s]+/g, ' ').trim().split(' ');
-
-				if (curr_line_as_arr.length == 1) {
-
-					curr_line_as_arr.forEach(function (each_word) {
-
-						var opcode_words_with_no_operands = Object.keys(LMC.instruction_set).filter(key => LMC.instruction_set[key].operands.length === 0).slice(0, -1);
-
-						if (each_word.slice(-1) == ':') { // loops
-
-							labels[each_word.slice(0, -1)] = line_index;
-							new_HTML += '<span class="loop_highlight">' + each_word.slice(0, -1) + '</span>';
-							new_HTML += '<span class="other_highlight">:&nbsp;</span>';
-
-						} else if (opcode_words_with_no_operands.includes(each_word.toUpperCase())) { // valid opcode from INP, OUT, HALT
-
-							if (opcode_words.includes(each_word)) { // correctly capitalised opcode
-								new_HTML += '<span class="command_highlight">' + each_word + '&nbsp;</span>';
-							} else { // incorrectly capitalised opcode
-								new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
-								errors.push([line_index + 1, 'opcode not capitalised']);
-							};
-
-						} else { // no other valid 1 word lines
-
-							if (opcode_words.includes(each_word.toUpperCase())) { // missing operands for an opcode
-								new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
-								errors.push([line_index + 1, 'missing operands for opcode ' + each_word.toUpperCase()]);
-							} else { // some other unknown error
-								new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
-								errors.push([line_index + 1, 'invalid instruction']);
-							};
-
-						};
-
-					});
-
-				} else if (curr_line_as_arr.length == 2) {
-
-					var opcode_words_with_1_operand = Object.keys(LMC.instruction_set).filter(key => LMC.instruction_set[key].operands.length === 1);
-
-					var word_counter = 0;
-					var specific_error = false;
-
-					curr_line_as_arr.forEach(function (each_word) {
-
-						if (word_counter == 0) { // first word in the line
-
-							if (opcode_words_with_1_operand.includes(each_word.toUpperCase())) {
-
-								if (opcode_words.includes(each_word)) { // correctly capitalised opcode
-
-									if (each_word == opcode_words_with_1_operand[0]) { // condition-less branch
-										new_HTML += '<span class="branch_highlight">' + each_word + '&nbsp;</span>';
-									}
-									else { // branch with condition
-
-										if (line_index == 0) { // branch with condition cannot be the first line
-											new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
-											errors.push([line_index + 1, 'branch cannot be the first opcode']);
-										} else {
-
-											// ! NOTE: MAY WANT TO INSTEAD DO A CHECK AFTER CMP FOR B<condition> WITH A TRY FOR THE NEXT LINE, IF ERROR, CLEARLY NO NEXT LINE AND ADD AN ERROR THAT CMP MUST BE FOLLOWED BY BEQ, BLT, BGT, OR BNE, AND IF THERE, DO THE HIGHLIGHTING OF THAT, AND FIND A WAY TO SKIP OR POTENTIALLY JUST GO STRAIGHT TO IT
-
-											// previous line operand must be CMP
-											prev_line = lines[line_index - 1].innerHTML;
-
-											prev_line = prev_line.replace(/<\/?span[^>]*>/g, "");
-											prev_line = prev_line.replace(/&nbsp;/g, ' ');
-											prev_line = prev_line.replace(/\/?color="[^"]*">/g, ' ');
-											prev_line = prev_line.replace(/\/?style="[^"]*">/g, ' ');
-
-											prev_line_as_arr = prev.replace(/[\s]+/g, ' ').trim().split(' ');
-
-											if (prev_line_as_arr[0] == 'CMP') { // no errors and previous line is correct
-												new_HTML += '<span class="branch_highlight">' + each_word + '&nbsp;</span>';
-											} else { // error related to CMP
-												new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
-												errors.push([line_index + 1, 'CMP required in previous line']);
-											};
-
-										};
-									};
-
-								} else { // incorrectly capitalised opcode
-									new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
-									errors.push([line_index + 1, 'opcode not capitalised']);
-								};
-
-							} else { // no other valid 2 word lines
-
-								if (opcode_words.includes(each_word.toUpperCase())) { // missing operands for an opcode
-									new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
-									errors.push([line_index + 1, 'missing operands for opcode ' + each_word.toUpperCase()]);
-								} else { // some other unknown error
-									new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
-									errors.push([line_index + 1, 'invalid instruction']);
-								};
-
-							};
-
-						} else { // second word in the line
-
-							for (var i = 0; i < errors.length; i++) {
-								if (errors[i][0] == line_index + 1) {
-									specific_error = true;
-								};
-							};
-
-							if (!specific_error) { // no errors from previous word
-
-								if (Object.keys(labels).includes(each_word)) {
-									new_HTML += '<span class="loop_highlight">' + each_word + '</span>';
-								} else {
-									new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
-									errors.push([line_index + 1, 'loop name not found']);
-								};
-
-							} else { // cannot check for error here if previous word incorrect
-								new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
-								errors.push(line_index + 1, 'error with opcode');
-							};
-						};
-
-						word_counter++;
-
-					});
-
-				} else if (curr_line_as_arr.length == 3) {
-
-
-
-				} else if (curr_line_as_arr.length == 4) {
-
-
-
-				} else {
-
-					curr_line_as_arr.forEach(function (each_word) {
-						new_HTML += '<span class="error_highlight">' + each_word + '&nbsp;</span>';
-					});
-
-					errors.push([line_index + 1, 'too many variables in the line']);
-
-				};
-
-				new_div = document.createElement('div');
-				new_div.innerHTML = new_HTML;
-
-				lines[line_index].replaceWith(new_div);
-
-			} else { // nothing in the line
-				if (line_index != 0) {
-					// only remove line if not the very first line
-					lines[line_index].remove();
-				};
-			}
-
-			// set cursor position to end of text
-			var child = $('#code_area').children().children();
-			var range = document.createRange();
-			var select = window.getSelection();
-
-			try {
-
-				range.setStart(child[child.length - 1], 1);
-				range.collapse(true);
-				select.removeAllRanges();
-				select.addRange(range);
-				$('#code_area').focus();
-
-			} catch (error) {
-				alert(error);
-			}
-
-		});
-
-		if (errors.length != 0) { // there is at least 1 error	
-			// remove duplicates
-			errors = [...new Map(errors)];
-
-			// output errors to verbose output
-			for (var i = 0; i < errors.length; i++) {
-				LMC.assembly_code_error(errors[i][0], errors[i][1] + '\n');
-			}
-		};
-
-		// store in LMC object
-		LMC.errors = errors;
-		LMC.labels = labels;
-
-	}
-});
 // allow tabs in assembly code area
 document.getElementById('code_area').addEventListener('keydown', function (key) {
 	if (key.keyCode == 9) {
@@ -1641,38 +1413,6 @@ document.getElementById('code_area').addEventListener('keydown', function (key) 
 
 	};
 }, false);
-
-// ! NO TABs IN ASSEMBLY TEXT AREA
-// // add &emsp; - 2 spaces for a tab
-// function insert_tab() {
-
-// 	var selection = window.getSelection();
-// 	var node = selection.anchorNode;
-// 	var text = node.textContent.slice(0, selection.focusOffset);
-
-// 	alert(selection.toString());
-// 	alert(node);
-// 	alert(text);
-
-// }
-
-// // tab pressed - don't go to next element, insert a tab as if writing code
-// $('#code_area').on('keydown', function (key) {
-// 	if (key.keyCode == 9) {
-// 		// add tab
-// 		insert_tab();
-// 		// prevent focusing on next element
-// 		key.preventDefault();
-// 	}
-// });
-
-
-// window.addEventListener('load', function () {
-// 	this.alert(opcode_words);
-// 	this.alert(typeof opcode_words);
-// 	this.alert(opcode_words.at(-1));
-// 	this.alert(typeof opcode_words.at(-1));
-// })
 
 
 // functions called from HTML buttons

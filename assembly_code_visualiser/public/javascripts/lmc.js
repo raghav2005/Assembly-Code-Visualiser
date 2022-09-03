@@ -34,8 +34,6 @@ class Little_Man_Computer {
 		this.RAM_value_length = args.RAM_value_length || 3; // same as general_registers_value_length
 
 		this.general_registers = args.general_registers || [];
-
-		this.accumulator = 0;
 		this.program_counter = 0;
 
 		this.instruction_set = args.instruction_set || {};
@@ -207,7 +205,7 @@ class Little_Man_Computer {
 	};
 
 	// log to FDE Cycle Output (based on reset), and to Verbose Output
-	log(text, reset = false) {
+	log_output(text, reset = false) {
 
 		if (reset) {
 			document.getElementById('FDE_output').value = text.replace('   ', '&nbsp;&nbsp;&nbsp;') + '\r\n';
@@ -265,10 +263,10 @@ class Little_Man_Computer {
 
 	load() {
 
-		clearInterval(this.carry_on);
+		// clearInterval(this.carry_on);
 
 		this.paused = true;
-		this.activate_deactivate_wrapper('step_program');
+		// this.activate_deactivate_wrapper('step_program');
 		this.cycles = 0;
 
 		// reset all registers (general purpose and special purpose)
@@ -351,7 +349,7 @@ class Little_Man_Computer {
 					
 					} else {
 
-						this.log('Error at line ' + counter + ': Invalid opcode');
+						this.log_output('Error at line ' + counter + ': Invalid opcode');
 
 					};
 
@@ -420,7 +418,7 @@ class Little_Man_Computer {
 
 						} else {
 
-							this.log('Error at line ' + counter + ': Invalid instruction');
+							this.log_output('Error at line ' + counter + ': Invalid instruction');
 
 						};
 
@@ -432,7 +430,7 @@ class Little_Man_Computer {
 						this.RAM[counter] = this.instruction_set[line].numerical_value;
 						counter++;
 					} else {
-						this.log('Error at line ' + counter + ': Invalid instruction');
+						this.log_output('Error at line ' + counter + ': Invalid instruction');
 					};
 
 				};
@@ -447,68 +445,313 @@ class Little_Man_Computer {
 	process_instruction() {
 
 		this.program_counter = parseInt(document.getElementById('PC').value);
-		this.activate_deactivate_wrapper('PC_wrapper');
+		// this.activate_deactivate_wrapper('PC_wrapper');
 
 		// fetch instruction
 
-		this.log('####################', true);
-		this.log('Fetching instruction...');
+		this.log_output('####################', true);
+		this.log_output('Fetching instruction...');
 
-		var instruction = document.getElementById('PC').value;
-		this.log('Set MAR to value of PC: ' + this.program_counter);
+		var instruction = document.getElementById('memory_location_' + this.program_counter).value;
+		if (instruction != '0'.repeat(this.RAM_value_length) || instruction != '00') { // remove all leading 0s
+			instruction = instruction.replace(/^0+/, '');
+			if (instruction == '') {
+				instruction = '0';
+			};
+		};
+
+		this.log_output('Set MAR to value of PC: ' + this.program_counter);
 		document.getElementById('MAR').value = this.program_counter;
 		
-		this.log('Increment PC by 1');
+		this.log_output('Increment PC by 1');
 		this.program_counter++;
 		document.getElementById('PC').value = this.program_counter;
 
-		this.log('Fetch instruction from address stored in MAR');;
-		this.log('Fetched instruction ' + instruction + ' stored in MDR');
-		this.log('Copy instruction from MDR to CIR');
+		this.log_output('Fetch instruction from address stored in MAR');;
+		this.log_output('Fetched instruction ' + instruction + ' stored in MBR');
+		this.log_output('Copy instruction from MBR to CIR');
 
-		document.getElementById('MDR').value = instruction;
+		document.getElementById('MBR').value = instruction;
 		document.getElementById('CIR').value = instruction;
 
-		this.log('Decoding instruction stored in CIR...');
+		this.log_output('Decoding instruction stored in CIR...');
 
 		// halt instruction
 		if (instruction.slice(-3) == '000') {
 
-			this.log('HALT');
-			this.log('Executing instruction...');
-			this.log('Program stopped');
+			this.log_output('HLT');
+			this.log_output('Executing instruction...');
+			this.log_output('Program stopped');
 
 			this.cycles++;
 
-			this.log('####################');
-			this.log('Program executed in ' + this.cycles + ' FDE cycles');
+			this.log_output('####################');
+			this.log_output('Program executed in ' + this.cycles + ' FDE cycles');
 
 			this.cycles = 0;
 			this.paused = true;
 
 			document.getElementById('pausebtn').innerHTML = '<i class="fa fa-play"></i>';
 
-			clearInterval(carry_on);
+			// clearInterval(this.carry_on);
 
 		} else if (instruction.slice(-3) == '901') { // input instruction
 
-			this.log('INPUT');
-			this.log('Executing instruction...');
-			this.log('Waiting for user input...');
+			this.log_output('INP');
+			this.log_output('Executing instruction...');
+			this.log_output('Waiting for user input...');
 			this.cycles++;
 
 			// ! MAKE THIS WORK SO CAN'T DO ANYTHING UNTIL SOMETHING INPUTTED INTO INPUT BOX IN CONTROLBOX
 
-			inp = prompt('User input:');
-			document.getElementById('input').value = document.getElementById('input').value + inp + '\n';
+			this.inp = prompt('User input:');
+			document.getElementById('input').value = document.getElementById('input').value + this.inp + '\n';
 			document.getElementById('input').scrollTop = document.getElementById('input').scrollHeight;
 
-			this.log('Store user input in Accumulator: ' + inp);
-			document.getElementById('accumulator').value = inp;
+			this.log_output('Store user input in Accumulator: ' + this.inp);
+			document.getElementById('accumulator').value = this.inp;
 
-		}
+		} else if (instruction.slice(-3) == '902') { // output instruction
+
+			this.log_output('OUT');
+			this.log_output('Executing instruction...');
+			this.log_output('Output value held in Accumulator: ' + document.getElementById('accumulator').value);
+
+			this.cycles++;
+
+			document.getElementById('output').value = document.getElementById('output').value + document.getElementById('accumulator').value + '\n';
+			document.getElementById('output').scrollTop = document.getElementById('output').scrollHeight;
+
+		} else {
+
+			var opcode = instruction.substr(0, 1);
+			var operand_address = instruction.substr(1);
+			var operand;
+			var direct = false;
+
+			if (operand_address.substr(0, 1) == '@') { // indirect addressing
+				operand = parseInt(document.getElementById('memory_location_' + operand_address.substr(1)).value);
+			} else if (operand_address.substr(0, 1) == '#') { // direct addressing
+				direct = true;
+				operand = operand_address.substr(1);
+			} else {
+				operand = operand_address;
+			};
+
+			var accumulator = parseInt(document.getElementById('accumulator').value);
+
+			if (opcode == '1') { // add instruction
+
+				this.log_output('ADD');
+				this.log_output('Executing instruction...');
+
+				this.cycles++;
+
+				var MBR;
+
+				if (direct) {
+					MBR = parseInt(operand);
+					this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
+					document.getElementById('MBR').value = MBR;
+				} else {
+					MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+					this.log_output('Set MAR to operand of the current instruction: ' + operand);
+					this.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
+					document.getElementById('MAR').value = operand;
+					document.getElementById('MBR').value = MBR;
+				};
+
+				this.log_output('Add MBR value to Accumulator and store the result in Accumulator: ' + accumulator + '+' + MBR + '=' + (accumulator + MBR));
+				accumulator += MBR;
+				document.getElementById('accumulator').value = accumulator;
+
+			} else if (opcode == '2') { // subtract instruction
+
+				this.log_output('SUB');
+				this.log_output('Executing instruction...');
+
+				this.cycles++;
+
+				var MBR;
+
+				if (direct) {
+					MBR = parseInt(operand);
+					this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
+					document.getElementById('MBR').value = MBR;
+				} else {
+					MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+					this.log_output('Set MAR to operand of the current instruction: ' + operand);
+					this.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
+					document.getElementById('MAR').value = operand;
+					document.getElementById('MBR').value = MBR;
+				};
+
+				this.log_output('Subtract MBR value from Accumulator and store the result in Accumulator: ' + accumulator + '-' + MBR + '=' + (accumulator - MBR));
+				accumulator -= MBR;
+				document.getElementById('accumulator').value = accumulator;
+
+			} else if (opcode == '5') { // load to accumulator
+
+				this.log_output('LDA');
+				this.log_output('Executing instruction...');
+
+				this.cycles++;
+
+				var MBR;
+
+				if (direct) {
+					MBR = parseInt(operand);
+					this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
+					document.getElementById('MBR').value = MBR;
+				} else {
+					MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+					this.log_output('Set MAR to operand of the current instruction: ' + operand);
+					this.log_output('Fetch data at location held by MAR (' + operand + ') and store it in MBR: ' + MBR);
+					document.getElementById('MAR').value = operand;
+					document.getElementById('MBR').value = MBR;
+				};
+
+				document.getElementById('accumulator').value = MBR;
+				this.log_output('Store MBR value in Accumulator: ' + MBR);
+
+			} else if (opcode == '3') { // store accumulator value in memory
+
+				this.log_output('STA');
+				this.log_output('Executing instruction...');
+
+				this.cycles++;
+				this.log_output('Set MAR to operand of the current instruction: ' + operand);
+
+				var MBR = parseInt(document.getElementById('accumulator').value);
+
+				this.log_output('Set MBR to value held in Accumulator: ' + MBR);
+				this.log_output('Store MBR value ' + MBR + ' at memory location held in MAR: ' + operand);
+
+				document.getElementById('MAR').value = operand;
+				document.getElementById('MBR').value = MBR;
+				document.getElementById('memory_location_' + operand).value = MBR;
+
+			} else if (opcode == '6') { // always branch
+
+				this.log_output('BRA');
+				this.log_output('Executing instruction...');
+
+				this.cycles++;
+
+				document.getElementById('PC').value = operand;
+				this.program_counter = parseInt(operand);
+				this.log_output('Set PC to operand of instruction: ' + operand);
+
+			} else if (opcode == '7') { // branch if zero
+
+				this.log_output('BRZ');
+				this.log_output('Executing instruction...');
+
+				this.cycles++;
+
+				this.log_output('Check if value held in Accumulator is 0');
+
+				if (accumulator == 0) {
+					this.log_output('0 == 0 - true');
+					this.log_output('Set PC to operand of instruction: ' + operand);
+					document.getElementById('PC').value = operand;
+					this.program_counter = parseInt(operand);
+				} else {
+					this.log_output(accumulator + ' == 0 - false');
+				};
+
+			} else if (opcode == '8') { // branch if positive or 0
+
+				this.log_output('BRP');
+				this.log_output('Executing instruction...');
+
+				this.cycles++;
+
+				this.log_output('Check if value held in Accumulator is positive (>= 0)');
+
+				if (accumulator >= 0) {
+					this.log_output(accumulator + ' >= 0 - true');
+					this.log_output('Set PC to operand of instruction: ' + operand);
+					document.getElementById('PC').value = operand;
+					this.program_counter = parseInt(operand);
+				} else {
+					this.log_output(accumulator + ' >= 0 - false');
+				};
+			};
+		};
 
 	};
+
+	step() {
+
+		// clearInterval(this.carry_on);
+		this.paused = true;
+		// document.getElementById('pausebtn').innerHTML = '<i class="fa fa-play"></i>';
+		this.process_instruction();
+
+	};
+
+	run() {
+
+		// clearInterval(this.carry_on);
+		this.cycles = 0;
+
+		this.reset_all_registers();
+		this.reset_all_inp_out();
+
+		this.scan_code();
+
+		// this.clock = document.getElementById('clock').value;
+		this.paused = false;
+		// document.getElementById('pausebtn').innerHTML = '<i class="fa fa-pause"></i>';
+		// this.carry_on = setInterval(this.process_instruction(), parseInt(this.time_lapse / this.clock));
+
+		var pc = parseInt(document.getElementById('PC').value);
+
+		var instruction = document.getElementById('memory_location_' + pc).value;
+		if (instruction != '0'.repeat(this.RAM_value_length) || instruction != '00') { // remove all leading 0s
+			instruction = instruction.replace(/^0+/, '');
+			if (instruction == '') {
+				instruction = '0';
+			};
+		};
+
+		while (instruction.slice(-3) != '000') {
+			this.process_instruction();
+		};
+
+	};
+
+	pause() {
+
+		if (!this.paused) {
+			
+			// clearInterval(this.carry_on);
+			this.paused = true;
+			// document.getElementById("pausebtn").innerHTML = '<i class="fa fa-play"></i>';
+
+		} else {
+			
+			this.paused = false;
+			document.getElementById("pausebtn").innerHTML = '<i class="fa fa-pause"></i>';
+
+			if (this.cycles == 0) {
+				this.run();
+			} else {
+				// clock = document.getElementById("clock").value;
+				this.carry_on = setInterval(this.process_instruction(), parseInt(this.time_lapse / this.clock));
+			};
+
+		};
+	};
+
+	// select_program() {
+	// 	if (confirm("This operation will overwrite your current program. Are you sure you want to continue?")) {
+	// 		var option = document.getElementById("files").options[document.getElementById("files").selectedIndex].value;
+	// 		document.getElementById("codeListing").value = document.getElementById("code" + option).value;
+	// 		load();
+	// 	}
+	// };
 
 	// assembly_code_error(line_no, message) {
 	// 	document.getElementById('verbose_output').value += 'Error at line ' + line_no.toString() + ': ' + message;
@@ -1353,6 +1596,28 @@ $('#code_area').on('keyup', function (key) {
 
 	}
 });
+// allow tabs in assembly code area
+document.getElementById('code_area').addEventListener('keydown', function (key) {
+	if (key.keyCode == 9) {
+
+		// get caret position / selection
+		var start = this.selectionStart;
+		var end = this.selectionEnd;
+
+		var target = key.target;
+		var value = target.value;
+
+		// set textarea value to `text before caret` + tab + `text after caret`
+		target.value = value.substring(0, start) + '\t' + value.substring(end);
+
+		// put caret at right position again (add 1 for tab)
+		this.selectionStart = this.selectionEnd = start + 1;
+
+		// prevent losing focus
+		key.preventDefault();
+
+	};
+}, false);
 
 // ! NO TABs IN ASSEMBLY TEXT AREA
 // // add &emsp; - 2 spaces for a tab
@@ -1417,4 +1682,8 @@ function upload_program(LMC) {
 
 function load_into_RAM(LMC) {
 	LMC.load();
+};
+function run_program(LMC) {
+	load_into_RAM(LMC);
+	LMC.run();
 };

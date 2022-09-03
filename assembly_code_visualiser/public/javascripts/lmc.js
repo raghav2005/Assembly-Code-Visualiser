@@ -38,7 +38,7 @@ class Little_Man_Computer {
 
 		this.instruction_set = args.instruction_set || {};
 
-		this.clock = 50;
+		this.clock = 25;
 		this.time_lapse = 10000;
 		this.paused = true;
 
@@ -456,8 +456,12 @@ class Little_Man_Computer {
 
 	process_instruction() {
 
+		// ! NEED TO UPDATE STATUS REGISTER (EVEN IF NOT USED) - WHENEVER LOOP BEING USED / BRANCHING / ERROR
+		// ! NEED TO INCLUDE ALL HIGHLIGHTING
+
 		this.program_counter = parseInt(document.getElementById('PC').value);
-		// this.activate_deactivate_wrapper('PC_wrapper');
+		this.activate_deactivate_wrapper('PC_wrapper');
+		// alert('running');
 
 		// fetch instruction
 
@@ -517,8 +521,6 @@ class Little_Man_Computer {
 			this.cycles++;
 
 			// ! MAKE THIS WORK SO CAN'T DO ANYTHING UNTIL SOMETHING INPUTTED INTO INPUT BOX IN CONTROLBOX
-
-			
 
 			this.inp = prompt('User input:');
 			document.getElementById('input').value = this.inp;
@@ -725,9 +727,21 @@ class Little_Man_Computer {
 		// document.getElementById('pausebtn').innerHTML = '<i class="fa fa-pause"></i>';
 		// this.carry_on = setInterval(this.process_instruction(), parseInt(this.time_lapse / this.clock));
 
-		while (!this.stop) {
-			this.process_instruction();
-		};
+		// while (!this.stop) {
+		// 	this.process_instruction();
+		// };
+
+		// while (!this.stop) {
+		// 	setTimeout(this.process_instruction(), 10000);
+		// };
+
+		this.carry_on = setInterval(() => {
+			if (this.stop) {
+				clearInterval(this.carry_on);
+			} else {
+				this.process_instruction();
+			};
+		}, this.time_lapse / this.clock);
 
 	};
 

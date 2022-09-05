@@ -466,6 +466,11 @@ class Little_Man_Computer {
 					this.program_counter = parseInt(document.getElementById('PC').value);
 					this.log_output('####################', true);
 					this.log_output('Fetching instruction...');
+					this.activate_deactivate_wrapper('control_unit_wrapper');
+					this.activate_deactivate_wrapper('clock_wrapper');
+					control_bus.setOptions({
+						color: '#4040FF'
+					});
 				} else if (i == 1) {
 					this.activate_deactivate_wrapper('PC_wrapper');
 				} else if (i == 2) {
@@ -541,6 +546,10 @@ class Little_Man_Computer {
 					this.log_output('Fetched instruction ' + instruction + ' stored in MBR');
 
 				} else if (i == 13) {
+					this.activate_deactivate_wrapper('control_unit_wrapper');
+					control_bus.setOptions({
+						color: '#AAAAAA'
+					});
 					this.activate_deactivate_wrapper('MBR_wrapper');
 				} else if (i == 14) {
 					this.activate_deactivate_wrapper('CIR_wrapper');
@@ -551,9 +560,77 @@ class Little_Man_Computer {
 					this.log_output('Copied instruction from MBR to CIR');
 				} else {
 					this.log_output('Decoding instruction stored in CIR...');
+					this.activate_deactivate_wrapper('control_unit_wrapper');
+					control_bus.setOptions({
+						color: '#4040FF'
+					});
 					resolve(instruction);
 					clearInterval(this.carry_on);
 				}
+				i++;
+			}, this.animation_interval);
+		});
+	};
+
+	// ! HIGHLIGHTING FOR BOTH METHODS BELOW
+	process_instruction_HLT() {
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			this.carry_on = setInterval(() => {
+				// fetch instruction
+				if (i == 0) {
+					this.log_output('HLT');
+					this.log_output('Executing instruction...');
+				} else if (i == 1) {
+					this.activate_deactivate_wrapper('control_unit_wrapper');
+					control_bus.setOptions({
+						color: '#AAAAAA'
+					});
+					this.log_output('Program stopped');
+					this.cycles++;
+				} else {
+					this.log_output('####################');
+					this.log_output('Program executed in ' + this.cycles + ' FDE cycles');
+					this.paused = true;
+					this.stop = true;
+					document.getElementById('clock').value = this.cycles;
+					this.activate_deactivate_wrapper('clock_wrapper');
+					this.cycles = 0;
+					resolve();
+					clearInterval(this.carry_on);
+				};
+				i++;
+			}, this.animation_interval);
+		});
+	};
+
+	process_instruction_INP() {
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			this.carry_on = setInterval(() => {
+				// fetch instruction
+				if (i == 0) {
+					this.log_output('INP');
+					this.log_output('Executing instruction...');
+				} else if (i == 1) {
+					this.activate_deactivate_wrapper('control_unit_wrapper');
+					control_bus.setOptions({
+						color: '#AAAAAA'
+					});
+					this.log_output('Waiting for user input...');
+					this.cycles++;
+				} else if (i == 2) {
+					this.inp = prompt('User input:');
+					document.getElementById('input').value = this.inp;
+					document.getElementById('input').scrollTop = document.getElementById('input').scrollHeight;
+				} else {
+					this.log_output('Store user input in Accumulator: ' + this.inp);
+					document.getElementById('accumulator').value = this.inp;
+					document.getElementById('clock').value = this.cycles;
+					this.activate_deactivate_wrapper('clock_wrapper');
+					resolve();
+					clearInterval(this.carry_on);
+				};
 				i++;
 			}, this.animation_interval);
 		});
@@ -573,19 +650,21 @@ class Little_Man_Computer {
 		// halt instruction
 		if (instruction == '000') {
 
-			this.log_output('HLT');
-			this.log_output('Executing instruction...');
-			this.log_output('Program stopped');
+			// this.log_output('HLT');
+			// this.log_output('Executing instruction...');
+			// this.log_output('Program stopped');
 
-			this.cycles++;
+			// this.cycles++;
 
-			this.log_output('####################');
-			this.log_output('Program executed in ' + this.cycles + ' FDE cycles');
+			// this.log_output('####################');
+			// this.log_output('Program executed in ' + this.cycles + ' FDE cycles');
 
-			this.cycles = 0;
-			this.paused = true;
+			// this.cycles = 0;
+			// this.paused = true;
 
-			this.stop = true;
+			// this.stop = true;
+
+			await this.process_instruction_HLT();
 
 			// document.getElementById('pausebtn').innerHTML = '<i class="fa fa-play"></i>';
 
@@ -593,20 +672,22 @@ class Little_Man_Computer {
 
 		} else if (instruction == '901') { // input instruction
 
-			this.log_output('INP');
-			this.log_output('Executing instruction...');
-			this.log_output('Waiting for user input...');
-			this.cycles++;
+			// this.log_output('INP');
+			// this.log_output('Executing instruction...');
+			// this.log_output('Waiting for user input...');
+			// this.cycles++;
 
 			// ! MAKE THIS WORK SO CAN'T DO ANYTHING UNTIL SOMETHING INPUTTED INTO INPUT BOX IN CONTROLBOX
 
-			this.inp = prompt('User input:');
-			document.getElementById('input').value = this.inp;
+			// this.inp = prompt('User input:');
+			// document.getElementById('input').value = this.inp;
 			// document.getElementById('input').value = document.getElementById('input').value + this.inp + '\n';
-			document.getElementById('input').scrollTop = document.getElementById('input').scrollHeight;
+			// document.getElementById('input').scrollTop = document.getElementById('input').scrollHeight;
 
-			this.log_output('Store user input in Accumulator: ' + this.inp);
-			document.getElementById('accumulator').value = this.inp;
+			await this.process_instruction_INP();
+
+			// this.log_output('Store user input in Accumulator: ' + this.inp);
+			// document.getElementById('accumulator').value = this.inp;
 
 		} else if (instruction == '902') { // output instruction
 

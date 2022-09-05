@@ -463,13 +463,14 @@ class Little_Man_Computer {
 			this.carry_on = setInterval(() => {
 				// fetch instruction
 				if (i == 0) {
+					this.program_counter = parseInt(document.getElementById('PC').value);
 					this.log_output('####################', true);
 					this.log_output('Fetching instruction...');
 				} else if (i == 1) {
 					this.activate_deactivate_wrapper('PC_wrapper');
 				} else if (i == 2) {
+					instruction = document.getElementById('memory_location_' + this.program_counter).value;
 					this.activate_deactivate_wrapper('MAR_wrapper');
-					this.program_counter = parseInt(document.getElementById('PC').value);
 					document.getElementById('MAR').value = this.program_counter;
 				} else if (i == 3) {
 					this.activate_deactivate_wrapper('PC_wrapper');
@@ -485,12 +486,11 @@ class Little_Man_Computer {
 				} else if (i == 6) {
 					this.log_output('Fetch instruction from address stored in MAR');
 				} else if (i == 7) {
-					instruction = document.getElementById('memory_location_' + this.program_counter).value;
 					this.activate_deactivate_wrapper('MAR_wrapper');
 				} else if (i == 8) {
 
 					// get memory wrapper location as 2 digits e.g. 00, 01, 92, etc.
-					k_str = this.program_counter.toString();
+					k_str = document.getElementById('MAR').value.toString();
 					while (k_str.length < 2) {
 						k_str = '0' + k_str;
 					};
@@ -503,7 +503,7 @@ class Little_Man_Computer {
 					});
 
 				} else if (i == 9) {
-					this.activate_deactivate_wrapper('memory_location_' + this.program_counter);
+					this.activate_deactivate_wrapper('memory_location_' + document.getElementById('MAR').value.toString());
 				} else if (i == 10) {
 					// move data bus + change color
 					data_bus.setOptions({
@@ -535,7 +535,7 @@ class Little_Man_Computer {
 					});
 
 					this.activate_deactivate_wrapper('MAR_wrapper');
-					this.activate_deactivate_wrapper('memory_location_' + this.program_counter);
+					this.activate_deactivate_wrapper('memory_location_' + document.getElementById('MAR').value.toString());
 					this.activate_deactivate_wrapper('MBR_wrapper');
 
 					this.log_output('Fetched instruction ' + instruction + ' stored in MBR');

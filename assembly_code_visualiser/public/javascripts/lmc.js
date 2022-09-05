@@ -38,8 +38,9 @@ class Little_Man_Computer {
 
 		this.instruction_set = args.instruction_set || {};
 
-		this.clock = 25;
-		this.time_lapse = 10000;
+		// this.clock = 25;
+		// this.time_lapse = 10000;
+		this.time_numerator = 15000;
 		this.paused = true;
 
 		this.labels = {};
@@ -172,6 +173,7 @@ class Little_Man_Computer {
 		document.getElementById('status_register').value = '00';
 		document.getElementById('CIR').value = '00';
 		document.getElementById('PC').value = '00';
+		document.getElementById('clock').value = '0';
 		document.getElementById('MBR').value = '0'.repeat(this.RAM_value_length);
 		this.program_counter = 0;
 	};
@@ -1254,12 +1256,13 @@ class Little_Man_Computer {
 
 		// clearInterval(this.carry_on);
 		this.paused = true;
+		this.animation_interval = parseInt(this.time_numerator / document.getElementById('clock_speed').value);
 		// document.getElementById('pausebtn').innerHTML = '<i class="fa fa-play"></i>';
 		this.process_instruction();
 
 	};
 
-	run() {
+	async run() {
 
 		// clearInterval(this.carry_on);
 		this.cycles = 0;
@@ -1272,49 +1275,50 @@ class Little_Man_Computer {
 
 		// this.clock = document.getElementById('clock').value;
 		this.paused = false;
+		this.animation_interval = parseInt(this.time_numerator / document.getElementById('clock_speed').value);
 		// document.getElementById('pausebtn').innerHTML = '<i class="fa fa-pause"></i>';
 		// this.carry_on = setInterval(this.process_instruction(), parseInt(this.time_lapse / this.clock));
 
-		// while (!this.stop) {
-		// 	this.process_instruction();
-		// };
+		while (!this.stop) {
+			await this.process_instruction();
+		};
 
 		// while (!this.stop) {
 		// 	setTimeout(this.process_instruction(), 10000);
 		// };
 
-		this.carry_on = setInterval(() => {
-			if (this.stop) {
-				clearInterval(this.carry_on);
-			} else {
-				this.process_instruction();
-			};
-		}, this.animation_interval);
+		// this.carry_on = setInterval(() => {
+		// 	if (this.stop) {
+		// 		clearInterval(this.carry_on);
+		// 	} else {
+		// 		this.process_instruction();
+		// 	};
+		// }, 5000);
 
 	};
 
-	pause() {
+	// pause() {
 
-		if (!this.paused) {
+	// 	if (!this.paused) {
 			
-			// clearInterval(this.carry_on);
-			this.paused = true;
-			// document.getElementById("pausebtn").innerHTML = '<i class="fa fa-play"></i>';
+	// 		// clearInterval(this.carry_on);
+	// 		this.paused = true;
+	// 		// document.getElementById("pausebtn").innerHTML = '<i class="fa fa-play"></i>';
 
-		} else {
+	// 	} else {
 			
-			this.paused = false;
-			document.getElementById("pausebtn").innerHTML = '<i class="fa fa-pause"></i>';
+	// 		this.paused = false;
+	// 		document.getElementById("pausebtn").innerHTML = '<i class="fa fa-pause"></i>';
 
-			if (this.cycles == 0) {
-				this.run();
-			} else {
-				// clock = document.getElementById("clock").value;
-				this.carry_on = setInterval(this.process_instruction(), parseInt(this.time_lapse / this.clock));
-			};
+	// 		if (this.cycles == 0) {
+	// 			this.run();
+	// 		} else {
+	// 			// clock = document.getElementById("clock").value;
+	// 			this.carry_on = setInterval(this.process_instruction(), parseInt(this.time_lapse / this.clock));
+	// 		};
 
-		};
-	};
+	// 	};
+	// };
 
 	// select_program() {
 	// 	if (confirm("This operation will overwrite your current program. Are you sure you want to continue?")) {

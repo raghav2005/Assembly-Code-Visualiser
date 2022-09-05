@@ -347,3 +347,7 @@ svg.leader-line {
 #instruction_set_viewer {
 	height: 40em;
 }
+
+#clock_speed {
+	width: 100%;
+}

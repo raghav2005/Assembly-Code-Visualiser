@@ -780,6 +780,104 @@ class Little_Man_Computer {
 		});
 	};
 
+	process_instruction_LDA(direct, operand) {
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			var MBR;
+			this.carry_on = setInterval(() => {
+				// fetch instruction
+				if (i == 0) {
+					this.log_output('LDA');
+					this.log_output('Executing instruction...');
+				} else if (i == 1) {
+					this.activate_deactivate_wrapper('control_unit_wrapper');
+					control_bus.setOptions({
+						color: '#AAAAAA'
+					});
+					this.cycles++;
+				} else if (i == 2) {
+					if (direct) {
+						MBR = parseInt(operand);
+						this.activate_deactivate_wrapper('MBR_wrapper');
+					} else {
+						MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+						this.activate_deactivate_wrapper('MAR_wrapper');
+						this.activate_deactivate_wrapper('MBR_wrapper');
+					};
+				} else if (i == 3) {
+					if (direct) {
+						this.activate_deactivate_wrapper('MBR_wrapper');
+						this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
+						document.getElementById('MBR').value = MBR;
+					} else {
+						this.activate_deactivate_wrapper('MAR_wrapper');
+						this.activate_deactivate_wrapper('MBR_wrapper');
+						MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+						this.log_output('Set MAR to operand of the current instruction: ' + operand);
+						this.log_output('Fetch data at location held by MAR (' + operand + ') and store it in MBR: ' + MBR);
+						document.getElementById('MAR').value = operand;
+						document.getElementById('MBR').value = MBR;
+					}
+				} else if (i == 4) {
+					this.activate_deactivate_wrapper('MBR_wrapper');
+					this.activate_deactivate_wrapper('accumulator_wrapper');
+				} else if (i == 5) {
+					this.activate_deactivate_wrapper('MBR_wrapper');
+					this.activate_deactivate_wrapper('accumulator_wrapper');
+					document.getElementById('accumulator').value = MBR;
+					this.log_output('Store MBR value in Accumulator: ' + MBR);
+				} else {
+					document.getElementById('clock').value = this.cycles;
+					this.activate_deactivate_wrapper('clock_wrapper');
+					resolve(MBR);
+					clearInterval(this.carry_on);
+				};
+				i++;
+			}, this.animation_interval);
+		});
+	};
+
+	process_instruction_STA(operand) {
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			var MBR;
+			this.carry_on = setInterval(() => {
+				// fetch instruction
+				if (i == 0) {
+					this.log_output('STA');
+					this.log_output('Executing instruction...');
+				} else if (i == 1) {
+					this.activate_deactivate_wrapper('control_unit_wrapper');
+					control_bus.setOptions({
+						color: '#AAAAAA'
+					});
+					this.cycles++;
+				} else if (i == 2) {
+					MBR = parseInt(document.getElementById('accumulator').value);
+					this.activate_deactivate_wrapper('MBR_wrapper');
+					this.activate_deactivate_wrapper('accumulator_wrapper');
+				} else if (i == 3) {
+					this.activate_deactivate_wrapper('accumulator_wrapper');
+					this.log_output('Set MBR to value held in Accumulator: ' + MBR);
+					document.getElementById('MBR').value = MBR;
+				} else if (i == 4) {
+					this.activate_deactivate_wrapper('MBR_wrapper');
+					this.activate_deactivate_wrapper('MAR_wrapper');
+					this.log_output('Store MBR value ' + MBR + ' at memory location held in MAR: ' + operand);
+					document.getElementById('MAR').value = operand;
+					document.getElementById('memory_location_' + operand).value = MBR;
+				} else {
+					this.activate_deactivate_wrapper('MAR_wrapper');
+					document.getElementById('clock').value = this.cycles;
+					this.activate_deactivate_wrapper('clock_wrapper');
+					resolve(MBR);
+					clearInterval(this.carry_on);
+				};
+				i++;
+			}, this.animation_interval);
+		});
+	};
+
 	// asynchronous so order of events is followed
 	async process_instruction() {
 
@@ -921,44 +1019,48 @@ class Little_Man_Computer {
 
 			} else if (opcode == '5') { // load to accumulator
 
-				this.log_output('LDA');
-				this.log_output('Executing instruction...');
+				// this.log_output('LDA');
+				// this.log_output('Executing instruction...');
 
-				this.cycles++;
+				// this.cycles++;
 
-				var MBR;
+				// var MBR;
 
-				if (direct) {
-					MBR = parseInt(operand);
-					this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
-					document.getElementById('MBR').value = MBR;
-				} else {
-					MBR = parseInt(document.getElementById('memory_location_' + operand).value);
-					this.log_output('Set MAR to operand of the current instruction: ' + operand);
-					this.log_output('Fetch data at location held by MAR (' + operand + ') and store it in MBR: ' + MBR);
-					document.getElementById('MAR').value = operand;
-					document.getElementById('MBR').value = MBR;
-				};
+				var MBR = await this.process_instruction_LDA(direct, operand);
 
-				document.getElementById('accumulator').value = MBR;
-				this.log_output('Store MBR value in Accumulator: ' + MBR);
+				// if (direct) {
+				// 	MBR = parseInt(operand);
+				// 	this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
+				// 	document.getElementById('MBR').value = MBR;
+				// } else {
+				// 	MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+				// 	this.log_output('Set MAR to operand of the current instruction: ' + operand);
+				// 	this.log_output('Fetch data at location held by MAR (' + operand + ') and store it in MBR: ' + MBR);
+				// 	document.getElementById('MAR').value = operand;
+				// 	document.getElementById('MBR').value = MBR;
+				// };
+
+				// document.getElementById('accumulator').value = MBR;
+				// this.log_output('Store MBR value in Accumulator: ' + MBR);
 
 			} else if (opcode == '3') { // store accumulator value in memory
 
-				this.log_output('STA');
-				this.log_output('Executing instruction...');
+				// this.log_output('STA');
+				// this.log_output('Executing instruction...');
 
-				this.cycles++;
-				this.log_output('Set MAR to operand of the current instruction: ' + operand);
+				// this.cycles++;
+				// this.log_output('Set MAR to operand of the current instruction: ' + operand);
 
-				var MBR = parseInt(document.getElementById('accumulator').value);
+				// var MBR = parseInt(document.getElementById('accumulator').value);
 
-				this.log_output('Set MBR to value held in Accumulator: ' + MBR);
-				this.log_output('Store MBR value ' + MBR + ' at memory location held in MAR: ' + operand);
+				var MBR = await this.process_instruction_STA(operand);
 
-				document.getElementById('MAR').value = operand;
-				document.getElementById('MBR').value = MBR;
-				document.getElementById('memory_location_' + operand).value = MBR;
+				// this.log_output('Set MBR to value held in Accumulator: ' + MBR);
+				// this.log_output('Store MBR value ' + MBR + ' at memory location held in MAR: ' + operand);
+
+				// document.getElementById('MAR').value = operand;
+				// document.getElementById('MBR').value = MBR;
+				// document.getElementById('memory_location_' + operand).value = MBR;
 
 			} else if (opcode == '6') { // always branch
 

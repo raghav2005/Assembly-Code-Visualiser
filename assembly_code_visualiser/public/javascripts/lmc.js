@@ -572,7 +572,6 @@ class Little_Man_Computer {
 		});
 	};
 
-	// ! HIGHLIGHTING FOR BOTH METHODS BELOW
 	process_instruction_HLT() {
 		return new Promise((resolve, reject) => {
 			var i = 0;
@@ -636,6 +635,151 @@ class Little_Man_Computer {
 		});
 	};
 
+	process_instruction_OUT() {
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			this.carry_on = setInterval(() => {
+				// fetch instruction
+				if (i == 0) {
+					this.log_output('OUT');
+					this.log_output('Executing instruction...');
+				} else if (i == 1) {
+					this.activate_deactivate_wrapper('control_unit_wrapper');
+					control_bus.setOptions({
+						color: '#AAAAAA'
+					});
+					this.activate_deactivate_wrapper('accumulator_wrapper');
+				} else if (i == 2) {
+					this.activate_deactivate_wrapper('accumulator_wrapper');
+					this.log_output('Output value held in Accumulator: ' + document.getElementById('accumulator').value);
+					this.cycles++;
+					document.getElementById('output').value = document.getElementById('accumulator').value;
+					document.getElementById('output').scrollTop = document.getElementById('output').scrollHeight;
+				} else {
+					document.getElementById('clock').value = this.cycles;
+					this.activate_deactivate_wrapper('clock_wrapper');
+					resolve();
+					clearInterval(this.carry_on);
+				};
+				i++;
+			}, this.animation_interval);
+		});
+	};
+
+	process_instruction_ADD(direct, operand, accumulator) {
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			var MBR;
+			this.carry_on = setInterval(() => {
+				// fetch instruction
+				if (i == 0) {
+					this.log_output('ADD');
+					this.log_output('Executing instruction...');
+				} else if (i == 1) {
+					this.activate_deactivate_wrapper('control_unit_wrapper');
+					control_bus.setOptions({
+						color: '#AAAAAA'
+					});
+					this.cycles++;
+				} else if (i == 2) {
+					if (direct) {
+						MBR = parseInt(operand);
+						this.activate_deactivate_wrapper('MBR_wrapper');
+					} else {
+						MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+						this.activate_deactivate_wrapper('MAR_wrapper');
+						this.activate_deactivate_wrapper('MBR_wrapper');
+					};
+				} else if (i == 3) {
+					if (direct) {
+						this.activate_deactivate_wrapper('MBR_wrapper');
+						this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
+						document.getElementById('MBR').value = MBR;
+					} else {
+						this.activate_deactivate_wrapper('MAR_wrapper');
+						this.activate_deactivate_wrapper('MBR_wrapper');
+						this.log_output('Set MAR to operand of the current instruction: ' + operand);
+						this.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
+						document.getElementById('MAR').value = operand;
+						document.getElementById('MBR').value = MBR;
+					}
+				} else if (i == 4) {
+					this.activate_deactivate_wrapper('MBR_wrapper');
+					this.activate_deactivate_wrapper('accumulator_wrapper');
+				} else if (i == 5) {
+					this.activate_deactivate_wrapper('MBR_wrapper');
+					this.activate_deactivate_wrapper('accumulator_wrapper');
+					this.log_output('Add MBR value to Accumulator and store the result in Accumulator: ' + accumulator + '+' + MBR + '=' + (accumulator + MBR));
+					accumulator += MBR;
+					document.getElementById('accumulator').value = accumulator;
+				} else {
+					document.getElementById('clock').value = this.cycles;
+					this.activate_deactivate_wrapper('clock_wrapper');
+					resolve(MBR, accumulator);
+					clearInterval(this.carry_on);
+				};
+				i++;
+			}, this.animation_interval);
+		});
+	};
+
+	process_instruction_SUB(direct, operand, accumulator) {
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			var MBR;
+			this.carry_on = setInterval(() => {
+				// fetch instruction
+				if (i == 0) {
+					this.log_output('SUB');
+					this.log_output('Executing instruction...');
+				} else if (i == 1) {
+					this.activate_deactivate_wrapper('control_unit_wrapper');
+					control_bus.setOptions({
+						color: '#AAAAAA'
+					});
+					this.cycles++;
+				} else if (i == 2) {
+					if (direct) {
+						MBR = parseInt(operand);
+						this.activate_deactivate_wrapper('MBR_wrapper');
+					} else {
+						MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+						this.activate_deactivate_wrapper('MAR_wrapper');
+						this.activate_deactivate_wrapper('MBR_wrapper');
+					};
+				} else if (i == 3) {
+					if (direct) {
+						this.activate_deactivate_wrapper('MBR_wrapper');
+						this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
+						document.getElementById('MBR').value = MBR;
+					} else {
+						this.activate_deactivate_wrapper('MAR_wrapper');
+						this.activate_deactivate_wrapper('MBR_wrapper');
+						this.log_output('Set MAR to operand of the current instruction: ' + operand);
+						this.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
+						document.getElementById('MAR').value = operand;
+						document.getElementById('MBR').value = MBR;
+					}
+				} else if (i == 4) {
+					this.activate_deactivate_wrapper('MBR_wrapper');
+					this.activate_deactivate_wrapper('accumulator_wrapper');
+				} else if (i == 5) {
+					this.activate_deactivate_wrapper('MBR_wrapper');
+					this.activate_deactivate_wrapper('accumulator_wrapper');
+					this.log_output('Subtract MBR value from Accumulator and store the result in Accumulator: ' + accumulator + '-' + MBR + '=' + (accumulator - MBR));
+					accumulator -= MBR;
+					document.getElementById('accumulator').value = accumulator;
+				} else {
+					document.getElementById('clock').value = this.cycles;
+					this.activate_deactivate_wrapper('clock_wrapper');
+					resolve(MBR, accumulator);
+					clearInterval(this.carry_on);
+				};
+				i++;
+			}, this.animation_interval);
+		});
+	};
+
 	// asynchronous so order of events is followed
 	async process_instruction() {
 
@@ -691,15 +835,17 @@ class Little_Man_Computer {
 
 		} else if (instruction == '902') { // output instruction
 
-			this.log_output('OUT');
-			this.log_output('Executing instruction...');
-			this.log_output('Output value held in Accumulator: ' + document.getElementById('accumulator').value);
+			// this.log_output('OUT');
+			// this.log_output('Executing instruction...');
+			// this.log_output('Output value held in Accumulator: ' + document.getElementById('accumulator').value);
 
-			this.cycles++;
+			// this.cycles++;
+
+			await this.process_instruction_OUT();
 
 			// document.getElementById('output').value = document.getElementById('output').value + document.getElementById('accumulator').value + '\n';
-			document.getElementById('output').value = document.getElementById('accumulator').value;
-			document.getElementById('output').scrollTop = document.getElementById('output').scrollHeight;
+			// document.getElementById('output').value = document.getElementById('accumulator').value;
+			// document.getElementById('output').scrollTop = document.getElementById('output').scrollHeight;
 
 		} else {
 
@@ -721,53 +867,57 @@ class Little_Man_Computer {
 
 			if (opcode == '1') { // add instruction
 
-				this.log_output('ADD');
-				this.log_output('Executing instruction...');
+				// this.log_output('ADD');
+				// this.log_output('Executing instruction...');
 
-				this.cycles++;
+				// this.cycles++;
 
-				var MBR;
+				// var MBR;
 
-				if (direct) {
-					MBR = parseInt(operand);
-					this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
-					document.getElementById('MBR').value = MBR;
-				} else {
-					MBR = parseInt(document.getElementById('memory_location_' + operand).value);
-					this.log_output('Set MAR to operand of the current instruction: ' + operand);
-					this.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
-					document.getElementById('MAR').value = operand;
-					document.getElementById('MBR').value = MBR;
-				};
+				var MBR, accumulator = await this.process_instruction_ADD(direct, operand, accumulator);
 
-				this.log_output('Add MBR value to Accumulator and store the result in Accumulator: ' + accumulator + '+' + MBR + '=' + (accumulator + MBR));
-				accumulator += MBR;
-				document.getElementById('accumulator').value = accumulator;
+				// if (direct) {
+				// 	MBR = parseInt(operand);
+				// 	this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
+				// 	document.getElementById('MBR').value = MBR;
+				// } else {
+				// 	MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+				// 	this.log_output('Set MAR to operand of the current instruction: ' + operand);
+				// 	this.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
+				// 	document.getElementById('MAR').value = operand;
+				// 	document.getElementById('MBR').value = MBR;
+				// };
+
+				// this.log_output('Add MBR value to Accumulator and store the result in Accumulator: ' + accumulator + '+' + MBR + '=' + (accumulator + MBR));
+				// accumulator += MBR;
+				// document.getElementById('accumulator').value = accumulator;
 
 			} else if (opcode == '2') { // subtract instruction
 
-				this.log_output('SUB');
-				this.log_output('Executing instruction...');
+				// this.log_output('SUB');
+				// this.log_output('Executing instruction...');
 
-				this.cycles++;
+				// this.cycles++;
 
-				var MBR;
+				// var MBR;
 
-				if (direct) {
-					MBR = parseInt(operand);
-					this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
-					document.getElementById('MBR').value = MBR;
-				} else {
-					MBR = parseInt(document.getElementById('memory_location_' + operand).value);
-					this.log_output('Set MAR to operand of the current instruction: ' + operand);
-					this.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
-					document.getElementById('MAR').value = operand;
-					document.getElementById('MBR').value = MBR;
-				};
+				var MBR, accumulator = await this.process_instruction_SUB(direct, operand, accumulator);
 
-				this.log_output('Subtract MBR value from Accumulator and store the result in Accumulator: ' + accumulator + '-' + MBR + '=' + (accumulator - MBR));
-				accumulator -= MBR;
-				document.getElementById('accumulator').value = accumulator;
+				// if (direct) {
+				// 	MBR = parseInt(operand);
+				// 	this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
+				// 	document.getElementById('MBR').value = MBR;
+				// } else {
+				// 	MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+				// 	this.log_output('Set MAR to operand of the current instruction: ' + operand);
+				// 	this.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
+				// 	document.getElementById('MAR').value = operand;
+				// 	document.getElementById('MBR').value = MBR;
+				// };
+
+				// this.log_output('Subtract MBR value from Accumulator and store the result in Accumulator: ' + accumulator + '-' + MBR + '=' + (accumulator - MBR));
+				// accumulator -= MBR;
+				// document.getElementById('accumulator').value = accumulator;
 
 			} else if (opcode == '5') { // load to accumulator
 
@@ -886,21 +1036,21 @@ class Little_Man_Computer {
 		// document.getElementById('pausebtn').innerHTML = '<i class="fa fa-pause"></i>';
 		// this.carry_on = setInterval(this.process_instruction(), parseInt(this.time_lapse / this.clock));
 
-		while (!this.stop) {
-			this.process_instruction();
-		};
+		// while (!this.stop) {
+		// 	this.process_instruction();
+		// };
 
 		// while (!this.stop) {
 		// 	setTimeout(this.process_instruction(), 10000);
 		// };
 
-		// this.carry_on = setInterval(() => {
-		// 	if (this.stop) {
-		// 		clearInterval(this.carry_on);
-		// 	} else {
-		// 		this.process_instruction();
-		// 	};
-		// }, this.time_lapse / this.clock);
+		this.carry_on = setInterval(() => {
+			if (this.stop) {
+				clearInterval(this.carry_on);
+			} else {
+				this.process_instruction();
+			};
+		}, this.animation_interval);
 
 	};
 

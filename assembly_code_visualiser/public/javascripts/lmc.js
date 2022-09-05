@@ -198,7 +198,7 @@ class Little_Man_Computer {
 	// 	};
 	// };
 
-	// change border color of element to blue if blue
+	// change border color of element to blue if gray, and vice-versa
 	activate_deactivate_wrapper(element) {
 
 		var element_info = document.getElementById(element);
@@ -208,6 +208,16 @@ class Little_Man_Computer {
 		} else {
 			$(element_info).css('border-color', '#AAAAAA');
 		};
+	};
+
+	activate_deactivate_wrapper(element) {
+		var element_info = document.getElementById(element);
+		$(element_info).css('border-color', '#4040FF');
+	};
+
+	deactivate_deactivate_wrapper(element) {
+		var element_info = document.getElementById(element);
+		$(element_info).css('border-color', '#AAAAAA');
 	};
 
 	// log to FDE Cycle Output (based on reset), and to Verbose Output
@@ -878,13 +888,134 @@ class Little_Man_Computer {
 		});
 	};
 
+	process_instruction_BRA(operand) {
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			this.carry_on = setInterval(() => {
+				// fetch instruction
+				if (i == 0) {
+					this.log_output('BRA');
+					this.log_output('Executing instruction...');
+				} else if (i == 1) {
+					this.activate_deactivate_wrapper('control_unit_wrapper');
+					control_bus.setOptions({
+						color: '#AAAAAA'
+					});
+					this.cycles++;
+				} else if (i == 2) {
+					this.activate_deactivate_wrapper('PC_wrapper');
+				} else if (i == 3) {
+					document.getElementById('PC').value = operand;
+					this.activate_deactivate_wrapper('PC_wrapper');
+					this.program_counter = parseInt(operand);
+					this.log_output('Set PC to operand of instruction: ' + operand);
+				} else {
+					document.getElementById('clock').value = this.cycles;
+					this.activate_deactivate_wrapper('clock_wrapper');
+					resolve();
+					clearInterval(this.carry_on);
+				};
+				i++;
+			}, this.animation_interval);
+		});
+	};
+
+	process_instruction_BRZ(operand, accumulator) {
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			this.carry_on = setInterval(() => {
+				// fetch instruction
+				if (i == 0) {
+					this.log_output('BRZ');
+					this.log_output('Executing instruction...');
+				} else if (i == 1) {
+					this.activate_deactivate_wrapper('control_unit_wrapper');
+					control_bus.setOptions({
+						color: '#AAAAAA'
+					});
+					this.cycles++;
+				} else if (i == 2) {
+					this.log_output('Check if value held in Accumulator is 0');
+				} else if (i == 3) {
+					if (accumulator == 0) {
+						this.log_output('0 == 0 - true');
+						this.activate_deactivate_wrapper('PC_wrapper');
+					} else {
+						this.log_output(accumulator + ' == 0 - false');
+					};
+				} else if (i == 4) {
+					if (accumulator == 0) {
+						this.activate_deactivate_wrapper('PC_wrapper');
+						this.log_output('Set PC to operand of instruction: ' + operand);
+						document.getElementById('PC').value = operand;
+						this.program_counter = parseInt(operand);
+					} else {
+						document.getElementById('clock').value = this.cycles;
+						this.activate_deactivate_wrapper('clock_wrapper');
+						resolve();
+						clearInterval(this.carry_on);
+					};
+				} else {
+					document.getElementById('clock').value = this.cycles;
+					this.activate_deactivate_wrapper('clock_wrapper');
+					resolve();
+					clearInterval(this.carry_on);
+				};
+				i++;
+			}, this.animation_interval);
+		});
+	};
+
+	process_instruction_BRP(operand, accumulator) {
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			this.carry_on = setInterval(() => {
+				// fetch instruction
+				if (i == 0) {
+					this.log_output('BRP');
+					this.log_output('Executing instruction...');
+				} else if (i == 1) {
+					this.activate_deactivate_wrapper('control_unit_wrapper');
+					control_bus.setOptions({
+						color: '#AAAAAA'
+					});
+					this.cycles++;
+				} else if (i == 2) {
+					this.log_output('Check if value held in Accumulator is positive (>= 0)');
+				} else if (i == 3) {
+					if (accumulator >= 0) {
+						this.log_output(accumulator + ' >= 0 - true');
+						this.activate_deactivate_wrapper('PC_wrapper');
+					} else {
+						this.log_output(accumulator + ' >= 0 - false');
+					};
+				} else if (i == 4) {
+					if (accumulator >= 0) {
+						this.activate_deactivate_wrapper('PC_wrapper');
+						this.log_output('Set PC to operand of instruction: ' + operand);
+						document.getElementById('PC').value = operand;
+						this.program_counter = parseInt(operand);
+					} else {
+						document.getElementById('clock').value = this.cycles;
+						this.activate_deactivate_wrapper('clock_wrapper');
+						resolve();
+						clearInterval(this.carry_on);
+					};
+				} else {
+					document.getElementById('clock').value = this.cycles;
+					this.activate_deactivate_wrapper('clock_wrapper');
+					resolve();
+					clearInterval(this.carry_on);
+				};
+				i++;
+			}, this.animation_interval);
+		});
+	};
+
 	// asynchronous so order of events is followed
 	async process_instruction() {
 
 		// ! NEED TO UPDATE STATUS REGISTER (EVEN IF NOT USED) - WHENEVER LOOP BEING USED / BRANCHING / ERROR
-		// ! NEED TO INCLUDE ALL HIGHLIGHTING
-
-		// ! NOTE THAT THERE IS A PROBLEM: DOESN'T ASK FOR INPUT, SO ORDER OF THINGS IN THE FUNCTION BEING AWAITED IS A BIT MESSED UP - REFER TO PREVIOUS VERSION OF CODE ON GITHUB WITH CORRECT ORDER!!!
 
 		// must be done in order, so await is used
 		var instruction = await this.process_instruction_main_beginning();
@@ -1064,50 +1195,56 @@ class Little_Man_Computer {
 
 			} else if (opcode == '6') { // always branch
 
-				this.log_output('BRA');
-				this.log_output('Executing instruction...');
+				// this.log_output('BRA');
+				// this.log_output('Executing instruction...');
 
-				this.cycles++;
+				// this.cycles++;
 
-				document.getElementById('PC').value = operand;
-				this.program_counter = parseInt(operand);
-				this.log_output('Set PC to operand of instruction: ' + operand);
+				await this.process_instruction_BRA(operand);
+
+				// document.getElementById('PC').value = operand;
+				// this.program_counter = parseInt(operand);
+				// this.log_output('Set PC to operand of instruction: ' + operand);
 
 			} else if (opcode == '7') { // branch if zero
 
-				this.log_output('BRZ');
-				this.log_output('Executing instruction...');
+				// this.log_output('BRZ');
+				// this.log_output('Executing instruction...');
 
-				this.cycles++;
+				// this.cycles++;
 
-				this.log_output('Check if value held in Accumulator is 0');
+				await this.process_instruction_BRZ(operand, accumulator);
 
-				if (accumulator == 0) {
-					this.log_output('0 == 0 - true');
-					this.log_output('Set PC to operand of instruction: ' + operand);
-					document.getElementById('PC').value = operand;
-					this.program_counter = parseInt(operand);
-				} else {
-					this.log_output(accumulator + ' == 0 - false');
-				};
+				// this.log_output('Check if value held in Accumulator is 0');
+
+				// if (accumulator == 0) {
+				// 	this.log_output('0 == 0 - true');
+				// 	this.log_output('Set PC to operand of instruction: ' + operand);
+				// 	document.getElementById('PC').value = operand;
+				// 	this.program_counter = parseInt(operand);
+				// } else {
+				// 	this.log_output(accumulator + ' == 0 - false');
+				// };
 
 			} else if (opcode == '8') { // branch if positive or 0
 
-				this.log_output('BRP');
-				this.log_output('Executing instruction...');
+				// this.log_output('BRP');
+				// this.log_output('Executing instruction...');
 
-				this.cycles++;
+				// this.cycles++;
 
-				this.log_output('Check if value held in Accumulator is positive (>= 0)');
+				await this.process_instruction_BRP(operand, accumulator);
 
-				if (accumulator >= 0) {
-					this.log_output(accumulator + ' >= 0 - true');
-					this.log_output('Set PC to operand of instruction: ' + operand);
-					document.getElementById('PC').value = operand;
-					this.program_counter = parseInt(operand);
-				} else {
-					this.log_output(accumulator + ' >= 0 - false');
-				};
+				// this.log_output('Check if value held in Accumulator is positive (>= 0)');
+
+				// if (accumulator >= 0) {
+				// 	this.log_output(accumulator + ' >= 0 - true');
+				// 	this.log_output('Set PC to operand of instruction: ' + operand);
+				// 	document.getElementById('PC').value = operand;
+				// 	this.program_counter = parseInt(operand);
+				// } else {
+				// 	this.log_output(accumulator + ' >= 0 - false');
+				// };
 			};
 		};
 

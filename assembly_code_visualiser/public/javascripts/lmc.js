@@ -638,6 +638,7 @@ class Little_Man_Computer {
 						this.log_output('Copied instruction from MBR to CIR');
 					} else {
 						this.log_output('Decoding instruction stored in CIR...');
+						this.activate_wrapper('decode_unit_wrapper');
 						this.activate_wrapper('control_unit_wrapper');
 						control_bus.setOptions({
 							color: '#4040FF'
@@ -661,6 +662,7 @@ class Little_Man_Computer {
 					this.log_output('Executing instruction...');
 				} else if (i == 1) {
 					this.deactivate_wrapper('control_unit_wrapper');
+					this.deactivate_wrapper('decode_unit_wrapper');
 					control_bus.setOptions({
 						color: '#AAAAAA'
 					});
@@ -698,6 +700,7 @@ class Little_Man_Computer {
 						this.log_output('Executing instruction...');
 					} else if (i == 1) {
 						this.deactivate_wrapper('control_unit_wrapper');
+						this.deactivate_wrapper('decode_unit_wrapper');
 						control_bus.setOptions({
 							color: '#AAAAAA'
 						});
@@ -737,6 +740,7 @@ class Little_Man_Computer {
 						this.log_output('Executing instruction...');
 					} else if (i == 1) {
 						this.deactivate_wrapper('control_unit_wrapper');
+						this.deactivate_wrapper('decode_unit_wrapper');
 						control_bus.setOptions({
 							color: '#AAAAAA'
 						});
@@ -776,6 +780,7 @@ class Little_Man_Computer {
 						this.log_output('Executing instruction...');
 					} else if (i == 1) {
 						this.deactivate_wrapper('control_unit_wrapper');
+						this.deactivate_wrapper('decode_unit_wrapper');
 						control_bus.setOptions({
 							color: '#AAAAAA'
 						});
@@ -840,6 +845,7 @@ class Little_Man_Computer {
 						this.log_output('Executing instruction...');
 					} else if (i == 1) {
 						this.deactivate_wrapper('control_unit_wrapper');
+						this.deactivate_wrapper('decode_unit_wrapper');
 						control_bus.setOptions({
 							color: '#AAAAAA'
 						});
@@ -904,6 +910,7 @@ class Little_Man_Computer {
 						this.log_output('Executing instruction...');
 					} else if (i == 1) {
 						this.deactivate_wrapper('control_unit_wrapper');
+						this.deactivate_wrapper('decode_unit_wrapper');
 						control_bus.setOptions({
 							color: '#AAAAAA'
 						});
@@ -968,6 +975,7 @@ class Little_Man_Computer {
 						this.log_output('Executing instruction...');
 					} else if (i == 1) {
 						this.deactivate_wrapper('control_unit_wrapper');
+						this.deactivate_wrapper('decode_unit_wrapper');
 						control_bus.setOptions({
 							color: '#AAAAAA'
 						});
@@ -1015,6 +1023,7 @@ class Little_Man_Computer {
 						this.log_output('Executing instruction...');
 					} else if (i == 1) {
 						this.deactivate_wrapper('control_unit_wrapper');
+						this.deactivate_wrapper('decode_unit_wrapper');
 						control_bus.setOptions({
 							color: '#AAAAAA'
 						});
@@ -1054,6 +1063,7 @@ class Little_Man_Computer {
 						this.log_output('Executing instruction...');
 					} else if (i == 1) {
 						this.deactivate_wrapper('control_unit_wrapper');
+						this.deactivate_wrapper('decode_unit_wrapper');
 						control_bus.setOptions({
 							color: '#AAAAAA'
 						});
@@ -1107,6 +1117,7 @@ class Little_Man_Computer {
 						this.log_output('Executing instruction...');
 					} else if (i == 1) {
 						this.deactivate_wrapper('control_unit_wrapper');
+						this.deactivate_wrapper('decode_unit_wrapper');
 						control_bus.setOptions({
 							color: '#AAAAAA'
 						});

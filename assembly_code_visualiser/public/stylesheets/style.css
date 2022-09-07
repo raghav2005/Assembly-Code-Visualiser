@@ -351,3 +351,7 @@ svg.leader-line {
 #clock_speed {
 	width: 100%;
 }
+
+#logout_form {
+	display: none;
+}

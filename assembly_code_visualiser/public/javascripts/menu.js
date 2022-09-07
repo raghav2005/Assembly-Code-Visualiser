@@ -8,3 +8,8 @@ $(document).ready(function () {
 $(document).ready(function () {
 	$('[data-toggle="tooltip"]').tooltip();
 });
+
+// post logout method when logout clicked on navbar (because links can't post, only get)
+function post_logout() {
+	document.forms['logout_form'].submit();
+};

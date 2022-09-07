@@ -3,6 +3,11 @@
 		<nav class="navbar navbar-default navbar-expand-sm navbar-dark bg-dark fixed-top">
 			<div class="container-fluid navbar_wrapper">
 
+				<!-- hidden form for POST method for logout tab in navbar -->
+				<form id="logout_form" name="logout_form" action="/logout" method="post">
+					<button type="submit">LOG OUT</button>
+				</form>
+
 				<div class="navbar_left">
 					<ul class="navbar-nav nav_items_left">
 						<li>
@@ -47,12 +52,18 @@
 					<div class="navbar_right">
 						<!-- login / sign up button on the right -->
 						<ul class="navbar-nav nav_items_right">
-							<li class="navbar-item">
-								<a class="nav-link navbar_right" id="login" href="/login">LOGIN</a>
-							</li>
-							<li class="navbar-item">
-								<a class="nav-link navbar_right" id="sign_up" href="/sign_up">SIGN UP</a>
-							</li>
+							<% if (typeof role === "undefined" ) { %>
+								<li class="navbar-item">
+									<a class="nav-link navbar_right" id="login" href="/login">LOGIN</a>
+								</li>
+								<li class="navbar-item">
+									<a class="nav-link navbar_right" id="sign_up" href="/sign_up">SIGN UP</a>
+								</li>
+							<% } else { %>
+								<li class="navbar-item">
+									<a class="nav-link navbar_right" href="#" onclick="post_logout()">LOG OUT</a>
+								</li>
+							<% } %>
 						</ul>
 					</div>
 				</div>

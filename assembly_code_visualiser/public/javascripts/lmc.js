@@ -53,6 +53,8 @@ class Little_Man_Computer {
 
 		this.animation_interval = 300; // milliseconds
 
+		this.assembly_code_error = false;
+
 	};
 
 	// ensure backend RAM values are 2 digits long
@@ -168,6 +170,7 @@ class Little_Man_Computer {
 
 	reset_all_registers() {
 		this.reset_general_registers();
+
 		document.getElementById('MAR').value = '00';
 		document.getElementById('accumulator').value = '00';
 		document.getElementById('status_register').value = '00';
@@ -175,17 +178,49 @@ class Little_Man_Computer {
 		document.getElementById('PC').value = '00';
 		document.getElementById('clock').value = '0';
 		document.getElementById('MBR').value = '0'.repeat(this.RAM_value_length);
+		
 		this.program_counter = 0;
+
+		this.deactivate_wrapper('ALU_wrapper');
+		this.deactivate_wrapper('accumulator_wrapper');
+		this.deactivate_wrapper('PC_wrapper');
+		this.deactivate_wrapper('CIR_wrapper');
+		this.deactivate_wrapper('MAR_wrapper');
+		this.deactivate_wrapper('control_unit_wrapper');
+		this.deactivate_wrapper('clock_wrapper');
+		this.deactivate_wrapper('MBR_wrapper');
+		this.deactivate_wrapper('status_register_wrapper');
+		
+		// leaderlines + wrappers back to normal
+		address_bus.setOptions({
+			end: LeaderLine.pointAnchor(document.getElementById('memory_10_wrapper'), {
+				x: 0,
+				y: '19%'
+			}),
+			path: 'straight',
+			color: '#AAAAAA'
+		});
+		control_bus.setOptions({
+			color: '#AAAAAA'
+		});
+		data_bus.setOptions({
+			end: LeaderLine.pointAnchor(document.getElementById('memory_80_wrapper'), {
+				x: 0,
+				y: '99%'
+			}),
+			path: 'straight',
+			color: '#AAAAAA'
+		});
 	};
 
 	reset_verbose_output() {
-		document.getElementById('verbose_output').value = '';
+		document.getElementById('verbose_output').value = 'Verbose Output';
 	};
 
 	reset_all_inp_out() {
-		document.getElementById('input').value = '';
-		document.getElementById('output').value = '';
-		document.getElementById('FDE_output').value = '';
+		document.getElementById('input').value = '00';
+		document.getElementById('output').value = '00';
+		document.getElementById('FDE_output').value = 'Output of FDE cycle';
 		this.reset_verbose_output();
 	};
 
@@ -287,6 +322,7 @@ class Little_Man_Computer {
 		this.paused = true;
 		// this.activate_deactivate_wrapper('step_program');
 		this.cycles = 0;
+		this.assembly_code_error = false;
 
 		// reset all registers (general purpose and special purpose)
 		this.reset_all_registers();
@@ -468,118 +504,149 @@ class Little_Man_Computer {
 		this.load_RAM_from_backend();
 	};
 
+	check_error() {
+		let FDE = document.getElementById('FDE_output').value;
+		// alert(FDE);
+		// alert(FDE.split('\n')[(FDE.split('\n').length - 1) - 1]);
+		// alert(FDE.split('\n')[(FDE.split('\n').length - 1) - 2]);
+		let verbose = document.getElementById('verbose_output').value;
+		// alert(verbose);
+		// alert(verbose.split('\n')[(verbose.split('\n').length - 1) - 1]);
+		// alert(verbose.split('\n')[(verbose.split('\n').length - 1) - 2]);
+
+		let FDE_list = FDE.split('\n');
+		let verbose_list = verbose.split('\n');
+
+		if (FDE_list.length >= 3 && verbose_list.length >= 3) {
+			if (FDE_list[(FDE_list.length - 1) - 1] == FDE_list[(FDE_list.length - 1) - 2] || verbose_list[(verbose_list.length - 1) - 1] == verbose_list[(verbose_list.length - 1) - 2]) {
+				this.assembly_code_error = true;
+			} else {
+				this.assembly_code_error = false;
+			};
+		} else {
+			this.assembly_code_error = false;
+		};
+	}
+
 	process_instruction_main_beginning() {
 		return new Promise((resolve, reject) => {
 			var i = 0;
 			var instruction, k_str;
 			this.carry_on = setInterval(() => {
 				// fetch instruction
-				if (i == 0) {
-					this.program_counter = parseInt(document.getElementById('PC').value);
-					this.log_output('####################', true);
-					this.log_output('Fetching instruction...');
-					this.activate_wrapper('control_unit_wrapper');
-					this.activate_wrapper('clock_wrapper');
-					control_bus.setOptions({
-						color: '#4040FF'
-					});
-				} else if (i == 1) {
-					this.activate_wrapper('PC_wrapper');
-				} else if (i == 2) {
-					instruction = document.getElementById('memory_location_' + this.program_counter).value;
-					this.activate_wrapper('MAR_wrapper');
-					document.getElementById('MAR').value = this.program_counter;
-				} else if (i == 3) {
-					this.deactivate_wrapper('PC_wrapper');
-					this.deactivate_wrapper('MAR_wrapper');
-					this.log_output('Set MAR to value of PC: ' + this.program_counter);
-				} else if (i == 4) {
-					this.activate_wrapper('PC_wrapper');
-					this.program_counter++;
-					document.getElementById('PC').value = this.program_counter;
-				} else if (i == 5) {
-					this.deactivate_wrapper('PC_wrapper');
-					this.log_output('Increment PC by 1');
-				} else if (i == 6) {
-					this.log_output('Fetch instruction from address stored in MAR');
-				} else if (i == 7) {
-					this.activate_wrapper('MAR_wrapper');
-				} else if (i == 8) {
+				this.check_error();
 
-					// get memory wrapper location as 2 digits e.g. 00, 01, 92, etc.
-					k_str = document.getElementById('MAR').value.toString();
-					while (k_str.length < 2) {
-						k_str = '0' + k_str;
-					};
-
-					// move address bus + change color
-					address_bus.setOptions({
-						end: document.getElementById('memory_' + k_str + '_wrapper'),
-						path: 'fluid',
-						color: '#4040FF'
-					});
-
-				} else if (i == 9) {
-					this.activate_wrapper('memory_location_' + document.getElementById('MAR').value.toString());
-				} else if (i == 10) {
-					// move data bus + change color
-					data_bus.setOptions({
-						end: document.getElementById('memory_' + k_str + '_wrapper'),
-						path: 'fluid',
-						color: '#4040FF'
-					});
-				} else if (i == 11) {
-					this.activate_wrapper('MBR_wrapper');
-					document.getElementById('MBR').value = instruction;
-				} else if (i == 12) {
-					
-					// leaderlines + wrappers back to normal
-					address_bus.setOptions({
-						end: LeaderLine.pointAnchor(document.getElementById('memory_10_wrapper'), {
-							x: 0,
-							y: '19%'
-						}),
-						path: 'straight',
-						color: '#AAAAAA'
-					});
-					data_bus.setOptions({
-						end: LeaderLine.pointAnchor(document.getElementById('memory_80_wrapper'), {
-							x: 0,
-							y: '99%'
-						}),
-						path: 'straight',
-						color: '#AAAAAA'
-					});
-
-					this.deactivate_wrapper('MAR_wrapper');
-					this.deactivate_wrapper('memory_location_' + document.getElementById('MAR').value.toString());
-					this.deactivate_wrapper('MBR_wrapper');
-
-					this.log_output('Fetched instruction ' + instruction + ' stored in MBR');
-
-				} else if (i == 13) {
-					this.deactivate_wrapper('control_unit_wrapper');
-					control_bus.setOptions({
-						color: '#AAAAAA'
-					});
-					this.activate_wrapper('MBR_wrapper');
-				} else if (i == 14) {
-					this.activate_wrapper('CIR_wrapper');
-					document.getElementById('CIR').value = instruction;
-				} else if (i == 15) {
-					this.deactivate_wrapper('MBR_wrapper');
-					this.deactivate_wrapper('CIR_wrapper');
-					this.log_output('Copied instruction from MBR to CIR');
-				} else {
-					this.log_output('Decoding instruction stored in CIR...');
-					this.activate_wrapper('control_unit_wrapper');
-					control_bus.setOptions({
-						color: '#4040FF'
-					});
+				if (this.assembly_code_error == true) {
 					resolve(instruction);
 					clearInterval(this.carry_on);
-				}
-				i++;
+				} else {
+					if (i == 0) {
+						this.program_counter = parseInt(document.getElementById('PC').value);
+						this.log_output('####################', true);
+						this.log_output('Fetching instruction...');
+						this.activate_wrapper('control_unit_wrapper');
+						this.activate_wrapper('clock_wrapper');
+						control_bus.setOptions({
+							color: '#4040FF'
+						});
+					} else if (i == 1) {
+						this.activate_wrapper('PC_wrapper');
+					} else if (i == 2) {
+						instruction = document.getElementById('memory_location_' + this.program_counter).value;
+						this.activate_wrapper('MAR_wrapper');
+						document.getElementById('MAR').value = this.program_counter;
+					} else if (i == 3) {
+						this.deactivate_wrapper('PC_wrapper');
+						this.deactivate_wrapper('MAR_wrapper');
+						this.log_output('Set MAR to value of PC: ' + this.program_counter);
+					} else if (i == 4) {
+						this.activate_wrapper('PC_wrapper');
+						this.program_counter++;
+						document.getElementById('PC').value = this.program_counter;
+					} else if (i == 5) {
+						this.deactivate_wrapper('PC_wrapper');
+						this.log_output('Increment PC by 1');
+					} else if (i == 6) {
+						this.log_output('Fetch instruction from address stored in MAR');
+					} else if (i == 7) {
+						this.activate_wrapper('MAR_wrapper');
+					} else if (i == 8) {
+
+						// get memory wrapper location as 2 digits e.g. 00, 01, 92, etc.
+						k_str = document.getElementById('MAR').value.toString();
+						while (k_str.length < 2) {
+							k_str = '0' + k_str;
+						};
+
+						// move address bus + change color
+						address_bus.setOptions({
+							end: document.getElementById('memory_' + k_str + '_wrapper'),
+							path: 'fluid',
+							color: '#4040FF'
+						});
+
+					} else if (i == 9) {
+						this.activate_wrapper('memory_location_' + document.getElementById('MAR').value.toString());
+					} else if (i == 10) {
+						// move data bus + change color
+						data_bus.setOptions({
+							end: document.getElementById('memory_' + k_str + '_wrapper'),
+							path: 'fluid',
+							color: '#4040FF'
+						});
+					} else if (i == 11) {
+						this.activate_wrapper('MBR_wrapper');
+						document.getElementById('MBR').value = instruction;
+					} else if (i == 12) {
+						
+						// leaderlines + wrappers back to normal
+						address_bus.setOptions({
+							end: LeaderLine.pointAnchor(document.getElementById('memory_10_wrapper'), {
+								x: 0,
+								y: '19%'
+							}),
+							path: 'straight',
+							color: '#AAAAAA'
+						});
+						data_bus.setOptions({
+							end: LeaderLine.pointAnchor(document.getElementById('memory_80_wrapper'), {
+								x: 0,
+								y: '99%'
+							}),
+							path: 'straight',
+							color: '#AAAAAA'
+						});
+
+						this.deactivate_wrapper('MAR_wrapper');
+						this.deactivate_wrapper('memory_location_' + document.getElementById('MAR').value.toString());
+						this.deactivate_wrapper('MBR_wrapper');
+
+						this.log_output('Fetched instruction ' + instruction + ' stored in MBR');
+
+					} else if (i == 13) {
+						this.deactivate_wrapper('control_unit_wrapper');
+						control_bus.setOptions({
+							color: '#AAAAAA'
+						});
+						this.activate_wrapper('MBR_wrapper');
+					} else if (i == 14) {
+						this.activate_wrapper('CIR_wrapper');
+						document.getElementById('CIR').value = instruction;
+					} else if (i == 15) {
+						this.deactivate_wrapper('MBR_wrapper');
+						this.deactivate_wrapper('CIR_wrapper');
+						this.log_output('Copied instruction from MBR to CIR');
+					} else {
+						this.log_output('Decoding instruction stored in CIR...');
+						this.activate_wrapper('control_unit_wrapper');
+						control_bus.setOptions({
+							color: '#4040FF'
+						});
+						resolve(instruction);
+						clearInterval(this.carry_on);
+					}
+					i++;
+				};
 			}, this.animation_interval);
 		});
 	};
@@ -620,29 +687,36 @@ class Little_Man_Computer {
 			var i = 0;
 			this.carry_on = setInterval(() => {
 				// fetch instruction
-				if (i == 0) {
-					this.log_output('INP');
-					this.log_output('Executing instruction...');
-				} else if (i == 1) {
-					this.deactivate_wrapper('control_unit_wrapper');
-					control_bus.setOptions({
-						color: '#AAAAAA'
-					});
-					this.log_output('Waiting for user input...');
-					this.cycles++;
-				} else if (i == 2) {
-					this.inp = prompt('User input:');
-					document.getElementById('input').value = this.inp;
-					document.getElementById('input').scrollTop = document.getElementById('input').scrollHeight;
-				} else {
-					this.log_output('Store user input in Accumulator: ' + this.inp);
-					document.getElementById('accumulator').value = this.inp;
-					document.getElementById('clock').value = this.cycles;
-					this.deactivate_wrapper('clock_wrapper');
+				this.check_error();
+
+				if (this.assembly_code_error == true) {
 					resolve();
 					clearInterval(this.carry_on);
+				} else {
+					if (i == 0) {
+						this.log_output('INP');
+						this.log_output('Executing instruction...');
+					} else if (i == 1) {
+						this.deactivate_wrapper('control_unit_wrapper');
+						control_bus.setOptions({
+							color: '#AAAAAA'
+						});
+						this.log_output('Waiting for user input...');
+						this.cycles++;
+					} else if (i == 2) {
+						this.inp = prompt('User input:');
+						document.getElementById('input').value = this.inp;
+						document.getElementById('input').scrollTop = document.getElementById('input').scrollHeight;
+					} else {
+						this.log_output('Store user input in Accumulator: ' + this.inp);
+						document.getElementById('accumulator').value = this.inp;
+						document.getElementById('clock').value = this.cycles;
+						this.deactivate_wrapper('clock_wrapper');
+						resolve();
+						clearInterval(this.carry_on);
+					};
+					i++;
 				};
-				i++;
 			}, this.animation_interval);
 		});
 	};
@@ -652,28 +726,35 @@ class Little_Man_Computer {
 			var i = 0;
 			this.carry_on = setInterval(() => {
 				// fetch instruction
-				if (i == 0) {
-					this.log_output('OUT');
-					this.log_output('Executing instruction...');
-				} else if (i == 1) {
-					this.deactivate_wrapper('control_unit_wrapper');
-					control_bus.setOptions({
-						color: '#AAAAAA'
-					});
-					this.activate_wrapper('accumulator_wrapper');
-				} else if (i == 2) {
-					this.deactivate_wrapper('accumulator_wrapper');
-					this.log_output('Output value held in Accumulator: ' + document.getElementById('accumulator').value);
-					this.cycles++;
-					document.getElementById('output').value = document.getElementById('accumulator').value;
-					document.getElementById('output').scrollTop = document.getElementById('output').scrollHeight;
-				} else {
-					document.getElementById('clock').value = this.cycles;
-					this.deactivate_wrapper('clock_wrapper');
+				this.check_error();
+
+				if (this.assembly_code_error == true) {
 					resolve();
 					clearInterval(this.carry_on);
+				} else {
+					if (i == 0) {
+						this.log_output('OUT');
+						this.log_output('Executing instruction...');
+					} else if (i == 1) {
+						this.deactivate_wrapper('control_unit_wrapper');
+						control_bus.setOptions({
+							color: '#AAAAAA'
+						});
+						this.activate_wrapper('accumulator_wrapper');
+					} else if (i == 2) {
+						this.deactivate_wrapper('accumulator_wrapper');
+						this.log_output('Output value held in Accumulator: ' + document.getElementById('accumulator').value);
+						this.cycles++;
+						document.getElementById('output').value = document.getElementById('accumulator').value;
+						document.getElementById('output').scrollTop = document.getElementById('output').scrollHeight;
+					} else {
+						document.getElementById('clock').value = this.cycles;
+						this.deactivate_wrapper('clock_wrapper');
+						resolve();
+						clearInterval(this.carry_on);
+					};
+					i++;
 				};
-				i++;
 			}, this.animation_interval);
 		});
 	};
@@ -684,53 +765,60 @@ class Little_Man_Computer {
 			var MBR;
 			this.carry_on = setInterval(() => {
 				// fetch instruction
-				if (i == 0) {
-					this.log_output('ADD');
-					this.log_output('Executing instruction...');
-				} else if (i == 1) {
-					this.deactivate_wrapper('control_unit_wrapper');
-					control_bus.setOptions({
-						color: '#AAAAAA'
-					});
-					this.cycles++;
-				} else if (i == 2) {
-					if (direct) {
-						MBR = parseInt(operand);
-						this.activate_wrapper('MBR_wrapper');
-					} else {
-						MBR = parseInt(document.getElementById('memory_location_' + operand).value);
-						this.activate_wrapper('MAR_wrapper');
-						this.deactivate_wrapper('MBR_wrapper');
-					};
-				} else if (i == 3) {
-					if (direct) {
-						this.activate_wrapper('MBR_wrapper');
-						this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
-						document.getElementById('MBR').value = MBR;
-					} else {
-						this.deactivate_wrapper('MAR_wrapper');
-						this.deactivate_wrapper('MBR_wrapper');
-						this.log_output('Set MAR to operand of the current instruction: ' + operand);
-						this.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
-						document.getElementById('MAR').value = operand;
-						document.getElementById('MBR').value = MBR;
-					}
-				} else if (i == 4) {
-					this.activate_wrapper('MBR_wrapper');
-					this.activate_wrapper('accumulator_wrapper');
-				} else if (i == 5) {
-					this.deactivate_wrapper('MBR_wrapper');
-					this.deactivate_wrapper('accumulator_wrapper');
-					this.log_output('Add MBR value to Accumulator and store the result in Accumulator: ' + accumulator + '+' + MBR + '=' + (accumulator + MBR));
-					accumulator += MBR;
-					document.getElementById('accumulator').value = accumulator;
-				} else {
-					document.getElementById('clock').value = this.cycles;
-					this.deactivate_wrapper('clock_wrapper');
+				this.check_error();
+
+				if (this.assembly_code_error == true) {
 					resolve(MBR, accumulator);
 					clearInterval(this.carry_on);
+				} else {
+					if (i == 0) {
+						this.log_output('ADD');
+						this.log_output('Executing instruction...');
+					} else if (i == 1) {
+						this.deactivate_wrapper('control_unit_wrapper');
+						control_bus.setOptions({
+							color: '#AAAAAA'
+						});
+						this.cycles++;
+					} else if (i == 2) {
+						if (direct) {
+							MBR = parseInt(operand);
+							this.activate_wrapper('MBR_wrapper');
+						} else {
+							MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+							this.activate_wrapper('MAR_wrapper');
+							this.deactivate_wrapper('MBR_wrapper');
+						};
+					} else if (i == 3) {
+						if (direct) {
+							this.activate_wrapper('MBR_wrapper');
+							this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
+							document.getElementById('MBR').value = MBR;
+						} else {
+							this.deactivate_wrapper('MAR_wrapper');
+							this.deactivate_wrapper('MBR_wrapper');
+							this.log_output('Set MAR to operand of the current instruction: ' + operand);
+							this.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
+							document.getElementById('MAR').value = operand;
+							document.getElementById('MBR').value = MBR;
+						}
+					} else if (i == 4) {
+						this.activate_wrapper('MBR_wrapper');
+						this.activate_wrapper('accumulator_wrapper');
+					} else if (i == 5) {
+						this.deactivate_wrapper('MBR_wrapper');
+						this.deactivate_wrapper('accumulator_wrapper');
+						this.log_output('Add MBR value to Accumulator and store the result in Accumulator: ' + accumulator + '+' + MBR + '=' + (accumulator + MBR));
+						accumulator += MBR;
+						document.getElementById('accumulator').value = accumulator;
+					} else {
+						document.getElementById('clock').value = this.cycles;
+						this.deactivate_wrapper('clock_wrapper');
+						resolve(MBR, accumulator);
+						clearInterval(this.carry_on);
+					};
+					i++;
 				};
-				i++;
 			}, this.animation_interval);
 		});
 	};
@@ -741,53 +829,60 @@ class Little_Man_Computer {
 			var MBR;
 			this.carry_on = setInterval(() => {
 				// fetch instruction
-				if (i == 0) {
-					this.log_output('SUB');
-					this.log_output('Executing instruction...');
-				} else if (i == 1) {
-					this.deactivate_wrapper('control_unit_wrapper');
-					control_bus.setOptions({
-						color: '#AAAAAA'
-					});
-					this.cycles++;
-				} else if (i == 2) {
-					if (direct) {
-						MBR = parseInt(operand);
-						this.activate_wrapper('MBR_wrapper');
-					} else {
-						MBR = parseInt(document.getElementById('memory_location_' + operand).value);
-						this.activate_wrapper('MAR_wrapper');
-						this.deactivate_wrapper('MBR_wrapper');
-					};
-				} else if (i == 3) {
-					if (direct) {
-						this.activate_wrapper('MBR_wrapper');
-						this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
-						document.getElementById('MBR').value = MBR;
-					} else {
-						this.deactivate_wrapper('MAR_wrapper');
-						this.deactivate_wrapper('MBR_wrapper');
-						this.log_output('Set MAR to operand of the current instruction: ' + operand);
-						this.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
-						document.getElementById('MAR').value = operand;
-						document.getElementById('MBR').value = MBR;
-					}
-				} else if (i == 4) {
-					this.activate_wrapper('MBR_wrapper');
-					this.activate_wrapper('accumulator_wrapper');
-				} else if (i == 5) {
-					this.deactivate_wrapper('MBR_wrapper');
-					this.deactivate_wrapper('accumulator_wrapper');
-					this.log_output('Subtract MBR value from Accumulator and store the result in Accumulator: ' + accumulator + '-' + MBR + '=' + (accumulator - MBR));
-					accumulator -= MBR;
-					document.getElementById('accumulator').value = accumulator;
-				} else {
-					document.getElementById('clock').value = this.cycles;
-					this.deactivate_wrapper('clock_wrapper');
+				this.check_error();
+
+				if (this.assembly_code_error == true) {
 					resolve(MBR, accumulator);
 					clearInterval(this.carry_on);
+				} else {
+					if (i == 0) {
+						this.log_output('SUB');
+						this.log_output('Executing instruction...');
+					} else if (i == 1) {
+						this.deactivate_wrapper('control_unit_wrapper');
+						control_bus.setOptions({
+							color: '#AAAAAA'
+						});
+						this.cycles++;
+					} else if (i == 2) {
+						if (direct) {
+							MBR = parseInt(operand);
+							this.activate_wrapper('MBR_wrapper');
+						} else {
+							MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+							this.activate_wrapper('MAR_wrapper');
+							this.deactivate_wrapper('MBR_wrapper');
+						};
+					} else if (i == 3) {
+						if (direct) {
+							this.activate_wrapper('MBR_wrapper');
+							this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
+							document.getElementById('MBR').value = MBR;
+						} else {
+							this.deactivate_wrapper('MAR_wrapper');
+							this.deactivate_wrapper('MBR_wrapper');
+							this.log_output('Set MAR to operand of the current instruction: ' + operand);
+							this.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
+							document.getElementById('MAR').value = operand;
+							document.getElementById('MBR').value = MBR;
+						}
+					} else if (i == 4) {
+						this.activate_wrapper('MBR_wrapper');
+						this.activate_wrapper('accumulator_wrapper');
+					} else if (i == 5) {
+						this.deactivate_wrapper('MBR_wrapper');
+						this.deactivate_wrapper('accumulator_wrapper');
+						this.log_output('Subtract MBR value from Accumulator and store the result in Accumulator: ' + accumulator + '-' + MBR + '=' + (accumulator - MBR));
+						accumulator -= MBR;
+						document.getElementById('accumulator').value = accumulator;
+					} else {
+						document.getElementById('clock').value = this.cycles;
+						this.deactivate_wrapper('clock_wrapper');
+						resolve(MBR, accumulator);
+						clearInterval(this.carry_on);
+					};
+					i++;
 				};
-				i++;
 			}, this.animation_interval);
 		});
 	};
@@ -798,53 +893,60 @@ class Little_Man_Computer {
 			var MBR;
 			this.carry_on = setInterval(() => {
 				// fetch instruction
-				if (i == 0) {
-					this.log_output('LDA');
-					this.log_output('Executing instruction...');
-				} else if (i == 1) {
-					this.deactivate_wrapper('control_unit_wrapper');
-					control_bus.setOptions({
-						color: '#AAAAAA'
-					});
-					this.cycles++;
-				} else if (i == 2) {
-					if (direct) {
-						MBR = parseInt(operand);
-						this.activate_wrapper('MBR_wrapper');
-					} else {
-						MBR = parseInt(document.getElementById('memory_location_' + operand).value);
-						this.activate_wrapper('MAR_wrapper');
-						this.deactivate_wrapper('MBR_wrapper');
-					};
-				} else if (i == 3) {
-					if (direct) {
-						this.activate_wrapper('MBR_wrapper');
-						this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
-						document.getElementById('MBR').value = MBR;
-					} else {
-						this.deactivate_wrapper('MAR_wrapper');
-						this.deactivate_wrapper('MBR_wrapper');
-						MBR = parseInt(document.getElementById('memory_location_' + operand).value);
-						this.log_output('Set MAR to operand of the current instruction: ' + operand);
-						this.log_output('Fetch data at location held by MAR (' + operand + ') and store it in MBR: ' + MBR);
-						document.getElementById('MAR').value = operand;
-						document.getElementById('MBR').value = MBR;
-					}
-				} else if (i == 4) {
-					this.activate_wrapper('MBR_wrapper');
-					this.activate_wrapper('accumulator_wrapper');
-				} else if (i == 5) {
-					this.deactivate_wrapper('MBR_wrapper');
-					this.deactivate_wrapper('accumulator_wrapper');
-					document.getElementById('accumulator').value = MBR;
-					this.log_output('Store MBR value in Accumulator: ' + MBR);
-				} else {
-					document.getElementById('clock').value = this.cycles;
-					this.deactivate_wrapper('clock_wrapper');
+				this.check_error();
+
+				if (this.assembly_code_error == true) {
 					resolve(MBR);
 					clearInterval(this.carry_on);
+				} else {
+					if (i == 0) {
+						this.log_output('LDA');
+						this.log_output('Executing instruction...');
+					} else if (i == 1) {
+						this.deactivate_wrapper('control_unit_wrapper');
+						control_bus.setOptions({
+							color: '#AAAAAA'
+						});
+						this.cycles++;
+					} else if (i == 2) {
+						if (direct) {
+							MBR = parseInt(operand);
+							this.activate_wrapper('MBR_wrapper');
+						} else {
+							MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+							this.activate_wrapper('MAR_wrapper');
+							this.deactivate_wrapper('MBR_wrapper');
+						};
+					} else if (i == 3) {
+						if (direct) {
+							this.activate_wrapper('MBR_wrapper');
+							this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
+							document.getElementById('MBR').value = MBR;
+						} else {
+							this.deactivate_wrapper('MAR_wrapper');
+							this.deactivate_wrapper('MBR_wrapper');
+							MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+							this.log_output('Set MAR to operand of the current instruction: ' + operand);
+							this.log_output('Fetch data at location held by MAR (' + operand + ') and store it in MBR: ' + MBR);
+							document.getElementById('MAR').value = operand;
+							document.getElementById('MBR').value = MBR;
+						}
+					} else if (i == 4) {
+						this.activate_wrapper('MBR_wrapper');
+						this.activate_wrapper('accumulator_wrapper');
+					} else if (i == 5) {
+						this.deactivate_wrapper('MBR_wrapper');
+						this.deactivate_wrapper('accumulator_wrapper');
+						document.getElementById('accumulator').value = MBR;
+						this.log_output('Store MBR value in Accumulator: ' + MBR);
+					} else {
+						document.getElementById('clock').value = this.cycles;
+						this.deactivate_wrapper('clock_wrapper');
+						resolve(MBR);
+						clearInterval(this.carry_on);
+					};
+					i++;
 				};
-				i++;
 			}, this.animation_interval);
 		});
 	};
@@ -855,37 +957,44 @@ class Little_Man_Computer {
 			var MBR;
 			this.carry_on = setInterval(() => {
 				// fetch instruction
-				if (i == 0) {
-					this.log_output('STA');
-					this.log_output('Executing instruction...');
-				} else if (i == 1) {
-					this.deactivate_wrapper('control_unit_wrapper');
-					control_bus.setOptions({
-						color: '#AAAAAA'
-					});
-					this.cycles++;
-				} else if (i == 2) {
-					MBR = parseInt(document.getElementById('accumulator').value);
-					this.activate_wrapper('MBR_wrapper');
-					this.activate_wrapper('accumulator_wrapper');
-				} else if (i == 3) {
-					this.deactivate_wrapper('accumulator_wrapper');
-					this.log_output('Set MBR to value held in Accumulator: ' + MBR);
-					document.getElementById('MBR').value = MBR;
-				} else if (i == 4) {
-					this.deactivate_wrapper('MBR_wrapper');
-					this.activate_wrapper('MAR_wrapper');
-					this.log_output('Store MBR value ' + MBR + ' at memory location held in MAR: ' + operand);
-					document.getElementById('MAR').value = operand;
-					document.getElementById('memory_location_' + operand).value = MBR;
-				} else {
-					this.deactivate_wrapper('MAR_wrapper');
-					document.getElementById('clock').value = this.cycles;
-					this.deactivate_wrapper('clock_wrapper');
+				this.check_error();
+				
+				if (this.assembly_code_error == true) {
 					resolve(MBR);
 					clearInterval(this.carry_on);
+				} else {
+					if (i == 0) {
+						this.log_output('STA');
+						this.log_output('Executing instruction...');
+					} else if (i == 1) {
+						this.deactivate_wrapper('control_unit_wrapper');
+						control_bus.setOptions({
+							color: '#AAAAAA'
+						});
+						this.cycles++;
+					} else if (i == 2) {
+						MBR = parseInt(document.getElementById('accumulator').value);
+						this.activate_wrapper('MBR_wrapper');
+						this.activate_wrapper('accumulator_wrapper');
+					} else if (i == 3) {
+						this.deactivate_wrapper('accumulator_wrapper');
+						this.log_output('Set MBR to value held in Accumulator: ' + MBR);
+						document.getElementById('MBR').value = MBR;
+					} else if (i == 4) {
+						this.deactivate_wrapper('MBR_wrapper');
+						this.activate_wrapper('MAR_wrapper');
+						this.log_output('Store MBR value ' + MBR + ' at memory location held in MAR: ' + operand);
+						document.getElementById('MAR').value = operand;
+						document.getElementById('memory_location_' + operand).value = MBR;
+					} else {
+						this.deactivate_wrapper('MAR_wrapper');
+						document.getElementById('clock').value = this.cycles;
+						this.deactivate_wrapper('clock_wrapper');
+						resolve(MBR);
+						clearInterval(this.carry_on);
+					};
+					i++;
 				};
-				i++;
 			}, this.animation_interval);
 		});
 	};
@@ -895,29 +1004,36 @@ class Little_Man_Computer {
 			var i = 0;
 			this.carry_on = setInterval(() => {
 				// fetch instruction
-				if (i == 0) {
-					this.log_output('BRA');
-					this.log_output('Executing instruction...');
-				} else if (i == 1) {
-					this.deactivate_wrapper('control_unit_wrapper');
-					control_bus.setOptions({
-						color: '#AAAAAA'
-					});
-					this.cycles++;
-				} else if (i == 2) {
-					this.activate_wrapper('PC_wrapper');
-				} else if (i == 3) {
-					document.getElementById('PC').value = operand;
-					this.deactivate_wrapper('PC_wrapper');
-					this.program_counter = parseInt(operand);
-					this.log_output('Set PC to operand of instruction: ' + operand);
-				} else {
-					document.getElementById('clock').value = this.cycles;
-					this.deactivate_wrapper('clock_wrapper');
+				this.check_error();
+
+				if (this.assembly_code_error == true) {
 					resolve();
 					clearInterval(this.carry_on);
+				} else {
+					if (i == 0) {
+						this.log_output('BRA');
+						this.log_output('Executing instruction...');
+					} else if (i == 1) {
+						this.deactivate_wrapper('control_unit_wrapper');
+						control_bus.setOptions({
+							color: '#AAAAAA'
+						});
+						this.cycles++;
+					} else if (i == 2) {
+						this.activate_wrapper('PC_wrapper');
+					} else if (i == 3) {
+						document.getElementById('PC').value = operand;
+						this.deactivate_wrapper('PC_wrapper');
+						this.program_counter = parseInt(operand);
+						this.log_output('Set PC to operand of instruction: ' + operand);
+					} else {
+						document.getElementById('clock').value = this.cycles;
+						this.deactivate_wrapper('clock_wrapper');
+						resolve();
+						clearInterval(this.carry_on);
+					};
+					i++;
 				};
-				i++;
 			}, this.animation_interval);
 		});
 	};
@@ -927,43 +1043,50 @@ class Little_Man_Computer {
 			var i = 0;
 			this.carry_on = setInterval(() => {
 				// fetch instruction
-				if (i == 0) {
-					this.log_output('BRZ');
-					this.log_output('Executing instruction...');
-				} else if (i == 1) {
-					this.deactivate_wrapper('control_unit_wrapper');
-					control_bus.setOptions({
-						color: '#AAAAAA'
-					});
-					this.cycles++;
-				} else if (i == 2) {
-					this.log_output('Check if value held in Accumulator is 0');
-				} else if (i == 3) {
-					if (accumulator == 0) {
-						this.log_output('0 == 0 - true');
-						this.activate_wrapper('PC_wrapper');
-					} else {
-						this.log_output(accumulator + ' == 0 - false');
-					};
-				} else if (i == 4) {
-					if (accumulator == 0) {
-						this.deactivate_wrapper('PC_wrapper');
-						this.log_output('Set PC to operand of instruction: ' + operand);
-						document.getElementById('PC').value = operand;
-						this.program_counter = parseInt(operand);
+				this.check_error();
+
+				if (this.assembly_code_error == true) {
+					resolve();
+					clearInterval(this.carry_on);
+				} else {
+					if (i == 0) {
+						this.log_output('BRZ');
+						this.log_output('Executing instruction...');
+					} else if (i == 1) {
+						this.deactivate_wrapper('control_unit_wrapper');
+						control_bus.setOptions({
+							color: '#AAAAAA'
+						});
+						this.cycles++;
+					} else if (i == 2) {
+						this.log_output('Check if value held in Accumulator is 0');
+					} else if (i == 3) {
+						if (accumulator == 0) {
+							this.log_output('0 == 0 - true');
+							this.activate_wrapper('PC_wrapper');
+						} else {
+							this.log_output(accumulator + ' == 0 - false');
+						};
+					} else if (i == 4) {
+						if (accumulator == 0) {
+							this.deactivate_wrapper('PC_wrapper');
+							this.log_output('Set PC to operand of instruction: ' + operand);
+							document.getElementById('PC').value = operand;
+							this.program_counter = parseInt(operand);
+						} else {
+							document.getElementById('clock').value = this.cycles;
+							this.deactivate_wrapper('clock_wrapper');
+							resolve();
+							clearInterval(this.carry_on);
+						};
 					} else {
 						document.getElementById('clock').value = this.cycles;
 						this.deactivate_wrapper('clock_wrapper');
 						resolve();
 						clearInterval(this.carry_on);
 					};
-				} else {
-					document.getElementById('clock').value = this.cycles;
-					this.deactivate_wrapper('clock_wrapper');
-					resolve();
-					clearInterval(this.carry_on);
+					i++;
 				};
-				i++;
 			}, this.animation_interval);
 		});
 	};
@@ -973,43 +1096,50 @@ class Little_Man_Computer {
 			var i = 0;
 			this.carry_on = setInterval(() => {
 				// fetch instruction
-				if (i == 0) {
-					this.log_output('BRP');
-					this.log_output('Executing instruction...');
-				} else if (i == 1) {
-					this.deactivate_wrapper('control_unit_wrapper');
-					control_bus.setOptions({
-						color: '#AAAAAA'
-					});
-					this.cycles++;
-				} else if (i == 2) {
-					this.log_output('Check if value held in Accumulator is positive (>= 0)');
-				} else if (i == 3) {
-					if (accumulator >= 0) {
-						this.log_output(accumulator + ' >= 0 - true');
-						this.activate_wrapper('PC_wrapper');
-					} else {
-						this.log_output(accumulator + ' >= 0 - false');
-					};
-				} else if (i == 4) {
-					if (accumulator >= 0) {
-						this.deactivate_wrapper('PC_wrapper');
-						this.log_output('Set PC to operand of instruction: ' + operand);
-						document.getElementById('PC').value = operand;
-						this.program_counter = parseInt(operand);
+				this.check_error();
+
+				if (this.assembly_code_error == true) {
+					resolve();
+					clearInterval(this.carry_on);
+				} else {
+					if (i == 0) {
+						this.log_output('BRP');
+						this.log_output('Executing instruction...');
+					} else if (i == 1) {
+						this.deactivate_wrapper('control_unit_wrapper');
+						control_bus.setOptions({
+							color: '#AAAAAA'
+						});
+						this.cycles++;
+					} else if (i == 2) {
+						this.log_output('Check if value held in Accumulator is positive (>= 0)');
+					} else if (i == 3) {
+						if (accumulator >= 0) {
+							this.log_output(accumulator + ' >= 0 - true');
+							this.activate_wrapper('PC_wrapper');
+						} else {
+							this.log_output(accumulator + ' >= 0 - false');
+						};
+					} else if (i == 4) {
+						if (accumulator >= 0) {
+							this.deactivate_wrapper('PC_wrapper');
+							this.log_output('Set PC to operand of instruction: ' + operand);
+							document.getElementById('PC').value = operand;
+							this.program_counter = parseInt(operand);
+						} else {
+							document.getElementById('clock').value = this.cycles;
+							this.deactivate_wrapper('clock_wrapper');
+							resolve();
+							clearInterval(this.carry_on);
+						};
 					} else {
 						document.getElementById('clock').value = this.cycles;
 						this.deactivate_wrapper('clock_wrapper');
 						resolve();
 						clearInterval(this.carry_on);
 					};
-				} else {
-					document.getElementById('clock').value = this.cycles;
-					this.deactivate_wrapper('clock_wrapper');
-					resolve();
-					clearInterval(this.carry_on);
+					i++;
 				};
-				i++;
 			}, this.animation_interval);
 		});
 	};
@@ -1019,237 +1149,246 @@ class Little_Man_Computer {
 
 		// ! NEED TO UPDATE STATUS REGISTER (EVEN IF NOT USED) - WHENEVER LOOP BEING USED / BRANCHING / ERROR
 
-		// must be done in order, so await is used
-		var instruction = await this.process_instruction_main_beginning();
-		
-		// halt instruction
-		if (instruction == '000') {
+		if (this.assembly_code_error == false) {
 
-			// this.log_output('HLT');
-			// this.log_output('Executing instruction...');
-			// this.log_output('Program stopped');
+			// must be done in order, so await is used
+			var instruction = await this.process_instruction_main_beginning();
+			
+			// halt instruction
+			if (instruction == '000') {
 
-			// this.cycles++;
+				// this.log_output('HLT');
+				// this.log_output('Executing instruction...');
+				// this.log_output('Program stopped');
 
-			// this.log_output('####################');
-			// this.log_output('Program executed in ' + this.cycles + ' FDE cycles');
+				// this.cycles++;
 
-			// this.cycles = 0;
-			// this.paused = true;
+				// this.log_output('####################');
+				// this.log_output('Program executed in ' + this.cycles + ' FDE cycles');
 
-			// this.stop = true;
+				// this.cycles = 0;
+				// this.paused = true;
 
-			await this.process_instruction_HLT();
+				// this.stop = true;
 
-			// document.getElementById('pausebtn').innerHTML = '<i class="fa fa-play"></i>';
+				await this.process_instruction_HLT();
 
-			// clearInterval(this.carry_on);
+				// document.getElementById('pausebtn').innerHTML = '<i class="fa fa-play"></i>';
 
-		} else if (instruction == '901') { // input instruction
+				// clearInterval(this.carry_on);
 
-			// this.log_output('INP');
-			// this.log_output('Executing instruction...');
-			// this.log_output('Waiting for user input...');
-			// this.cycles++;
+			} else if (instruction == '901') { // input instruction
 
-			// ! MAKE THIS WORK SO CAN'T DO ANYTHING UNTIL SOMETHING INPUTTED INTO INPUT BOX IN CONTROLBOX
+				// this.log_output('INP');
+				// this.log_output('Executing instruction...');
+				// this.log_output('Waiting for user input...');
+				// this.cycles++;
 
-			// this.inp = prompt('User input:');
-			// document.getElementById('input').value = this.inp;
-			// document.getElementById('input').value = document.getElementById('input').value + this.inp + '\n';
-			// document.getElementById('input').scrollTop = document.getElementById('input').scrollHeight;
+				// ! MAKE THIS WORK SO CAN'T DO ANYTHING UNTIL SOMETHING INPUTTED INTO INPUT BOX IN CONTROLBOX
 
-			await this.process_instruction_INP();
+				// this.inp = prompt('User input:');
+				// document.getElementById('input').value = this.inp;
+				// document.getElementById('input').value = document.getElementById('input').value + this.inp + '\n';
+				// document.getElementById('input').scrollTop = document.getElementById('input').scrollHeight;
 
-			// this.log_output('Store user input in Accumulator: ' + this.inp);
-			// document.getElementById('accumulator').value = this.inp;
+				await this.process_instruction_INP();
 
-		} else if (instruction == '902') { // output instruction
+				// this.log_output('Store user input in Accumulator: ' + this.inp);
+				// document.getElementById('accumulator').value = this.inp;
 
-			// this.log_output('OUT');
-			// this.log_output('Executing instruction...');
-			// this.log_output('Output value held in Accumulator: ' + document.getElementById('accumulator').value);
+			} else if (instruction == '902') { // output instruction
 
-			// this.cycles++;
+				// this.log_output('OUT');
+				// this.log_output('Executing instruction...');
+				// this.log_output('Output value held in Accumulator: ' + document.getElementById('accumulator').value);
 
-			await this.process_instruction_OUT();
+				// this.cycles++;
 
-			// document.getElementById('output').value = document.getElementById('output').value + document.getElementById('accumulator').value + '\n';
-			// document.getElementById('output').value = document.getElementById('accumulator').value;
-			// document.getElementById('output').scrollTop = document.getElementById('output').scrollHeight;
+				await this.process_instruction_OUT();
 
-		} else {
+				// document.getElementById('output').value = document.getElementById('output').value + document.getElementById('accumulator').value + '\n';
+				// document.getElementById('output').value = document.getElementById('accumulator').value;
+				// document.getElementById('output').scrollTop = document.getElementById('output').scrollHeight;
 
-			var opcode = instruction.substr(0, 1);
-			var operand_address = instruction.substr(1);
-			var operand;
-			var direct = false;
-
-			if (operand_address.substr(0, 1) == '@') { // indirect addressing
-				operand = parseInt(document.getElementById('memory_location_' + operand_address.substr(1)).value);
-			} else if (operand_address.substr(0, 1) == '#') { // direct addressing
-				direct = true;
-				operand = operand_address.substr(1);
 			} else {
-				operand = operand_address;
+
+				var opcode = instruction.substr(0, 1);
+				var operand_address = instruction.substr(1);
+				var operand;
+				var direct = false;
+
+				if (operand_address.substr(0, 1) == '@') { // indirect addressing
+					operand = parseInt(document.getElementById('memory_location_' + operand_address.substr(1)).value);
+				} else if (operand_address.substr(0, 1) == '#') { // direct addressing
+					direct = true;
+					operand = operand_address.substr(1);
+				} else {
+					operand = operand_address;
+				};
+
+				var accumulator = parseInt(document.getElementById('accumulator').value);
+
+				if (opcode == '1') { // add instruction
+
+					// this.log_output('ADD');
+					// this.log_output('Executing instruction...');
+
+					// this.cycles++;
+
+					// var MBR;
+
+					var MBR, accumulator = await this.process_instruction_ADD(direct, operand, accumulator);
+
+					// if (direct) {
+					// 	MBR = parseInt(operand);
+					// 	this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
+					// 	document.getElementById('MBR').value = MBR;
+					// } else {
+					// 	MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+					// 	this.log_output('Set MAR to operand of the current instruction: ' + operand);
+					// 	this.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
+					// 	document.getElementById('MAR').value = operand;
+					// 	document.getElementById('MBR').value = MBR;
+					// };
+
+					// this.log_output('Add MBR value to Accumulator and store the result in Accumulator: ' + accumulator + '+' + MBR + '=' + (accumulator + MBR));
+					// accumulator += MBR;
+					// document.getElementById('accumulator').value = accumulator;
+
+				} else if (opcode == '2') { // subtract instruction
+
+					// this.log_output('SUB');
+					// this.log_output('Executing instruction...');
+
+					// this.cycles++;
+
+					// var MBR;
+
+					var MBR, accumulator = await this.process_instruction_SUB(direct, operand, accumulator);
+
+					// if (direct) {
+					// 	MBR = parseInt(operand);
+					// 	this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
+					// 	document.getElementById('MBR').value = MBR;
+					// } else {
+					// 	MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+					// 	this.log_output('Set MAR to operand of the current instruction: ' + operand);
+					// 	this.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
+					// 	document.getElementById('MAR').value = operand;
+					// 	document.getElementById('MBR').value = MBR;
+					// };
+
+					// this.log_output('Subtract MBR value from Accumulator and store the result in Accumulator: ' + accumulator + '-' + MBR + '=' + (accumulator - MBR));
+					// accumulator -= MBR;
+					// document.getElementById('accumulator').value = accumulator;
+
+				} else if (opcode == '5') { // load to accumulator
+
+					// this.log_output('LDA');
+					// this.log_output('Executing instruction...');
+
+					// this.cycles++;
+
+					// var MBR;
+
+					var MBR = await this.process_instruction_LDA(direct, operand);
+
+					// if (direct) {
+					// 	MBR = parseInt(operand);
+					// 	this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
+					// 	document.getElementById('MBR').value = MBR;
+					// } else {
+					// 	MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+					// 	this.log_output('Set MAR to operand of the current instruction: ' + operand);
+					// 	this.log_output('Fetch data at location held by MAR (' + operand + ') and store it in MBR: ' + MBR);
+					// 	document.getElementById('MAR').value = operand;
+					// 	document.getElementById('MBR').value = MBR;
+					// };
+
+					// document.getElementById('accumulator').value = MBR;
+					// this.log_output('Store MBR value in Accumulator: ' + MBR);
+
+				} else if (opcode == '3') { // store accumulator value in memory
+
+					// this.log_output('STA');
+					// this.log_output('Executing instruction...');
+
+					// this.cycles++;
+					// this.log_output('Set MAR to operand of the current instruction: ' + operand);
+
+					// var MBR = parseInt(document.getElementById('accumulator').value);
+
+					var MBR = await this.process_instruction_STA(operand);
+
+					// this.log_output('Set MBR to value held in Accumulator: ' + MBR);
+					// this.log_output('Store MBR value ' + MBR + ' at memory location held in MAR: ' + operand);
+
+					// document.getElementById('MAR').value = operand;
+					// document.getElementById('MBR').value = MBR;
+					// document.getElementById('memory_location_' + operand).value = MBR;
+
+				} else if (opcode == '6') { // always branch
+
+					// this.log_output('BRA');
+					// this.log_output('Executing instruction...');
+
+					// this.cycles++;
+
+					await this.process_instruction_BRA(operand);
+
+					// document.getElementById('PC').value = operand;
+					// this.program_counter = parseInt(operand);
+					// this.log_output('Set PC to operand of instruction: ' + operand);
+
+				} else if (opcode == '7') { // branch if zero
+
+					// this.log_output('BRZ');
+					// this.log_output('Executing instruction...');
+
+					// this.cycles++;
+
+					await this.process_instruction_BRZ(operand, accumulator);
+
+					// this.log_output('Check if value held in Accumulator is 0');
+
+					// if (accumulator == 0) {
+					// 	this.log_output('0 == 0 - true');
+					// 	this.log_output('Set PC to operand of instruction: ' + operand);
+					// 	document.getElementById('PC').value = operand;
+					// 	this.program_counter = parseInt(operand);
+					// } else {
+					// 	this.log_output(accumulator + ' == 0 - false');
+					// };
+
+				} else if (opcode == '8') { // branch if positive or 0
+
+					// this.log_output('BRP');
+					// this.log_output('Executing instruction...');
+
+					// this.cycles++;
+
+					await this.process_instruction_BRP(operand, accumulator);
+
+					// this.log_output('Check if value held in Accumulator is positive (>= 0)');
+
+					// if (accumulator >= 0) {
+					// 	this.log_output(accumulator + ' >= 0 - true');
+					// 	this.log_output('Set PC to operand of instruction: ' + operand);
+					// 	document.getElementById('PC').value = operand;
+					// 	this.program_counter = parseInt(operand);
+					// } else {
+					// 	this.log_output(accumulator + ' >= 0 - false');
+					// };
+				};
 			};
-
-			var accumulator = parseInt(document.getElementById('accumulator').value);
-
-			if (opcode == '1') { // add instruction
-
-				// this.log_output('ADD');
-				// this.log_output('Executing instruction...');
-
-				// this.cycles++;
-
-				// var MBR;
-
-				var MBR, accumulator = await this.process_instruction_ADD(direct, operand, accumulator);
-
-				// if (direct) {
-				// 	MBR = parseInt(operand);
-				// 	this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
-				// 	document.getElementById('MBR').value = MBR;
-				// } else {
-				// 	MBR = parseInt(document.getElementById('memory_location_' + operand).value);
-				// 	this.log_output('Set MAR to operand of the current instruction: ' + operand);
-				// 	this.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
-				// 	document.getElementById('MAR').value = operand;
-				// 	document.getElementById('MBR').value = MBR;
-				// };
-
-				// this.log_output('Add MBR value to Accumulator and store the result in Accumulator: ' + accumulator + '+' + MBR + '=' + (accumulator + MBR));
-				// accumulator += MBR;
-				// document.getElementById('accumulator').value = accumulator;
-
-			} else if (opcode == '2') { // subtract instruction
-
-				// this.log_output('SUB');
-				// this.log_output('Executing instruction...');
-
-				// this.cycles++;
-
-				// var MBR;
-
-				var MBR, accumulator = await this.process_instruction_SUB(direct, operand, accumulator);
-
-				// if (direct) {
-				// 	MBR = parseInt(operand);
-				// 	this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
-				// 	document.getElementById('MBR').value = MBR;
-				// } else {
-				// 	MBR = parseInt(document.getElementById('memory_location_' + operand).value);
-				// 	this.log_output('Set MAR to operand of the current instruction: ' + operand);
-				// 	this.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
-				// 	document.getElementById('MAR').value = operand;
-				// 	document.getElementById('MBR').value = MBR;
-				// };
-
-				// this.log_output('Subtract MBR value from Accumulator and store the result in Accumulator: ' + accumulator + '-' + MBR + '=' + (accumulator - MBR));
-				// accumulator -= MBR;
-				// document.getElementById('accumulator').value = accumulator;
-
-			} else if (opcode == '5') { // load to accumulator
-
-				// this.log_output('LDA');
-				// this.log_output('Executing instruction...');
-
-				// this.cycles++;
-
-				// var MBR;
-
-				var MBR = await this.process_instruction_LDA(direct, operand);
-
-				// if (direct) {
-				// 	MBR = parseInt(operand);
-				// 	this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
-				// 	document.getElementById('MBR').value = MBR;
-				// } else {
-				// 	MBR = parseInt(document.getElementById('memory_location_' + operand).value);
-				// 	this.log_output('Set MAR to operand of the current instruction: ' + operand);
-				// 	this.log_output('Fetch data at location held by MAR (' + operand + ') and store it in MBR: ' + MBR);
-				// 	document.getElementById('MAR').value = operand;
-				// 	document.getElementById('MBR').value = MBR;
-				// };
-
-				// document.getElementById('accumulator').value = MBR;
-				// this.log_output('Store MBR value in Accumulator: ' + MBR);
-
-			} else if (opcode == '3') { // store accumulator value in memory
-
-				// this.log_output('STA');
-				// this.log_output('Executing instruction...');
-
-				// this.cycles++;
-				// this.log_output('Set MAR to operand of the current instruction: ' + operand);
-
-				// var MBR = parseInt(document.getElementById('accumulator').value);
-
-				var MBR = await this.process_instruction_STA(operand);
-
-				// this.log_output('Set MBR to value held in Accumulator: ' + MBR);
-				// this.log_output('Store MBR value ' + MBR + ' at memory location held in MAR: ' + operand);
-
-				// document.getElementById('MAR').value = operand;
-				// document.getElementById('MBR').value = MBR;
-				// document.getElementById('memory_location_' + operand).value = MBR;
-
-			} else if (opcode == '6') { // always branch
-
-				// this.log_output('BRA');
-				// this.log_output('Executing instruction...');
-
-				// this.cycles++;
-
-				await this.process_instruction_BRA(operand);
-
-				// document.getElementById('PC').value = operand;
-				// this.program_counter = parseInt(operand);
-				// this.log_output('Set PC to operand of instruction: ' + operand);
-
-			} else if (opcode == '7') { // branch if zero
-
-				// this.log_output('BRZ');
-				// this.log_output('Executing instruction...');
-
-				// this.cycles++;
-
-				await this.process_instruction_BRZ(operand, accumulator);
-
-				// this.log_output('Check if value held in Accumulator is 0');
-
-				// if (accumulator == 0) {
-				// 	this.log_output('0 == 0 - true');
-				// 	this.log_output('Set PC to operand of instruction: ' + operand);
-				// 	document.getElementById('PC').value = operand;
-				// 	this.program_counter = parseInt(operand);
-				// } else {
-				// 	this.log_output(accumulator + ' == 0 - false');
-				// };
-
-			} else if (opcode == '8') { // branch if positive or 0
-
-				// this.log_output('BRP');
-				// this.log_output('Executing instruction...');
-
-				// this.cycles++;
-
-				await this.process_instruction_BRP(operand, accumulator);
-
-				// this.log_output('Check if value held in Accumulator is positive (>= 0)');
-
-				// if (accumulator >= 0) {
-				// 	this.log_output(accumulator + ' >= 0 - true');
-				// 	this.log_output('Set PC to operand of instruction: ' + operand);
-				// 	document.getElementById('PC').value = operand;
-				// 	this.program_counter = parseInt(operand);
-				// } else {
-				// 	this.log_output(accumulator + ' >= 0 - false');
-				// };
-			};
+		} else {
+			alert('Error in assembly code! Executing HLT instruction!');
+			this.activate_wrapper('status_register_wrapper');
+			document.getElementById('status_register').value = '-1';
+			await this.process_instruction_HLT();
+			this.paused = true;
+			this.stop = true;
 		};
-
 	};
 
 	step() {
@@ -1902,6 +2041,8 @@ function reset_RAM(LMC) {
 	LMC.reset_all_registers();
 	LMC.reset_all_inp_out();
 	LMC.stop = false;
+	LMC.assembly_code_error = false;
+	LMC = initialise_LMC();
 };
 
 // open new tab with /instruction_set 

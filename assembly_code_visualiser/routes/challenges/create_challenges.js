@@ -12,16 +12,58 @@ var fs = require('fs');
 // coming to create_challenge page
 router.get('/', auth.check_authenticated, function (req, res, next) {
 
-	res.locals.message = req.flash();
+	try {
 
-	res.render('teacher_challenges/create_challenges', {
-		title: 'Create Challenges',
-		menu_id: 'create_challenges',
-		role: req.user.role,
-		email: req.user.email,
-		session_id: req.sessionID,
-		session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
-	});
+		res.locals.message = req.flash();
+
+		// record relation b/w teacher and challenge
+		db_connection.query(
+			'SELECT challenge_blob FROM Challenge_File, Challenge_Teacher WHERE Challenge_File.challenge_file_id = Challenge_Teacher.challenge_file_id AND Challenge_Teacher.challenge_over_bool = 0;',
+			[],
+			function (err, rows) {
+
+				if (err) {
+					console.log(err);
+					req.flash('error', ' An error occured');
+					res.locals.message = req.flash();
+				}
+
+				console.log(rows);
+
+				var challenges_to_display = [];
+
+				rows.forEach(element => {
+					challenges_to_display.push(element['challenge_blob'].toString());
+				});
+
+				console.log(challenges_to_display);
+
+				// ! REST OF STUFF HEREEEEEEE
+				// ? REST OF STUFF HEREEEEEEE
+
+				res.render('teacher_challenges/create_challenges', {
+					title: 'Create Challenges',
+					menu_id: 'create_challenges',
+					role: req.user.role,
+					email: req.user.email,
+					session_id: req.sessionID,
+					session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+				});
+
+			}
+		);
+	
+	} catch (any_error) {
+		console.log(any_error);
+		res.render('teacher_challenges/create_challenges', {
+			title: 'Create Challenges',
+			menu_id: 'create_challenges',
+			role: req.user.role,
+			email: req.user.email,
+			session_id: req.sessionID,
+			session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+		});
+	}
 
 });
 

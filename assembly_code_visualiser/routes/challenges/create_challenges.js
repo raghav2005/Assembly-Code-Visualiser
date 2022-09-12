@@ -54,51 +54,94 @@ router.get('/new_challenge', auth.check_authenticated, function (req, res, next)
 // redirect to new_challenge page creation - testing stuffs
 router.post('/new_challenge/create', function (req, res, next) {
 
-	var create_challenge_file_path = './public/text_files/teacher_create_challenge.txt';
-	var data = 'Hello !';
-
-	// check if file exists
-	
-	// ASYNCHRONOUS
-	// fs.access(create_challenge_file_path, fs.F_OK, (err) => {
-	// 	if (err) {
-	// 		console.error(err);
-	// 		return;
-	// 	};
-	// 	// file exists
-	// 	console.log('Teacher Create Challenge file already exists');
-	// });
-
-	// SYNCHRONOUS
 	try {
-		if (fs.existsSync(create_challenge_file_path)) {
-			// file exists
-			console.log('Teacher Create Challenge file already exists');
-			
-			try {
-				fs.unlinkSync(create_challenge_file_path);
-				// file removed
-				console.log('Teacher Create Challenge file deleted');
-			} catch (error) {
-				console.error(error);
-			};
-		}
-	} catch (err) {
-		console.error(err);
-	};
 
+		var create_challenge_file_path = './public/text_files/teacher_create_challenge.txt';
+		var data = 'Hello !';
 
-	fs.writeFile(create_challenge_file_path, data, 
-	// callback function that is called after writing file is done
-	function (err) {
-		if (err) {
-			console.log(err);
+		// check if file exists
+		
+		// ASYNCHRONOUS
+		// fs.access(create_challenge_file_path, fs.F_OK, (err) => {
+		// 	if (err) {
+		// 		console.error(err);
+		// 		return;
+		// 	};
+		// 	// file exists
+		// 	console.log('Teacher Create Challenge file already exists');
+		// });
+
+		// SYNCHRONOUS
+		try {
+			if (fs.existsSync(create_challenge_file_path)) {
+				// file exists
+				console.log('Teacher Create Challenge file already exists');
+				
+				try {
+					fs.unlinkSync(create_challenge_file_path);
+					// file removed
+					console.log('Teacher Create Challenge file deleted');
+				} catch (error) {
+					console.error(error);
+				};
+			}
+		} catch (err) {
+			console.error(err);
 		};
-		console.log('Data written to Teacher Create Challenge file successfully')
-	});
 
-	// redirect to page to create a new challenge
-	res.redirect('/create_challenges');
+		// all user-side scripting for validation
+		var error_message = false;
+
+		// ensure everything filled out
+		if (req.body.challenge_title.length === 0) {
+			error_message = true;
+			req.flash('error', ' Challenge Title is required');
+		}
+		if (req.body.challenge_description.length === 0) {
+			error_message = true;
+			req.flash('error', ' Challenge Description is required');
+		}
+
+		// ensure challenge title length is <= 100 characters
+		if (req.body.challenge_title.length > 100) {
+			error_message = true;
+			req.flash('error', ' Challenge Title length must be max 100 characters');
+		}
+
+		// return with the error message
+		if (error_message) {
+			res.locals.message = req.flash();
+			return res.render('teacher_challenges/new_challenge', {
+				title: 'New Challenge',
+				role: req.user.role,
+				email: req.user.email,
+				session_id: req.sessionID,
+				session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+			});
+		}
+
+		fs.writeFile(create_challenge_file_path, data,
+		// callback function that is called after writing file is done
+		function (err) {
+			if (err) {
+				console.log(err);
+			};
+			console.log('Data written to Teacher Create Challenge file successfully')
+		});
+
+		// redirect to page to create a new challenge
+		return res.redirect('/create_challenges');
+
+	} catch (any_error) {
+		res.locals.message = req.flash();
+		return res.render('teacher_challenges/new_challenge', {
+			title: 'New Challenge',
+			role: req.user.role,
+			email: req.user.email,
+			session_id: req.sessionID,
+			session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+		});
+	}
 
 });
 

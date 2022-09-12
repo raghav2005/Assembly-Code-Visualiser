@@ -13,11 +13,44 @@
 			<div class="row">
 				<div class="col-md-12">
 
-					<!-- ! practice using text files (writing + reading in JS + using blobs in MySQL) form -->
 					<form action="/create_challenges/new_challenge/create" method="post">
+
+						<!-- challenge title -->
+						<div class="row">
+							<div class="col-md-12">
+								<label for="challenge_title">CHALLENGE TITLE</label>
+								<input type="text" id="challenge_title" name="challenge_title" placeholder="Generic Challenge Title" required />
+							</div>
+						</div>
+
+						<!-- challenge description -->
+						<div class="row">
+							<div class="col-md-12">
+								<label for="challenge_description">CHALLENGE DESCRIPTION</label>
+								<!-- <input type="text" id="challenge_description" name="challenge_description" placeholder="Generic Challenge Description" required style="height: 20em;" /> -->
+								<textarea id="challenge_description" name="challenge_description" wrap="off" placeholder="Generic Challenge Description" required  style="overflow-y: scroll; height: 20em; width: 100%;"></textarea>
+							</div>
+						</div>
+
 						<!-- submit button -->
 						<button type="submit" value="Create">CREATE</button>
 					</form>
+
+					<% if (message.error) { %>
+						<div class="alert alert-danger" role="alert">
+							<strong>
+								<%= message.error %>
+							</strong>
+						</div>
+					<% } %>
+					
+					<% if (message.success) { %>
+						<div class="alert alert-success" role="alert">
+							<strong>
+								<%= message.success %>
+							</strong>
+						</div>
+					<% } %>
 
 				</div>
 			</div>

@@ -57,7 +57,6 @@ router.post('/new_challenge/create', function (req, res, next) {
 	try {
 
 		var create_challenge_file_path = './public/text_files/teacher_create_challenge.txt';
-		var data = 'Hello !';
 
 		// check if file exists
 		
@@ -120,7 +119,8 @@ router.post('/new_challenge/create', function (req, res, next) {
 			});
 		}
 
-		fs.writeFile(create_challenge_file_path, data,
+		var file_data = '###CHALLENGE TITLE###\n' + req.body.challenge_title.toString() + '\n###CHALLENGE DESCRIPTION###\n' + req.body.challenge_description.toString();
+		fs.writeFileSync(create_challenge_file_path, file_data,
 		// callback function that is called after writing file is done
 		function (err) {
 			if (err) {
@@ -128,6 +128,50 @@ router.post('/new_challenge/create', function (req, res, next) {
 			};
 			console.log('Data written to Teacher Create Challenge file successfully')
 		});
+
+		var data_to_db = fs.readFileSync(create_challenge_file_path);
+
+		// put file as MEDIUMBLOB in db
+		db_connection.query(
+			'INSERT INTO Challenge_File (challenge_blob) VALUES (?);',
+			[data_to_db],
+			function (err, rows) {
+				if (err) {
+					console.log(err);
+					req.flash('error', ' An error occured');
+					res.locals.message = req.flash();
+					return res.render('teacher_challenges/new_challenge', {
+						title: 'New Challenge',
+						role: req.user.role,
+						email: req.user.email,
+						session_id: req.sessionID,
+						session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+					});
+				}
+				console.log(rows);
+			}
+		);
+
+		// record relation b/w teacher and challenge
+		db_connection.query(
+			'INSERT INTO Challenge_Teacher (challenge_file_id, teacher_id, challenge_over_bool) VALUES ((SELECT challenge_file_id FROM Challenge_File WHERE challenge_blob = ?), ?, ?);',
+			[data_to_db, req.user.id, false],
+			function (err, rows) {
+				if (err) {
+					console.log(err);
+					req.flash('error', ' An error occured');
+					res.locals.message = req.flash();
+					return res.render('teacher_challenges/new_challenge', {
+						title: 'New Challenge',
+						role: req.user.role,
+						email: req.user.email,
+						session_id: req.sessionID,
+						session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+					});
+				}
+				console.log(rows);
+			}
+		);
 
 		// redirect to page to create a new challenge
 		return res.redirect('/create_challenges');

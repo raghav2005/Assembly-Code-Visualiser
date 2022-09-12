@@ -1,1 +1,4 @@
-Hello !
+###CHALLENGE TITLE###
+First Challenge!
+###CHALLENGE DESCRIPTION###
+This is the description of the first challenge.

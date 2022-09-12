@@ -19,4 +19,28 @@ router.get('/', auth.check_authenticated, function (req, res, next) {
 	});
 });
 
+// coming to create_challenge page
+router.get('/new_challenge', auth.check_authenticated, function (req, res, next) {
+	res.locals.message = req.flash();
+	res.render('teacher_challenges/new_challenge', {
+		title: 'New Challenge',
+		role: req.user.role,
+		email: req.user.email,
+		session_id: req.sessionID,
+		session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+	});
+});
+
+// redirect to new_challenge page creation - testing stuffs
+router.post('/new_challenge', function (req, res, next) {
+	
+
+	// code stuffs here
+	console.log('new_challenge button clicked');
+
+	// redirect to page to create a new challenge
+	res.redirect('/create_challenges/new_challenge');
+
+});
+
 module.exports = router;

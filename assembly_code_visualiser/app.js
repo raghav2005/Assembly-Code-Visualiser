@@ -19,6 +19,7 @@ var redisClient = require('./lib/redis');
 var index_router = require('./routes/index');
 var login_router = require('./routes/login_sign_up/login');
 var sign_up_router = require('./routes/login_sign_up/sign_up');
+var teacher_challenges_router = require('./routes/challenges/create_challenges');
 
 // use dotenv (local configurations)
 require('dotenv').config()
@@ -74,6 +75,7 @@ app.use('/sign_up', sign_up_router);
 app.use('/logout', index_router);
 app.use('/instruction_set', index_router);
 app.use('/how_to_use', index_router);
+app.use('/create_challenges', teacher_challenges_router);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

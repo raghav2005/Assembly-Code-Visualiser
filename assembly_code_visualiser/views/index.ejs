@@ -11,33 +11,35 @@
 		<% include partials/menu %>
 
 		<!-- <div class="row">
-			<div class="col-md-12">
-				<h4>
-					<% if (typeof email === "undefined" ) { %>
-						Welcome!
-					<%  } else { %>
-						Welcome, <b><%= email %></b>!
-					<% } %>
-					Your session ID is <b><%= session_id %></b>.
-					It expires in <b><%= session_expiry_time %></b>.
-				</h4>
-			</div>
-		</div> -->
-
+					<div class="col-md-12">
+						<h4>
+							<#% if (typeof email === "undefined" ) { %>
+								Welcome!
+							<#%  } else { %>
+								Welcome, <b><%= email %></b>!
+							<#% } %>
+							Your session ID is <b><#%= session_id %></b>.
+							It expires in <b><#%= session_expiry_time %></b>.
+						</h4>
+					</div>
+				</div> -->
+		
 		<!-- <div class="row">
-			<div class="col-md-12">
+					<div class="col-md-12">
+				
+						<form action="/logout" method="post">
+							<button type="submit">LOG OUT</button>
+						</form>
+				
+					</div>
+				</div> -->
 		
-				<form action="/logout" method="post">
-					<button type="submit">LOG OUT</button>
-				</form>
-		
-			</div>
-		</div> -->
+		<!-- <#% if (typeof role === "undefined" ) { %>
+				<#% } else { %>
+					<#% include partials/main_visualisation %>
+				<#% } %> -->
 
-		<% if (typeof role === "undefined" ) { %>
-		<% } else { %>
-			<% include partials/main_visualisation %>
-		<% } %>
+		<% include partials/main_visualisation %>
 
 	</div>
 </body>

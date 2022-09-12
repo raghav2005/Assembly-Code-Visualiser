@@ -46,6 +46,19 @@
 							<li class="nav-item">
 								<a class="nav-link" id="how_to_use" href="/how_to_use">HOW TO USE THIS RESOURCE</a>
 							</li>
+							<% if (typeof role==="undefined" ) { %>
+							<% } else { %>
+								<% if (role==='student' ) { %>
+									<!-- ! MAKE SURE THAT THIS IS CHANGED FOR STUDENTS -->
+									<!-- <li class="nav-item">
+										<a class="nav-link" id="how_to_use" href="/how_to_use">HOW TO USE THIS RESOURCE</a>
+									</li> -->
+								<% } else { %>
+									<li class="nav-item">
+										<a class="nav-link" id="create_challenges" href="/create_challenges">CREATE CHALLENGE</a>
+									</li>
+								<% } %>
+							<% } %>
 						</ul>
 					</div>
 

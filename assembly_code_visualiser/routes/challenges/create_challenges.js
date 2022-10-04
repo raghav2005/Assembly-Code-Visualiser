@@ -31,12 +31,23 @@ router.get('/', auth.check_authenticated, function (req, res, next) {
 				console.log(rows);
 
 				var challenges_to_display = [];
+				var challenge_titles = [];
+				var challenge_descriptions = [];
 
 				rows.forEach(element => {
 					challenges_to_display.push(element['challenge_blob'].toString());
 				});
 
 				console.log(challenges_to_display);
+				
+				challenges_to_display.forEach(element => {
+					challenge_titles.push(element.split('\n')[1]);
+					challenge_descriptions.push(element.split('\n')[3]);
+				});
+
+				console.log(challenge_titles);
+				console.log(challenge_descriptions);
+
 
 				// ! REST OF STUFF HEREEEEEEE
 				// ? REST OF STUFF HEREEEEEEE
@@ -46,6 +57,9 @@ router.get('/', auth.check_authenticated, function (req, res, next) {
 					menu_id: 'create_challenges',
 					role: req.user.role,
 					email: req.user.email,
+					challenge_titles: challenge_titles,
+					challenge_descriptions: challenge_descriptions,
+					challenges_to_display: challenges_to_display,
 					session_id: req.sessionID,
 					session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
 				});

@@ -21,6 +21,40 @@
 
 			</div>
 		</div>
+
+		<div class="row">
+			<div class="col-md-12">
+				
+				<% if (typeof challenges_to_display === "undefined" || typeof challenge_titles === "undefined" || typeof challenge_descriptions === "undefined") { %>
+					<h1>No Active Challenges</h1>
+				<% } else { %>
+					
+					<table id="active_challenges">
+
+						<tr>
+							<th>Challenge Title</th>
+							<th>Challenge Description</th>
+							<th></th>
+						</tr>
+
+						<!-- create RAM (memory locations from 00 to 99) -->
+						<% challenges_to_display.forEach(element => { %>
+							<tr>
+								<td>
+									<%= element.split('\n')[1].toString() %>
+								</td>
+								<td>
+									<%= element.split('\n')[3].toString() %>
+								</td>
+								<td><button>More Info...</button></td>
+							</tr>
+						<% }); %>
+					</table>
+
+				<% } %>
+
+			</div>
+		</div>
 		
 	</div>
 </body>

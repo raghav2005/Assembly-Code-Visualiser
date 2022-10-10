@@ -25,7 +25,7 @@
 		<div class="row">
 			<div class="col-md-12">
 				
-				<% if (typeof challenges_to_display === "undefined" || typeof challenge_titles === "undefined" || typeof challenge_descriptions === "undefined") { %>
+				<% if (typeof challenges_to_display === "undefined") { %>
 					<h1>No Active Challenges</h1>
 				<% } else { %>
 					
@@ -38,7 +38,7 @@
 						</tr>
 
 						<!-- create RAM (memory locations from 00 to 99) -->
-						<% challenges_to_display.forEach(element => { %>
+						<% challenges_to_display.forEach((element, index) => { %>
 							<tr>
 								<td>
 									<%= element.split('\n')[1].toString() %>
@@ -46,7 +46,11 @@
 								<td>
 									<%= element.split('\n')[3].toString() %>
 								</td>
-								<td><button>More Info...</button></td>
+								<td>
+									<form action="/create_challenges/delete/<%= index.toString() %>" method="post">
+										<button type="submit" value="delete_<%= index.toString() %>">Delete</button>
+									</form>
+								</td>
 							</tr>
 						<% }); %>
 					</table>

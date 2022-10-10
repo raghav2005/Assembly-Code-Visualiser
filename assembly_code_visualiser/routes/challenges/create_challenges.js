@@ -39,26 +39,39 @@ router.get('/', auth.check_authenticated, function (req, res, next) {
 				});
 
 				console.log(challenges_to_display);
+
+				challenges_all = challenges_to_display;
 				
-				challenges_to_display.forEach(element => {
-					challenge_titles.push(element.split('\n')[1]);
-					challenge_descriptions.push(element.split('\n')[3]);
+				// challenges_to_display.forEach(element => {
+				// 	challenge_titles.push(element.split('\n')[1]);
+				// 	challenge_descriptions.push(element.split('\n')[3]);
+				// });
+
+				// console.log(challenge_titles);
+				// console.log(challenge_descriptions);
+
+				challenges_to_display.forEach((element, index) => {
+
+					var route = '/delete/' + index.toString();
+					router.post(route, function (req, res, next) {
+
+
+						// ! REST OF STUFF HEREEEEEEE - DELETE FROM DB
+						// ? REST OF STUFF HEREEEEEEE - DELETE FROM DB
+
+
+						return res.redirect('/create_challenges');
+					});
+
 				});
-
-				console.log(challenge_titles);
-				console.log(challenge_descriptions);
-
-
-				// ! REST OF STUFF HEREEEEEEE
-				// ? REST OF STUFF HEREEEEEEE
 
 				res.render('teacher_challenges/create_challenges', {
 					title: 'Create Challenges',
 					menu_id: 'create_challenges',
 					role: req.user.role,
 					email: req.user.email,
-					challenge_titles: challenge_titles,
-					challenge_descriptions: challenge_descriptions,
+					// challenge_titles: challenge_titles,
+					// challenge_descriptions: challenge_descriptions,
 					challenges_to_display: challenges_to_display,
 					session_id: req.sessionID,
 					session_expiry_time: new Date(req.session.cookie.expires) - new Date(),

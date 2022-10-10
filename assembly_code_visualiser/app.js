@@ -76,6 +76,7 @@ app.use('/logout', index_router);
 app.use('/instruction_set', index_router);
 app.use('/how_to_use', index_router);
 app.use('/create_challenges', teacher_challenges_router);
+app.use('/create_challenges/delete/', teacher_challenges_router);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

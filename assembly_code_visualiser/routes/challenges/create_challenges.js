@@ -18,7 +18,7 @@ router.get('/', auth.check_authenticated, function (req, res, next) {
 
 		// record relation b/w teacher and challenge
 		db_connection.query(
-			'SELECT challenge_blob FROM Challenge_File, Challenge_Teacher WHERE Challenge_File.challenge_file_id = Challenge_Teacher.challenge_file_id AND Challenge_Teacher.challenge_over_bool = 0;',
+			'SELECT * FROM Challenge_File, Challenge_Teacher WHERE Challenge_File.challenge_file_id = Challenge_Teacher.challenge_file_id AND Challenge_Teacher.challenge_over_bool = 0;',
 			[],
 			function (err, rows) {
 
@@ -28,19 +28,21 @@ router.get('/', auth.check_authenticated, function (req, res, next) {
 					res.locals.message = req.flash();
 				}
 
+				console.log('rows start');
 				console.log(rows);
+				console.log('rows end');
 
 				var challenges_to_display = [];
-				var challenge_titles = [];
-				var challenge_descriptions = [];
+				var challenges_only = [];
 
 				rows.forEach(element => {
-					challenges_to_display.push(element['challenge_blob'].toString());
+					challenges_to_display.push([element['challenge_blob'].toString(), element['challenge_file_id']]);
+					challenges_only.push(element['challenge_blob'].toString());
 				});
 
+				console.log('challenges_to_display start');
 				console.log(challenges_to_display);
-
-				challenges_all = challenges_to_display;
+				console.log('challenges_to_display end');
 				
 				// challenges_to_display.forEach(element => {
 				// 	challenge_titles.push(element.split('\n')[1]);
@@ -55,15 +57,19 @@ router.get('/', auth.check_authenticated, function (req, res, next) {
 					var route = '/delete/' + index.toString();
 					router.post(route, function (req, res, next) {
 
+						console.log(element);
 
-						// ! REST OF STUFF HEREEEEEEE - DELETE FROM DB
-						// ? REST OF STUFF HEREEEEEEE - DELETE FROM DB
-
+						// ! DELETE FROM DB USING element[1] (element is [challenge_blob.toString(), challenge_file_id])
+						// ? DELETE FROM DB USING element[1] (element is [challenge_blob.toString(), challenge_file_id])
 
 						return res.redirect('/create_challenges');
 					});
 
 				});
+
+				console.log('challenges_only start');
+				console.log(challenges_only);
+				console.log('challenges_only end');
 
 				res.render('teacher_challenges/create_challenges', {
 					title: 'Create Challenges',
@@ -72,7 +78,7 @@ router.get('/', auth.check_authenticated, function (req, res, next) {
 					email: req.user.email,
 					// challenge_titles: challenge_titles,
 					// challenge_descriptions: challenge_descriptions,
-					challenges_to_display: challenges_to_display,
+					challenges_to_display: challenges_only,
 					session_id: req.sessionID,
 					session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
 				});

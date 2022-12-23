@@ -52,18 +52,39 @@ router.get('/', auth.check_authenticated, function (req, res, next) {
 				// console.log(challenge_titles);
 				// console.log(challenge_descriptions);
 
-				challenges_to_display.forEach((element, index) => {
+				challenges_to_display.forEach((element_new, index) => {
+
+					console.log('inside here start');
+					console.log(element_new, index);
 
 					var route = '/delete/' + index.toString();
+
 					router.post(route, function (req, res, next) {
 
-						console.log(element);
+						console.log('hi start');
+						console.log(element_new);
+						console.log('hi end');
 
-						// ! DELETE FROM DB USING element[1] (element is [challenge_blob.toString(), challenge_file_id])
-						// ? DELETE FROM DB USING element[1] (element is [challenge_blob.toString(), challenge_file_id])
+						// ! NOTE: THIS WORKS, EXCEPT WHEN THERE IS 1 REMAINING
+
+						db_connection.query(
+							'DELETE FROM Challenge_File WHERE challenge_file_id = ?;',
+							[element_new[1]],
+							function (err, rows) {
+								if (err) {
+									console.log(err);
+									req.flash('error', ' An error occured');
+									res.locals.message = req.flash();
+									return res.redirect('/create_challenges');
+								}
+								console.log(rows);
+							}
+						);
 
 						return res.redirect('/create_challenges');
 					});
+
+					console.log('inside here end');
 
 				});
 

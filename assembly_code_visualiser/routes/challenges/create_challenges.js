@@ -100,8 +100,8 @@ router.get('/', auth.check_authenticated, function (req, res, next) {
 							email: req.user.email,
 							session_id: req.sessionID,
 							session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
-							challenge_title: 'test 1',
-							challenge_description: 'test 2',
+							challenge_title: element_new[0].split('\n')[1].toString(),
+							challenge_description: element_new[0].split('\n')[3].toString(),
 						});
 
 					});

@@ -13,7 +13,7 @@
 			<div class="row">
 				<div class="col-md-12">
 
-					<form action="/create_challenges/new_challenge/create" method="post">
+					<form action="/create_challenges/edit/update" method="post">
 
 						<!-- challenge title -->
 						<div class="row">
@@ -37,7 +37,35 @@
 						</div>
 
 						<!-- submit button -->
-						<button type="submit" value="Create">CREATE</button>
+						<button type="submit" value="Update">UPDATE</button>
+
+						<!-- hidden to be retrievable in js file -->
+						<div class="row" hidden aria-hidden="true">
+							<div class="col-md-12">
+								<label for="challenge_file_id">CHALLENGE FILE ID</label>
+								<textarea id="challenge_file_id" name="challenge_file_id"><%= challenge_file_id %></textarea>
+							</div>
+						</div>
+
+						<!-- hidden to be retrievable in js file -->
+						<div class="row" hidden aria-hidden="true">
+							<div class="col-md-12">
+								<label for="challenge_title_og">CHALLENGE TITLE</label>
+								<textarea id="challenge_title_og" name="challenge_title_og" wrap="off" placeholder="Generic Challenge Title" required
+									style="overflow-y: scroll; height: 1.5em; width: 100%;"><%= challenge_title %></textarea>
+							</div>
+						</div>
+						
+						<!-- hidden to be retrievable in js file -->
+						<div class="row" hidden aria-hidden="true">
+							<div class="col-md-12">
+								<label for="challenge_description_og">CHALLENGE DESCRIPTION</label>
+								<textarea id="challenge_description_og" name="challenge_description_og" wrap="off"
+									placeholder="Generic Challenge Description" required
+									style="overflow-y: scroll; height: 20em; width: 100%;"><%= challenge_description %></textarea>
+							</div>
+						</div>
+
 					</form>
 
 					<% if (message.error) { %>

@@ -102,6 +102,7 @@ router.get('/', auth.check_authenticated, function (req, res, next) {
 							session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
 							challenge_title: element_new[0].split('\n')[1].toString(),
 							challenge_description: element_new[0].split('\n')[3].toString(),
+							challenge_file_id: element_new[1].toString(),
 						});
 
 					});
@@ -169,7 +170,7 @@ router.get('/new_challenge', auth.check_authenticated, function (req, res, next)
 
 });
 
-// redirect to new_challenge page creation - testing stuffs
+// create new challenge and put in database
 router.post('/new_challenge/create', function (req, res, next) {
 
 	try {
@@ -302,6 +303,132 @@ router.post('/new_challenge/create', function (req, res, next) {
 			email: req.user.email,
 			session_id: req.sessionID,
 			session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+		});
+	}
+
+});
+
+// update the database for edited challenge
+router.post('/edit/update', function (req, res, next) {
+
+	try {
+
+		var edit_challenge_file_path = './public/text_files/teacher_edit_challenge.txt';
+
+		// check if file exists
+
+		// ASYNCHRONOUS
+		// fs.access(create_challenge_file_path, fs.F_OK, (err) => {
+		// 	if (err) {
+		// 		console.error(err);
+		// 		return;
+		// 	};
+		// 	// file exists
+		// 	console.log('Teacher Create Challenge file already exists');
+		// });
+
+		// SYNCHRONOUS
+		try {
+			if (fs.existsSync(edit_challenge_file_path)) {
+				// file exists
+				console.log('Teacher Edit Challenge file already exists');
+
+				try {
+					fs.unlinkSync(edit_challenge_file_path);
+					// file removed
+					console.log('Teacher Edit Challenge file deleted');
+				} catch (error) {
+					console.error(error);
+				};
+			}
+		} catch (err) {
+			console.error(err);
+		};
+
+		// all user-side scripting for validation
+		var error_message = false;
+
+		// ensure everything filled out
+		if (req.body.challenge_title.length === 0) {
+			error_message = true;
+			req.flash('error', ' Challenge Title is required');
+		}
+		if (req.body.challenge_description.length === 0) {
+			error_message = true;
+			req.flash('error', ' Challenge Description is required');
+		}
+
+		// ensure challenge title length is <= 100 characters
+		if (req.body.challenge_title.length > 100) {
+			error_message = true;
+			req.flash('error', ' Challenge Title length must be max 100 characters');
+		}
+
+		// return with the error message
+		if (error_message) {
+			res.locals.message = req.flash();
+			res.render('teacher_challenges/edit_challenge', {
+				title: 'Edit Challenge',
+				role: req.user.role,
+				email: req.user.email,
+				session_id: req.sessionID,
+				session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+				challenge_title: req.body.challenge_title_og.toString(),
+				challenge_description: req.body.challenge_description_og.toString(),
+				challenge_file_id: req.body.challenge_file_id.toString(),
+			});
+		}
+
+		var file_data = '###CHALLENGE TITLE###\n' + req.body.challenge_title.toString() + '\n###CHALLENGE DESCRIPTION###\n' + req.body.challenge_description.toString();
+		fs.writeFileSync(edit_challenge_file_path, file_data,
+			// callback function that is called after writing file is done
+			function (err) {
+				if (err) {
+					console.log(err);
+				};
+				console.log('Data written to Teacher Create Challenge file successfully')
+			});
+
+		var data_to_db = fs.readFileSync(edit_challenge_file_path);
+
+		// put file as MEDIUMBLOB in db
+		db_connection.query(
+			'UPDATE Challenge_File SET challenge_blob = ? WHERE challenge_file_id = ?;',
+			[data_to_db, req.body.challenge_file_id],
+			function (err, rows) {
+				if (err) {
+					console.log(err);
+					req.flash('error', ' An error occured');
+					res.locals.message = req.flash();
+					return res.render('teacher_challenges/edit_challenge', {
+						title: 'Edit Challenge',
+						role: req.user.role,
+						email: req.user.email,
+						session_id: req.sessionID,
+						session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+						challenge_title: req.body.challenge_title_og.toString(),
+						challenge_description: req.body.challenge_description_og.toString(),
+						challenge_file_id: req.body.challenge_file_id.toString(),
+					});
+				}
+				console.log(rows);
+			}
+		);
+
+		// redirect to page to create a new challenge
+		return res.redirect('/create_challenges');
+
+	} catch (any_error) {
+		res.locals.message = req.flash();
+		return res.render('teacher_challenges/edit_challenge', {
+			title: 'Edit Challenge',
+			role: req.user.role,
+			email: req.user.email,
+			session_id: req.sessionID,
+			session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+			challenge_title: req.body.challenge_title_og.toString(),
+			challenge_description: req.body.challenge_description_og.toString(),
+			challenge_file_id: req.body.challenge_file_id.toString(),
 		});
 	}
 

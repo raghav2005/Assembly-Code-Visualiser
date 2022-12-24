@@ -57,9 +57,9 @@ router.get('/', auth.check_authenticated, function (req, res, next) {
 					console.log('inside here start');
 					console.log(element_new, index);
 
-					var route = '/delete/' + index.toString();
+					var route_delete = '/delete/' + index.toString();
 
-					router.post(route, function (req, res, next) {
+					router.post(route_delete, function (req, res, next) {
 
 						console.log('hi start');
 						console.log(element_new);
@@ -82,6 +82,28 @@ router.get('/', auth.check_authenticated, function (req, res, next) {
 						);
 
 						return res.redirect('/create_challenges');
+					});
+
+					var route_edit = '/edit/' + index.toString();
+
+					router.post(route_edit, function (req, res, next) {
+
+						console.log('hi 2 start');
+						console.log(element_new);
+						console.log('hi 2 end');
+
+						res.locals.message = req.flash();
+
+						res.render('teacher_challenges/edit_challenge', {
+							title: 'Edit Challenge',
+							role: req.user.role,
+							email: req.user.email,
+							session_id: req.sessionID,
+							session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+							challenge_title: 'test 1',
+							challenge_description: 'test 2',
+						});
+
 					});
 
 					console.log('inside here end');

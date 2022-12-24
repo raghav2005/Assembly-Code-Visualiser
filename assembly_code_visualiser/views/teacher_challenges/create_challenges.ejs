@@ -47,6 +47,11 @@
 									<%= element.split('\n')[3].toString() %>
 								</td>
 								<td>
+									<form action="/create_challenges/edit/<%= index.toString() %>" method="post">
+										<button type="submit" value="edit_<%= index.toString() %>">Edit</button>
+									</form>
+								</td>
+								<td>
 									<form action="/create_challenges/delete/<%= index.toString() %>" method="post">
 										<button type="submit" value="delete_<%= index.toString() %>">Delete</button>
 									</form>

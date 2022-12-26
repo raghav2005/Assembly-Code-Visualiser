@@ -64,6 +64,63 @@
 
 			</div>
 		</div>
+
+		<div class="row">
+			<div class="col-md-12">
+		
+				<div class="row">
+					<div class="col-md-6">
+		
+						<form action="/create_challenges/assign" method="POST" id="assign_challenge_form">
+
+							<span>Assign</span>
+
+							<select id="assign_challenge_dd" name="assign_challenge_dd" required>
+								<option value="" selected hidden>select your challenge</option>
+							
+								<% let challenge_titles=[]; %>
+								<% challenges_to_display.forEach((element, index)=> { %>
+									<% challenge_titles.push(element.split('\n')[1].toString()); %>
+								<% }); %>
+							
+								<% if (typeof challenge_titles==="undefined" ) { %>
+								
+									<option value="no_challenge">you haven't created any challenges</option>
+								
+								<% } else { %>
+								
+									<% for (var challenge_titles_counter=0; challenge_titles_counter < challenge_titles.length; challenge_titles_counter++) { %>
+										<option value="<%= challenge_titles[challenge_titles_counter] %>">
+											<%= challenge_titles[challenge_titles_counter] %>
+										</option>
+									<% } %>
+
+								<% } %>
+							</select>
+
+							<span>to:</span>
+		
+						</form>
+					
+					</div>
+		
+					<div class="col-md-6"></div>
+				</div>
+			
+			</div>
+		</div>
+		
+		
+		
+		
+		
+
+
+
+
+
+
+
 		
 	</div>
 </body>

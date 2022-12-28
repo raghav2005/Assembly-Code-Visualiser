@@ -18,8 +18,8 @@ router.get('/', auth.check_authenticated, function (req, res, next) {
 
 		// record relation b/w teacher and challenge
 		db_connection.query(
-			'SELECT * FROM Challenge_File, Challenge_Teacher WHERE Challenge_File.challenge_file_id = Challenge_Teacher.challenge_file_id AND Challenge_Teacher.challenge_over_bool = 0;',
-			[],
+			'SELECT * FROM Challenge_File, Challenge_Teacher WHERE Challenge_File.challenge_file_id = Challenge_Teacher.challenge_file_id AND Challenge_Teacher.teacher_id = ?;',
+			[req.user.id],
 			function (err, rows) {
 
 				if (err) {
@@ -102,7 +102,7 @@ router.get('/', auth.check_authenticated, function (req, res, next) {
 											list_of_class_students.push([classes[index][0], classes[index][1], class_students[index][1]]);
 										});
 
-										console.log(list_of_class_students);
+										// console.log(list_of_class_students);
 
 										var challenges_to_display = [];
 										var challenges_only = [];
@@ -160,7 +160,7 @@ router.get('/', auth.check_authenticated, function (req, res, next) {
 															res.locals.message = req.flash();
 															return res.redirect('/create_challenges');
 														}
-														console.log(rows);
+														// console.log(rows);
 													}
 												);
 
@@ -369,8 +369,8 @@ router.post('/new_challenge/create', function (req, res, next) {
 
 		// record relation b/w teacher and challenge
 		db_connection.query(
-			'INSERT INTO Challenge_Teacher (challenge_file_id, teacher_id, challenge_over_bool) VALUES ((SELECT challenge_file_id FROM Challenge_File WHERE challenge_blob = ?), ?, ?);',
-			[data_to_db, req.user.id, false],
+			'INSERT INTO Challenge_Teacher (challenge_file_id, teacher_id) VALUES ((SELECT challenge_file_id FROM Challenge_File WHERE challenge_blob = ?), ?);',
+			[data_to_db, req.user.id],
 			function (err, rows) {
 				if (err) {
 					console.log(err);
@@ -542,7 +542,11 @@ router.post('/assign', function (req, res, next) {
 			challenge_title_match_id.push([challenge_title_match_id_str[i], challenge_title_match_id_str[i + 1]]);
 		}
 	};
-	console.log(challenge_title_match_id);
+	// console.log(challenge_title_match_id);
+
+	var students_to_assign = req.body.students_selected.split(' | ').filter(element => element !== '');
+
+	console.log(students_to_assign);
 
 	// redirect to page to create a new challenge
 	res.redirect('/create_challenges');

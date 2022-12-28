@@ -12,3 +12,23 @@
 		}
 	});
 </script>
+
+<!-- dynamically update hidden textarea for selected students checked to assign a challenge to -->
+<script type="text/javascript">
+
+	window.addEventListener('click', function () {
+
+		var checkboxes = document.getElementsByName('student');
+		var result = '';
+
+		for (var i = 0; i < checkboxes.length; i++) {
+			if (checkboxes[i].checked) {
+				result += checkboxes[i].value + " | ";
+			};
+		};
+
+		document.getElementById('students_selected').value = result;
+
+	});
+
+</script>

@@ -124,9 +124,11 @@
 										<th></th>
 									</tr>
 				
-									<!-- create RAM (memory locations from 00 to 99) -->
 									<% class_students.forEach((element, index) => { %>
 										<tr>
+											<td>
+												<input type="checkbox" name="student" value="<%= element[2].toString() %>" />
+											</td>
 											<td>
 												<%= element[0].toString() %>
 											</td>
@@ -154,6 +156,18 @@
 						</div>
 						<div class="col-md-9"></div>
 					</div>
+
+
+
+					<div class="row">
+						<div class="col-md-12">
+							<label for="students_selected">SELECTED STUDENTS TO ASSIGN CHALLENGE TO</label>
+							<textarea id="students_selected" name="students_selected"></textarea>
+						</div>
+					</div>
+
+
+
 
 					<!-- hidden to be retrievable in js file -->
 					<div class="row" hidden aria-hidden="true">

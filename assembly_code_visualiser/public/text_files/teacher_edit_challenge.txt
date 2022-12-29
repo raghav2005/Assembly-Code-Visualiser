@@ -1,4 +1,4 @@
 ###CHALLENGE TITLE###
-Challenge #2
+Challenge #3
 ###CHALLENGE DESCRIPTION###
-This is challenge #2's description
+This is challenge #3's description

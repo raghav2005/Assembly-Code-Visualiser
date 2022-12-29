@@ -32,3 +32,25 @@
 	});
 
 </script>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		
+		$(".chosen-select").chosen({
+			no_results_text: "no student with the name:"
+		});
+
+		$(".chosen-select").on('change', function(evt, params) {
+
+			if (params.selected) {
+				document.getElementById('students_selected_2').value += ',' + params.selected.toString() + ',';
+			} else if (params.deselected) {
+				document.getElementById('students_selected_2').value = document.getElementById('students_selected_2').value.split(',').filter(element => element !== '').filter(element => element !== params.deselected.toString());
+			} else {};
+
+			//document.getElementById('students_selected_2').value += Object.keys(params);
+
+		});
+
+	});
+</script>

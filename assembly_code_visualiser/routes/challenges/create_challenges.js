@@ -531,25 +531,63 @@ router.post('/edit/update', function (req, res, next) {
 });
 
 // assign challenges to students/classes
-router.post('/assign', function (req, res, next) {
+router.post('/assign', async function (req, res, next) {
 
 	console.log('assign button clicked');
-	
-	var challenge_title_match_id_str = req.body.challenge_title_match_id.toString().split('thisisaveryspeficbreak').slice(0, -1);
-	var challenge_title_match_id = [];
-	for (var i = 0; i < challenge_title_match_id_str.length; i++) {
-		if (i % 2 == 0) {
-			challenge_title_match_id.push([challenge_title_match_id_str[i], challenge_title_match_id_str[i + 1]]);
+
+	try {
+
+		var challenge_title_match_id_str = req.body.challenge_title_match_id.toString().split('thisisaveryspeficbreak').slice(0, -1);
+		var challenge_title_match_id = [];
+		for (var i = 0; i < challenge_title_match_id_str.length; i++) {
+			if (i % 2 == 0) {
+				challenge_title_match_id.push([challenge_title_match_id_str[i], challenge_title_match_id_str[i + 1]]);
+			}
+		};
+		// console.log(challenge_title_match_id);
+
+		// var students_to_assign = req.body.students_selected.split(' | ').filter(element => element !== '');
+		var students_to_assign = req.body.students_selected_2.split(',').filter(element => element !== '');
+
+		console.log(students_to_assign);
+
+		// all user-side scripting for validation
+		var error_message = false;
+
+		// ensure at least 1 student selected
+		if (students_to_assign.length === 0 || students_to_assign === [] || typeof students_to_assign === "undefined") {
+			error_message = true;
+			req.flash('error', ' Select at least 1 student');
 		}
-	};
-	// console.log(challenge_title_match_id);
 
-	var students_to_assign = req.body.students_selected.split(' | ').filter(element => element !== '');
-
-	console.log(students_to_assign);
+		// return with the error message
+		if (error_message) {
+			res.locals.message = req.flash();
+			return res.render('teacher_challenges/create_challenges', {
+				title: 'Create Challenges',
+				menu_id: 'create_challenges',
+				role: req.user.role,
+				email: req.user.email,
+				session_id: req.sessionID,
+				session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+			});
+		};
+		
+	} catch (error) {
+		console.log(error);
+		// redirect to page to create a new challenge
+		return res.render('teacher_challenges/create_challenges', {
+			title: 'Create Challenges',
+			menu_id: 'create_challenges',
+			role: req.user.role,
+			email: req.user.email,
+			session_id: req.sessionID,
+			session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+		});
+	}
 
 	// redirect to page to create a new challenge
-	res.redirect('/create_challenges');
+	return res.redirect('/create_challenges');
 
 });
 

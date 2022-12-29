@@ -4,6 +4,11 @@
 <head>
 	<% include ../partials/head %>
 	<% include ./partials/script %>
+	<% include ./partials/style %>
+	<!-- <link href="plugins/chosen/docsupport/style.css" rel="stylesheet" /> -->
+	<link href="/plugins/chosen/chosen.css" rel="stylesheet" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.js"></script>
+	<script src="/plugins/chosen/chosen.jquery.js"></script>
 </head>
 
 <body>
@@ -26,7 +31,7 @@
 			<div class="col-md-12">
 				
 				<% if (typeof challenges_to_display === "undefined") { %>
-					<h1>No Active Challenges</h1>
+					<h4><a href="../create_challenges">Reload</a> Page</h4>
 				<% } else { %>
 					
 					<table id="active_challenges">
@@ -71,50 +76,48 @@
 
 					<div class="row">
 						<div class="col-md-6">
-
-							<span>Assign</span>
-
-							<select id="assign_challenge_dd" name="assign_challenge_dd" required>
-								<option value="" selected hidden>select your challenge</option>
+							<% if (typeof challenges_to_display==="undefined" ) { %>
 							
-								<% var challenge_titles=[]; %>
-								<% challenges_to_display.forEach((element, index)=> { %>
-									<% challenge_titles.push(element.split('\n')[1].toString()); %>
-								<% }); %>
+							<% } else { %>
+								<span>Assign</span>
 
-								<% if (typeof challenge_titles==="undefined" ) { %>
-								
-									<option value="no_challenge">you haven't created any challenges</option>
-								
-								<% } else { %>
-								
-									<% for (var challenge_titles_counter=0; challenge_titles_counter < challenge_titles.length; challenge_titles_counter++) { %>
-										<option value="<%= challenge_titles[challenge_titles_counter] %>">
-											<%= challenge_titles[challenge_titles_counter] %>
-										</option>
+								<select id="assign_challenge_dd" name="assign_challenge_dd" required>
+									<option value="" selected hidden>select your challenge</option>	
+									<% var challenge_titles=[]; %>
+									<% challenges_to_display.forEach((element, index)=> { %>
+										<% challenge_titles.push(element.split('\n')[1].toString()); %>
+									<% }); %>
+
+									<% if (typeof challenge_titles==="undefined" ) { %>
+									
+										<option value="no_challenge">you haven't created any challenges</option>
+									
+									<% } else { %>
+									
+										<% for (var challenge_titles_counter=0; challenge_titles_counter < challenge_titles.length; challenge_titles_counter++) { %>
+											<option value="<%= challenge_titles[challenge_titles_counter] %>">
+												<%= challenge_titles[challenge_titles_counter] %>
+											</option>
+										<% } %>
+
 									<% } %>
+								</select>
 
-								<% } %>
-							</select>
-
-							<span>to:</span>
+								<span>to:</span>
+							
+							<% } %>
 
 						</div>
 
 						<div class="col-md-6"></div>
 					</div>
 
-
-
-
-
-
-					<div class="row">
+					<!-- <div class="row">
 						<div class="col-md-12">
 					
-							<% if (typeof class_students==="undefined" ) { %>
-								<h1>No Classes</h1>
-							<% } else { %>
+							<#% if (typeof class_students==="undefined" ) { %>
+
+							<#% } else { %>
 					
 								<table>
 				
@@ -124,30 +127,84 @@
 										<th></th>
 									</tr>
 				
-									<% class_students.forEach((element, index) => { %>
+									<#% class_students.forEach((element, index) => { %>
 										<tr>
 											<td>
-												<input type="checkbox" name="student" value="<%= element[2].toString() %>" />
+												<input type="checkbox" name="student" value="<#%= element[2].toString() %>" />
 											</td>
 											<td>
-												<%= element[0].toString() %>
+												<#%= element[0].toString() %>
 											</td>
 											<td>
-												<%= element[2].toString() %>
+												<#%= element[2].toString() %>
 											</td>
 										</tr>
-									<% }); %>
+									<#% }); %>
 								</table>
 				
+							<#% } %>
+					
+						</div>
+					</div> -->
+
+					<!-- DROPDOWN FOR CLASSES WITH STUDENTS -->
+					<!-- <div class="row">
+						<div class="col-md-12">
+					
+							<%# if (typeof class_students==="undefined" ) { %>
+
+							<%# } else { %>
+								<%# class_students.forEach((element, index) => { %>
+
+									<select id="class_<#%= element[0].toString() %>" name="class_<#%= element[0].toString() %>">
+
+										<#% if (element[2].length === 0 || !element[2].length) { %>
+											<option value="" selected hidden>no students in this class</option>
+										<#% } else { %>
+											<option value="" selected hidden>select student(s)</option>
+											<#% element[2].toString().split(',').forEach((element_2, index_2) => { %>
+												<option value="<#%= element_2 %>">
+													<#%= element_2 %>
+												</option>
+											<#%}); %>
+										<#% } %>
+
+									</select>
+
+								<#% }); %>
+							<#% } %>
+					
+						</div>
+					</div> -->
+
+					<!-- DROPDOWN FOR CLASSES WITH STUDENTS -->
+					<div class="row">
+						<div class="col-md-12">
+					
+							<% if (typeof class_students==="undefined" ) { %>
+								
+							<% } else { %>
+								<% class_students.forEach((element, index)=> { %>
+				
+									<select id="class_<%= element[0].toString() %>" data-placeholder="select <%= element[0].toString() %> students" multiple class="chosen-select">
+				
+										<% if (element[2].length===0 || !element[2].length) { %>
+											<option value="" disabled>no students in this class</option>
+										<% } else { %>
+											<% element[2].toString().split(',').forEach((element_2, index_2)=> { %>
+												<option value="<%= element_2 %>">
+													<%= element_2 %>
+												</option>
+											<%}); %>
+										<% } %>
+				
+									</select>
+				
+								<% }); %>
 							<% } %>
 					
 						</div>
 					</div>
-
-
-
-
-
 
 					<!-- submit button -->
 					<div class="row">
@@ -157,23 +214,47 @@
 						<div class="col-md-9"></div>
 					</div>
 
+					<!-- error message -->
+					<% if (message.error) { %>
+						<div class="alert alert-danger" role="alert">
+							<strong>
+								<%= message.error %>
+							</strong>
+						</div>
+					<% } %>
+					
+					<!-- ! success message (will need to find a way to save all args passed when rendering for this, so the if typeof ... === "undefined will no longer be required, but can leave the code in") -->
+					<% if (message.success) { %>
+						<div class="alert alert-success" role="alert">
+							<strong>
+								<%= message.success %>
+							</strong>
+						</div>
+					<% } %>
 
-
-					<div class="row">
+					<!-- <div class="row">
 						<div class="col-md-12">
 							<label for="students_selected">SELECTED STUDENTS TO ASSIGN CHALLENGE TO</label>
 							<textarea id="students_selected" name="students_selected"></textarea>
 						</div>
+					</div> -->
+
+					<div class="row" hidden aria-hidden="true">
+						<div class="col-md-12">
+							<label for="students_selected_2">SELECTED STUDENTS TO ASSIGN CHALLENGE TO</label>
+							<textarea id="students_selected_2" name="students_selected_2"></textarea>
+						</div>
 					</div>
-
-
-
 
 					<!-- hidden to be retrievable in js file -->
 					<div class="row" hidden aria-hidden="true">
 						<div class="col-md-12">
 							<label for="challenge_title_match_id">SELECTED CHALLENGE TO ASSIGN ID</label>
-							<textarea id="challenge_title_match_id" name="challenge_title_match_id"><% challenge_title_match_id.forEach(element => { %><%= element[0] + 'thisisaveryspeficbreak' + element[1] + 'thisisaveryspeficbreak' %><% }); %></textarea>
+							<% if (typeof challenges_title_match_id==="undefined" ) { %>
+								<textarea id="challenge_title_match_id" name="challenge_title_match_id"></textarea>
+							<% } else { %>
+								<textarea id="challenge_title_match_id" name="challenge_title_match_id"><% challenge_title_match_id.forEach(element => { %><%= element[0] + 'thisisaveryspeficbreak' + element[1] + 'thisisaveryspeficbreak' %><% }); %></textarea>
+							<% } %>
 						</div>
 					</div>
 

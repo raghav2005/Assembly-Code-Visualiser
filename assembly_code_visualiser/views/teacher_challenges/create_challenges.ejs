@@ -177,14 +177,18 @@
 						</div>
 					</div> -->
 
-					<!-- DROPDOWN FOR CLASSES WITH STUDENTS -->
-					<div class="row">
-						<div class="col-md-12">
-					
-							<% if (typeof class_students==="undefined" ) { %>
-								
-							<% } else { %>
-								<% class_students.forEach((element, index)=> { %>
+					<% if (typeof class_students==="undefined" ) { %>
+						
+					<% } else { %>
+						<!-- DROPDOWN FOR CLASSES WITH STUDENTS -->
+						<% class_students.forEach((element, index)=> { %>
+							<div class="row">
+
+								<!-- <div class="col-md-1">
+									<input type="checkbox" name="all_students_in_class" id="checkbox_<%= element[0].toString() %>" />
+								</div> -->
+
+								<div class="col-md-6">
 				
 									<select id="class_<%= element[0].toString() %>" data-placeholder="select <%= element[0].toString() %> students" multiple class="chosen-select">
 				
@@ -192,19 +196,31 @@
 											<option value="" disabled>no students in this class</option>
 										<% } else { %>
 											<% element[2].toString().split(',').forEach((element_2, index_2)=> { %>
-												<option value="<%= element_2 %>">
+												<option value="<%= element_2 %>" class="students">
 													<%= element_2 %>
 												</option>
 											<%}); %>
 										<% } %>
 				
 									</select>
-				
-								<% }); %>
-							<% } %>
-					
-						</div>
-					</div>
+
+								</div>
+
+								<% if (element[2].length === 0 || !element[2].length) { %>
+									<div class="col-md-3"></div>
+									<div class="col-md-3"></div>
+								<% } else { %>
+									<div class="col-md-3">
+										<button type="button" id="select_all_<%= element[0].toString() %>" class="chosen-toggle select" onclick="select_all('<%- index.toString() %>')">Select all</button>
+									</div>
+									<div class="col-md-3">
+										<button type="button" class="chosen-toggle deselect" onclick="deselect_all('<%- index.toString() %>')">Deselect all</button>
+									</div>
+								<% } %>
+
+							</div>
+						<% }); %>
+					<% } %>
 
 					<!-- submit button -->
 					<div class="row">

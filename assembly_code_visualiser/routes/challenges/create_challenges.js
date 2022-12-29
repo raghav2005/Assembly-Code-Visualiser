@@ -571,7 +571,11 @@ router.post('/assign', async function (req, res, next) {
 				session_id: req.sessionID,
 				session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
 			});
-		};
+		} else {
+
+			// ! success message thing
+
+		}
 		
 	} catch (error) {
 		console.log(error);

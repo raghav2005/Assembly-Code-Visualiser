@@ -14,7 +14,7 @@
 </script>
 
 <!-- dynamically update hidden textarea for selected students checked to assign a challenge to -->
-<script type="text/javascript">
+<!-- <script type="text/javascript">
 
 	window.addEventListener('click', function () {
 
@@ -31,8 +31,9 @@
 
 	});
 
-</script>
+</script> -->
 
+<!-- nicer multi-select + add selected vals to hidden textarea with students to assign to -->
 <script type="text/javascript">
 	$(document).ready(function () {
 		
@@ -53,4 +54,47 @@
 		});
 
 	});
+</script>
+
+<!-- select all / deselect all buttons -->
+<script type="text/javascript">
+	$(document).ready(function () {
+		$('.chosen-toggle').each(function (index) {
+			$(this).on('click', function () {
+				// alert($(this).parent().parent().find('.students').text());
+				$(this).parent().parent().find('.students').prop('selected', $(this).hasClass('select')).parent().trigger('chosen:updated');
+			});
+		});
+	});
+</script>
+
+<!-- add/remove from hidden textarea for students to assign to when select/deselect all clicked -->
+<script>
+
+	function select_all(index) {
+
+		var class_students_list = JSON.parse('<%- JSON.stringify(class_students) %>');
+
+		var students_to_select = class_students_list[index][2];
+		var students_already = document.getElementById('students_selected_2').value.split(',').filter(element => element !== '');
+
+		var unique_students = [...new Set([...students_to_select.toString().split(','), ...students_already.toString().split(',')])];
+
+		document.getElementById('students_selected_2').value = ',' + unique_students.toString() + ',';
+
+	};
+
+	function deselect_all(index) {
+
+		var class_students_list = JSON.parse('<%- JSON.stringify(class_students) %>');
+
+		var students_to_deselect = class_students_list[index][2];
+		var students_already = document.getElementById('students_selected_2').value.split(',').filter(element => element !== '');
+
+		var remaining_students = students_already.toString().split(',').filter(element => !students_to_deselect.toString().split(',').includes(element));
+
+		document.getElementById('students_selected_2').value = ',' + remaining_students.toString() + ',';
+
+	};
+
 </script>

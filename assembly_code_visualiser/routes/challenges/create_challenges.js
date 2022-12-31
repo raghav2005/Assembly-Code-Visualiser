@@ -535,10 +535,9 @@ router.post('/assign', async function (req, res, next) {
 
 	console.log('assign button clicked');
 
-
 	// all vars to keep challenges + students updated
 	var challenges_to_display = req.body.challenges_to_display.split(',').map(element => element.replace(/[\r]/gm, ''));
-	
+
 	var challenge_title_match_id = req.body.challenge_title_match_id.filter(element => element !== '')[0].split(',');
 	challenge_title_match_id.forEach((element, index) => {
 		if (index % 2 === 0) {
@@ -571,22 +570,13 @@ router.post('/assign', async function (req, res, next) {
 		class_students[index] = class_students[index].slice(0, 3);
 	});
 
+	// var students_to_assign = req.body.students_selected.split(' | ').filter(element => element !== '');
+	var students_to_assign = req.body.students_selected_2.split(',').filter(element => element !== '');
+	var due_date = new Date(req.body.due_date);
+	var today = new Date();
+
 
 	try {
-
-		var challenge_title_match_id_str = req.body.challenge_title_match_id.toString().split('thisisaveryspeficbreak').slice(0, -1);
-		var challenge_title_match_id = [];
-		for (var i = 0; i < challenge_title_match_id_str.length; i++) {
-			if (i % 2 == 0) {
-				challenge_title_match_id.push([challenge_title_match_id_str[i], challenge_title_match_id_str[i + 1]]);
-			}
-		};
-		// console.log(challenge_title_match_id);
-
-		// var students_to_assign = req.body.students_selected.split(' | ').filter(element => element !== '');
-		var students_to_assign = req.body.students_selected_2.split(',').filter(element => element !== '');
-
-		// console.log(students_to_assign);
 
 		// all user-side scripting for validation
 		var error_message = false;
@@ -595,6 +585,12 @@ router.post('/assign', async function (req, res, next) {
 		if (students_to_assign.length === 0 || students_to_assign === [] || typeof students_to_assign === "undefined") {
 			error_message = true;
 			req.flash('error', ' Select at least 1 student');
+		}
+
+		// due date must be > 24 hours away from current time
+		if (due_date.getTime() <= new Date(today.getTime() + 60 * 60 * 24 * 1000).getTime()) {
+			error_message = true;
+			req.flash('error', ' Due date must be at least 24 hours after current time');
 		}
 
 		// return with the error message
@@ -611,11 +607,23 @@ router.post('/assign', async function (req, res, next) {
 				session_id: req.sessionID,
 				session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
 			});
-		} else {
-
-			// ! success message thing
-
 		}
+		
+		
+		
+		req.flash('success', ' Assigned challenge to student(s)');
+		res.locals.message = req.flash();
+		return res.render('teacher_challenges/create_challenges', {
+			title: 'Create Challenges',
+			menu_id: 'create_challenges',
+			role: req.user.role,
+			email: req.user.email,
+			challenges_to_display: challenges_to_display,
+			challenge_title_match_id: challenge_title_match_id,
+			class_students: class_students,
+			session_id: req.sessionID,
+			session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+		});
 		
 	} catch (error) {
 		console.log(error);
@@ -632,19 +640,6 @@ router.post('/assign', async function (req, res, next) {
 			session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
 		});
 	}
-
-	// redirect to page to create a new challenge
-	return res.render('teacher_challenges/create_challenges', {
-		title: 'Create Challenges',
-		menu_id: 'create_challenges',
-		role: req.user.role,
-		email: req.user.email,
-		challenges_to_display: challenges_to_display,
-		challenge_title_match_id: challenge_title_match_id,
-		class_students: class_students,
-		session_id: req.sessionID,
-		session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
-	});
 
 });
 

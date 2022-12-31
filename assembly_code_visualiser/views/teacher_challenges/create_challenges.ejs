@@ -5,10 +5,7 @@
 	<% include ../partials/head %>
 	<% include ./partials/script %>
 	<% include ./partials/style %>
-	<!-- <link href="plugins/chosen/docsupport/style.css" rel="stylesheet" /> -->
-	<link href="/plugins/chosen/chosen.css" rel="stylesheet" />
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.js"></script>
-	<script src="/plugins/chosen/chosen.jquery.js"></script>
+	<% include ./partials/head %>
 </head>
 
 <body>
@@ -228,7 +225,7 @@
 						
 						<div class="col-md-3">
 							<span>for: </span>
-							<input type="datetime-local" />
+							<input id="due_date" type="datetime-local" name="due_date" required />
 						</div>
 
 						<div class="col-md-6"></div>
@@ -251,8 +248,7 @@
 							</strong>
 						</div>
 					<% } %>
-					
-					<!-- ! success message (will need to find a way to save all args passed when rendering for this, so the if typeof ... === "undefined will no longer be required, but can leave the code in") -->
+
 					<% if (message.success) { %>
 						<div class="alert alert-success" role="alert">
 							<strong>

@@ -9,6 +9,9 @@ var db_connection = require('../../lib/db');
 // for writing to files
 var fs = require('fs');
 
+// for array/list operations
+var _ = require('lodash');
+
 // coming to create_challenge page
 router.get('/', auth.check_authenticated, function (req, res, next) {
 
@@ -609,7 +612,32 @@ router.post('/assign', async function (req, res, next) {
 			});
 		}
 		
-		
+		students_to_assign.forEach((element, index) => {
+			// record relation b/w teacher and challenge
+			db_connection.query(
+				'INSERT INTO Assigned_Challenges (challenge_teacher_id, student_id, due_date) VALUES ((SELECT challenge_teacher_id FROM Challenge_Teacher WHERE challenge_file_id = ? AND teacher_id = ?), (SELECT student_id FROM Student WHERE student_name = ? AND student_number = ?), ?);',
+				[challenge_title_match_id[_.findIndex(challenge_title_match_id, function (el) { return el[0] == req.body.assign_challenge_dd })][1], req.user.id, element.slice(0, -4), element.slice(-4), due_date.toISOString().slice(0, 19).replace('T', ' ')],
+				function (err, rows) {
+					if (err) {
+						console.log(err);
+						req.flash('error', ' An error occured');
+						res.locals.message = req.flash();
+						return res.render('teacher_challenges/create_challenges', {
+							title: 'Create Challenges',
+							menu_id: 'create_challenges',
+							role: req.user.role,
+							email: req.user.email,
+							challenges_to_display: challenges_to_display,
+							challenge_title_match_id: challenge_title_match_id,
+							class_students: class_students,
+							session_id: req.sessionID,
+							session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+						});
+					}
+					console.log(rows);
+				}
+			);
+		});
 		
 		req.flash('success', ' Assigned challenge to student(s)');
 		res.locals.message = req.flash();

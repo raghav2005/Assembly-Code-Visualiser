@@ -535,6 +535,43 @@ router.post('/assign', async function (req, res, next) {
 
 	console.log('assign button clicked');
 
+
+	// all vars to keep challenges + students updated
+	var challenges_to_display = req.body.challenges_to_display.split(',').map(element => element.replace(/[\r]/gm, ''));
+	
+	var challenge_title_match_id = req.body.challenge_title_match_id.filter(element => element !== '')[0].split(',');
+	challenge_title_match_id.forEach((element, index) => {
+		if (index % 2 === 0) {
+			// console.log(element, index)
+			challenge_title_match_id[index] = [element.toString(), parseInt(challenge_title_match_id[index + 1])];
+		} else {
+			challenge_title_match_id[index] = '';
+		};
+	});
+	challenge_title_match_id = challenge_title_match_id.filter(element => element !== '');
+
+	var class_students = req.body.class_students.split('\n').filter(element => element !== '');
+	class_students.filter(element => element !== '').forEach((element, index) => {
+		class_students[index] = element.replace('\r', '').split(',');
+		class_students[index].forEach((element_2, index_2) => {
+
+			if (index_2 == 1) {
+				class_students[index][index_2] = parseInt(element_2);
+			}
+
+			if (index_2 == 2) {
+				if (element_2 == '') {
+					class_students[index][index_2] = [];
+				} else {
+					class_students[index][index_2] = class_students[index].slice(2, class_students[index].length + 1);
+				}
+			}
+		});
+
+		class_students[index] = class_students[index].slice(0, 3);
+	});
+
+
 	try {
 
 		var challenge_title_match_id_str = req.body.challenge_title_match_id.toString().split('thisisaveryspeficbreak').slice(0, -1);
@@ -549,7 +586,7 @@ router.post('/assign', async function (req, res, next) {
 		// var students_to_assign = req.body.students_selected.split(' | ').filter(element => element !== '');
 		var students_to_assign = req.body.students_selected_2.split(',').filter(element => element !== '');
 
-		console.log(students_to_assign);
+		// console.log(students_to_assign);
 
 		// all user-side scripting for validation
 		var error_message = false;
@@ -568,6 +605,9 @@ router.post('/assign', async function (req, res, next) {
 				menu_id: 'create_challenges',
 				role: req.user.role,
 				email: req.user.email,
+				challenges_to_display: challenges_to_display,
+				challenge_title_match_id: challenge_title_match_id,
+				class_students: class_students,
 				session_id: req.sessionID,
 				session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
 			});
@@ -585,13 +625,26 @@ router.post('/assign', async function (req, res, next) {
 			menu_id: 'create_challenges',
 			role: req.user.role,
 			email: req.user.email,
+			challenges_to_display: challenges_to_display,
+			challenge_title_match_id: challenge_title_match_id,
+			class_students: class_students,
 			session_id: req.sessionID,
 			session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
 		});
 	}
 
 	// redirect to page to create a new challenge
-	return res.redirect('/create_challenges');
+	return res.render('teacher_challenges/create_challenges', {
+		title: 'Create Challenges',
+		menu_id: 'create_challenges',
+		role: req.user.role,
+		email: req.user.email,
+		challenges_to_display: challenges_to_display,
+		challenge_title_match_id: challenge_title_match_id,
+		class_students: class_students,
+		session_id: req.sessionID,
+		session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+	});
 
 });
 

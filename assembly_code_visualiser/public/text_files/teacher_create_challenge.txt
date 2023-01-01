@@ -1,4 +1,4 @@
 ###CHALLENGE TITLE###
-Just a test
+Random
 ###CHALLENGE DESCRIPTION###
-This is to see if all routes still work after changing some things with the web app structure and directories.
+To be used for testing repeated assignments (shouldn't be allowed)!

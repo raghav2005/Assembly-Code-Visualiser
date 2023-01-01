@@ -3,19 +3,19 @@
 	$(document).ready(function () {
 		//Check if the current URL contains '#'
 
-		if (document.URL.slice(-8, document.URL.length - 1) == '/assign' || document.URL.slice(-8, document.URL.length - 1) === '/assign') {
-			url = document.URL.slice(0, document.URL.length - 8);
-			location.replace(url);
-		};
+		//if (document.URL.slice(-8, document.URL.length - 1) == '/assign' || document.URL.slice(-8, document.URL.length - 1) === '/assign') {
+		//	url = document.URL.slice(0, document.URL.length - 8);
+		//	location.replace(url);
+		//};
 
-		//if (document.URL.indexOf("#") == -1) {
+		if (document.URL.indexOf("#") == -1) {
 			// Set the URL to whatever it was plus "#".
-		//	url = document.URL + "#";
-		//	location = "#";
+			url = document.URL + "#";
+			location = "#";
 
 			//Reload the page
-		//	location.reload(true);
-		//}
+			location.reload(true);
+		}
 	});
 </script>
 

@@ -29,38 +29,42 @@
 				
 				<% if (typeof challenges_to_display === "undefined") { %>
 					<h4><a href="../create_challenges">Reload</a> Page</h4>
-				<% } else { %>
+				<% } else  { %>
+					<% if (challenges_to_display.length == 0 || challenges_to_display == []) { %>
+						<h4>No Challenges Created Yet</h4>
+					<% } else { %>
 					
-					<table id="active_challenges">
+						<table id="active_challenges">
 
-						<tr>
-							<th>Challenge Title</th>
-							<th>Challenge Description</th>
-							<th></th>
-						</tr>
-
-						<% challenges_to_display.forEach((element, index) => { %>
 							<tr>
-								<td>
-									<%= element.split('\n')[1].toString() %>
-								</td>
-								<td>
-									<%= element.split('\n')[3].toString() %>
-								</td>
-								<td>
-									<form action="/create_challenges/edit/<%= index.toString() %>" method="post">
-										<button type="submit" value="edit_<%= index.toString() %>">Edit</button>
-									</form>
-								</td>
-								<td>
-									<form action="/create_challenges/delete/<%= index.toString() %>" method="post">
-										<button type="submit" value="delete_<%= index.toString() %>">Delete</button>
-									</form>
-								</td>
+								<th>Challenge Title</th>
+								<th>Challenge Description</th>
+								<th></th>
 							</tr>
-						<% }); %>
-					</table>
 
+							<% challenges_to_display.forEach((element, index) => { %>
+								<tr>
+									<td>
+										<%= element.split('\n')[1].toString() %>
+									</td>
+									<td>
+										<%= element.split('\n')[3].toString() %>
+									</td>
+									<td>
+										<form action="/create_challenges/edit/<%= index.toString() %>" method="post">
+											<button type="submit" value="edit_<%= index.toString() %>">Edit</button>
+										</form>
+									</td>
+									<td>
+										<form action="/create_challenges/delete/<%= index.toString() %>" method="post">
+											<button type="submit" value="delete_<%= index.toString() %>">Delete</button>
+										</form>
+									</td>
+								</tr>
+							<% }); %>
+						</table>
+					
+					<% } %>
 				<% } %>
 
 			</div>

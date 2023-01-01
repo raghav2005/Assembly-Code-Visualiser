@@ -1621,8 +1621,6 @@ function initialise_LMC() {
 	// 	'HALT': HALT,
 	// 	'VAR': VAR
 	// };
-
-	// ! OPERANDS WILL NOT BE USED FOR INITIAL TRANSLATION - WILL HAVE TO LATER FIGURE OUT HOW TO DO EVERYTHING USING THE GENERAL PURPOSE REGISTERS
 	
 	var INP = new Instruction({ // get user input + store in accumulator
 		name: 'INP',

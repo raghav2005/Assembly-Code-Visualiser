@@ -24,9 +24,11 @@ router.post('/student', auth.check_not_authenticated, passport.authenticate('loc
 	// on successful authentication
 	// if remember me box not ticked
 	if (typeof req.body.remember_me === "undefined") {
+		console.log('login max age (milliseconds): ' + req.session.cookie.maxAge.toString());
 		res.redirect('/');
 	} else {
 		req.session.cookie.maxAge = 2592000000; // 30 days
+		console.log('login max age (milliseconds): ' + req.session.cookie.maxAge.toString());
 		res.redirect('/');
 	}
 });
@@ -40,9 +42,11 @@ router.post('/teacher', auth.check_not_authenticated, passport.authenticate('loc
 	// on successful authentication
 	// if remember me box not ticked
 	if (typeof req.body.remember_me === "undefined") {
+		console.log('login max age (milliseconds): ' + req.session.cookie.maxAge.toString());
 		res.redirect('/');
 	} else {
 		req.session.cookie.maxAge = 2592000000; // 30 days
+		console.log('login max age (milliseconds): ' + req.session.cookie.maxAge.toString());
 		res.redirect('/');
 	}
 });

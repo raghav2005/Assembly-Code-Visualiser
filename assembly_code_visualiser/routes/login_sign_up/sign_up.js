@@ -195,7 +195,7 @@ router.post('/teacher', auth.check_not_authenticated, async function(req, res) {
 			req.flash('error', ' Confirm password is required');
 		}
 
-		// check email matches regex for student email
+		// check email matches regex for teacher email
 		var regex_teacher = /^[A-Za-z]+\.[A-Za-z]+\@dubaicollege.org$/;
 		if (req.body.email.match(regex_teacher) === null) {
 			error_message = true;

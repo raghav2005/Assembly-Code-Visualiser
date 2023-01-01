@@ -652,7 +652,7 @@ router.post('/assign', async function (req, res, next) {
 			session_id: req.sessionID,
 			session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
 		});
-		
+
 	} catch (error) {
 		console.log(error);
 		// redirect to page to create a new challenge
@@ -667,8 +667,7 @@ router.post('/assign', async function (req, res, next) {
 			session_id: req.sessionID,
 			session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
 		});
-	}
-
+	};
 });
 
 

@@ -1,4 +1,4 @@
 ###CHALLENGE TITLE###
-hello
+Just a test
 ###CHALLENGE DESCRIPTION###
-hi
+This is to see if all routes still work after changing some things with the web app structure and directories.

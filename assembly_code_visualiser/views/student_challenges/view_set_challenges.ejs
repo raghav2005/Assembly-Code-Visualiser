@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<% include ../partials/head %>
+</head>
+
+<body>
+	<div class="container-fluid">
+
+		<% include ../partials/menu %>
+
+			<div class="row">
+				<div class="col-md-12">
+
+					<% if (typeof challenges_to_display==="undefined" ) { %>
+						<h4>Go back to the <a href="../">Home</a> Page</h4>
+					<% } else { %>
+
+						<% if (challenges_to_display.length == 0 || challenges_to_display == []) { %>
+							<h4>No Challenges set. Go back to the <a href="../">Home</a> Page</h4>
+						<% } else { %>
+							<table id="active_challenges">
+							
+								<tr>
+									<th>Challenge Title</th>
+									<th>Challenge Description</th>
+									<th>Due Date</th>
+								</tr>
+
+								<% challenges_to_display.forEach((element, index)=> { %>
+									<tr>
+										<td>
+											<%= element[0].split('\n')[1].toString() %>
+										</td>
+										<td>
+											<%= element[0].split('\n')[3].toString() %>
+										</td>
+										<td>
+											<%= element[2].toString() %>
+										</td>
+										<!-- <td>
+											<form action="/create_challenges/edit/<#%= index.toString() %>" method="post">
+												<button type="submit" value="edit_<#%= index.toString() %>">Edit</button>
+											</form>
+										</td>
+										<td>
+											<form action="/create_challenges/delete/<#%= index.toString() %>" method="post">
+												<button type="submit" value="delete_<#%= index.toString() %>">Delete</button>
+											</form>
+										</td> -->
+									</tr>
+								<% }); %>
+								
+							</table>
+						<% } %>
+
+					<% } %>
+				</div>
+			</div>
+
+	</div>
+</body>
+
+<% include ../partials/script %>
+
+</html>

@@ -1,4 +1,4 @@
 ###CHALLENGE TITLE###
-Challenge #3
+Just a test - updated
 ###CHALLENGE DESCRIPTION###
-This is challenge #3's description
+This is to see if all routes still work after changing some things with the web app structure and directories.

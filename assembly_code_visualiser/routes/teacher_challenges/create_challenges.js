@@ -141,7 +141,11 @@ router.get('/', auth.check_authenticated, function (req, res, next) {
 										// console.log(challenge_titles);
 										// console.log(challenge_descriptions);
 
+										// TODO: COMPLETELY RECODE THIS SECTION
 										challenges_to_display.forEach((element_new, index) => {
+
+											console.log('challenges_to_display');
+											console.log(challenges_to_display);
 
 											// console.log('inside here start');
 											// console.log(element_new, index);

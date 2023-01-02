@@ -1,4 +1,4 @@
 ###CHALLENGE TITLE###
-Random
+This is a second test title
 ###CHALLENGE DESCRIPTION###
-To be used for testing repeated assignments (shouldn't be allowed)!
+This is a second test description

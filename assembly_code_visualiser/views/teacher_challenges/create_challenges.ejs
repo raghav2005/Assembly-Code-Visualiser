@@ -45,19 +45,19 @@
 							<% challenges_to_display.forEach((element, index) => { %>
 								<tr>
 									<td>
-										<%= element.split('\n')[1].toString() %>
+										<%= element[0].split('\n')[1].toString() %>
 									</td>
 									<td>
-										<%= element.split('\n')[3].toString() %>
+										<%= element[0].split('\n')[3].toString() %>
 									</td>
 									<td>
-										<form action="/create_challenges/edit/<%= index.toString() %>" method="post">
-											<button type="submit" value="edit_<%= index.toString() %>">Edit</button>
+										<form action="/create_challenges/edit/<%= element[1].toString() %>" method="post">
+											<button type="submit" value="edit_<%= element[1].toString() %>">Edit</button>
 										</form>
 									</td>
 									<td>
-										<form action="/create_challenges/delete/<%= index.toString() %>" method="post">
-											<button type="submit" value="delete_<%= index.toString() %>">Delete</button>
+										<form action="/create_challenges/delete/<%= element[1].toString() %>" method="post">
+											<button type="submit" value="delete_<%= element[1].toString() %>">Delete</button>
 										</form>
 									</td>
 								</tr>
@@ -86,7 +86,7 @@
 									<option value="" selected hidden>select your challenge</option>	
 									<% var challenge_titles=[]; %>
 									<% challenges_to_display.forEach((element, index)=> { %>
-										<% challenge_titles.push(element.split('\n')[1].toString()); %>
+										<% challenge_titles.push(element[0].split('\n')[1].toString()); %>
 									<% }); %>
 
 									<% if (typeof challenge_titles==="undefined" ) { %>

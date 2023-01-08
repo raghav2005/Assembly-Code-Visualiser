@@ -1,4 +1,4 @@
 ###CHALLENGE TITLE###
-This is a second test title
+Challenge #2
 ###CHALLENGE DESCRIPTION###
-This is a second test description #2
+This is challenge #2's description, but updated!

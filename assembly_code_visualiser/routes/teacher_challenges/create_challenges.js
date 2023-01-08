@@ -550,7 +550,7 @@ router.post('/edit/update', function (req, res, next) {
 				session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
 				challenge_title: req.body.challenge_title_og.toString(),
 				challenge_description: req.body.challenge_description_og.toString(),
-				challenge_file_id: req.body.challenge_file_id.toString(),
+				challenge_teacher_id: req.body.challenge_teacher_id.toString(),
 			});
 		}
 
@@ -568,8 +568,8 @@ router.post('/edit/update', function (req, res, next) {
 
 		// put file as MEDIUMBLOB in db
 		db_connection.query(
-			'UPDATE Challenge_File SET challenge_blob = ? WHERE challenge_file_id = ?;',
-			[data_to_db, req.body.challenge_file_id],
+			'UPDATE Challenge_File SET challenge_blob = ? WHERE challenge_file_id = (SELECT challenge_file_id FROM Challenge_Teacher WHERE challenge_teacher_id = ?);',
+			[data_to_db, req.body.challenge_teacher_id],
 			function (err, rows) {
 				if (err) {
 					console.log(err);
@@ -583,7 +583,7 @@ router.post('/edit/update', function (req, res, next) {
 						session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
 						challenge_title: req.body.challenge_title_og.toString(),
 						challenge_description: req.body.challenge_description_og.toString(),
-						challenge_file_id: req.body.challenge_file_id.toString(),
+						challenge_teacher_id: req.body.challenge_teacher_id.toString(),
 					});
 				}
 				console.log(rows);
@@ -603,7 +603,7 @@ router.post('/edit/update', function (req, res, next) {
 			session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
 			challenge_title: req.body.challenge_title_og.toString(),
 			challenge_description: req.body.challenge_description_og.toString(),
-			challenge_file_id: req.body.challenge_file_id.toString(),
+			challenge_teacher_id: req.body.challenge_teacher_id.toString(),
 		});
 	}
 

@@ -614,8 +614,16 @@ router.post('/assign', async function (req, res, next) {
 
 	console.log('assign button clicked');
 
+	var challenges_to_display_temp = req.body.challenges_to_display.toString().split('###CHALLENGE TITLE###').map(element => element.replace(/[\r]/gm, '')).filter(element => element !== '');
 	// all vars to keep challenges + students updated
-	var challenges_to_display = req.body.challenges_to_display.split(',').map(element => element.replace(/[\r]/gm, ''));
+	var challenges_to_display = [];
+	challenges_to_display_temp.forEach((element, index) => {
+		if (index !== challenges_to_display_temp.length - 1) {
+			challenges_to_display.push(['###CHALLENGE TITLE###' + element.slice(0, - 2 - element.split(',').reverse()[1].length), parseInt(element.split(',').reverse()[1])]);
+		} else {
+			challenges_to_display.push(['###CHALLENGE TITLE###' + element.slice(0, - 1 - element.split(',').reverse()[0].length), parseInt(element.split(',').reverse()[0])]);
+		};
+	});
 
 	var challenge_title_match_id = req.body.challenge_title_match_id.filter(element => element !== '')[0].split(',');
 	challenge_title_match_id.forEach((element, index) => {
@@ -672,114 +680,107 @@ router.post('/assign', async function (req, res, next) {
 			req.flash('error', ' Due date must be at least 24 hours after current time');
 		}
 
-		db_connection.query(
-			'SELECT * FROM Assigned_Challenges, Challenge_Teacher WHERE Assigned_Challenges.challenge_teacher_id = Challenge_Teacher.challenge_teacher_id AND Assigned_Challenges.challenge_teacher_id = (SELECT challenge_teacher_id FROM Challenge_Teacher WHERE teacher_id = ? AND challenge_file_id = ?);',
-			[req.user.id, challenge_title_match_id[_.findIndex(challenge_title_match_id, function (el) { return el[0] == req.body.assign_challenge_dd })][1]],
-			async function (err, rows) {
-				
-				if (err) {
-					console.log(err);
-					req.flash('error', ' An error occured');
-					res.locals.message = req.flash();
-					return res.render('teacher_challenges/create_challenges', {
-						title: 'Create Challenges',
-						menu_id: 'create_challenges',
-						role: req.user.role,
-						email: req.user.email,
-						challenges_to_display: challenges_to_display,
-						challenge_title_match_id: challenge_title_match_id,
-						class_students: class_students,
-						session_id: req.sessionID,
-						session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
-					});
-				}
-				
-				// console.log(rows);
+		// return with the error message
+		if (error_message) {
+			res.locals.message = req.flash();
+			return res.render('teacher_challenges/create_challenges', {
+				title: 'Create Challenges',
+				menu_id: 'create_challenges',
+				role: req.user.role,
+				email: req.user.email,
+				challenges_to_display: challenges_to_display,
+				challenge_title_match_id: challenge_title_match_id,
+				class_students: class_students,
+				session_id: req.sessionID,
+				session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+			});
+		}
 
-				var student_ids_assigned_this_challenge_already = [];
-				var student_names_assigned_this_challenge_already = [];
-				rows.forEach((element, index) => {
-					student_ids_assigned_this_challenge_already.push(element['student_id']);
+		var student_ids_assigned_this_challenge_already = [];
+		var student_names_assigned_this_challenge_already = [];
+
+		await get_students_already_assigned_challenge(req, res, next, challenges_to_display, challenge_title_match_id, class_students).then((rows) => {
+			rows.forEach((element, index) => {
+				student_ids_assigned_this_challenge_already.push([element['CONCAT(Student.student_name, Student.student_number)'], element['student_id']]);
+			});
+		}).then(() => {
+
+			student_ids_assigned_this_challenge_already.forEach((element, index) => {
+				student_names_assigned_this_challenge_already.push(element[0]);
+			});
+
+			var contains_1 = student_names_assigned_this_challenge_already.some(element => {
+				return students_to_assign.includes(element);
+			});
+			var contains_2 = students_to_assign.some(element => {
+				return student_names_assigned_this_challenge_already.includes(element);
+			});
+
+			if (contains_1 == true || contains_2 == true) {
+				error_message = true;
+				req.flash('error', ' At least 1 student has already been assigned this challenge!');
+			};
+
+			// return with the error message
+			if (error_message) {
+				res.locals.message = req.flash();
+				return res.render('teacher_challenges/create_challenges', {
+					title: 'Create Challenges',
+					menu_id: 'create_challenges',
+					role: req.user.role,
+					email: req.user.email,
+					challenges_to_display: challenges_to_display,
+					challenge_title_match_id: challenge_title_match_id,
+					class_students: class_students,
+					session_id: req.sessionID,
+					session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+				});
+			} else {
+
+				students_to_assign.forEach((element, index) => {
+					// record relation b/w teacher and challenge
+					db_connection.query(
+						'INSERT INTO Assigned_Challenges (challenge_teacher_id, student_id, due_date) VALUES (?, (SELECT student_id FROM Student WHERE student_name = ? AND student_number = ?), ?);',
+						[challenge_title_match_id[_.findIndex(challenge_title_match_id, function (el) { return el[0] == req.body.assign_challenge_dd })][1], element.slice(0, -4), element.slice(-4), due_date.toISOString().slice(0, 19).replace('T', ' ')],
+						function (err, rows) {
+							if (err) {
+								console.log(err);
+								req.flash('error', ' An error occured');
+								res.locals.message = req.flash();
+								return res.render('teacher_challenges/create_challenges', {
+									title: 'Create Challenges',
+									menu_id: 'create_challenges',
+									role: req.user.role,
+									email: req.user.email,
+									challenges_to_display: challenges_to_display,
+									challenge_title_match_id: challenge_title_match_id,
+									class_students: class_students,
+									session_id: req.sessionID,
+									session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+								});
+							}
+							// console.log(rows);
+						}
+					);
 				});
 
-				// console.log('student_ids_assigned_this_challenge_already');
-				// console.log(student_ids_assigned_this_challenge_already);
-
-				await get_student_names_from_ids(student_ids_assigned_this_challenge_already, student_names_assigned_this_challenge_already, challenges_to_display, challenge_title_match_id, class_students).then(async (student_names_assigned_this_challenge_already) => {
-
-					var contains_1 = student_names_assigned_this_challenge_already.some(element => {
-						return students_to_assign.includes(element);
-					});
-					var contains_2 = students_to_assign.some(element => {
-						return student_names_assigned_this_challenge_already.includes(element);
-					});
-
-					if (contains_1 == true || contains_2 == true) {
-						error_message = true;
-						req.flash('error', ' At least 1 student has already been assigned this challenge!');
-					};
-
-					// return with the error message
-					if (error_message) {
-						res.locals.message = req.flash();
-						return res.render('teacher_challenges/create_challenges', {
-							title: 'Create Challenges',
-							menu_id: 'create_challenges',
-							role: req.user.role,
-							email: req.user.email,
-							challenges_to_display: challenges_to_display,
-							challenge_title_match_id: challenge_title_match_id,
-							class_students: class_students,
-							session_id: req.sessionID,
-							session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
-						});
-					}
-
-					students_to_assign.forEach((element, index) => {
-						// record relation b/w teacher and challenge
-						db_connection.query(
-							'INSERT INTO Assigned_Challenges (challenge_teacher_id, student_id, due_date) VALUES ((SELECT challenge_teacher_id FROM Challenge_Teacher WHERE challenge_file_id = ? AND teacher_id = ?), (SELECT student_id FROM Student WHERE student_name = ? AND student_number = ?), ?);',
-							[challenge_title_match_id[_.findIndex(challenge_title_match_id, function (el) { return el[0] == req.body.assign_challenge_dd })][1], req.user.id, element.slice(0, -4), element.slice(-4), due_date.toISOString().slice(0, 19).replace('T', ' ')],
-							function (err, rows) {
-								if (err) {
-									console.log(err);
-									req.flash('error', ' An error occured');
-									res.locals.message = req.flash();
-									return res.render('teacher_challenges/create_challenges', {
-										title: 'Create Challenges',
-										menu_id: 'create_challenges',
-										role: req.user.role,
-										email: req.user.email,
-										challenges_to_display: challenges_to_display,
-										challenge_title_match_id: challenge_title_match_id,
-										class_students: class_students,
-										session_id: req.sessionID,
-										session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
-									});
-								}
-								// console.log(rows);
-							}
-						);
-					});
-
-					req.flash('success', ' Assigned challenge to student(s)');
-					res.locals.message = req.flash();
-					return res.render('teacher_challenges/create_challenges', {
-						title: 'Create Challenges',
-						menu_id: 'create_challenges',
-						role: req.user.role,
-						email: req.user.email,
-						challenges_to_display: challenges_to_display,
-						challenge_title_match_id: challenge_title_match_id,
-						class_students: class_students,
-						session_id: req.sessionID,
-						session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
-					});
-
+				req.flash('success', ' Assigned challenge to student(s)');
+				res.locals.message = req.flash();
+				return res.render('teacher_challenges/create_challenges', {
+					title: 'Create Challenges',
+					menu_id: 'create_challenges',
+					role: req.user.role,
+					email: req.user.email,
+					challenges_to_display: challenges_to_display,
+					challenge_title_match_id: challenge_title_match_id,
+					class_students: class_students,
+					session_id: req.sessionID,
+					session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
 				});
 
 			}
-		);
+
+		});
 
 	} catch (error) {
 		console.log(error);
@@ -798,50 +799,43 @@ router.post('/assign', async function (req, res, next) {
 	};
 });
 
-var get_student_names_from_ids = (student_ids_assigned_this_challenge_already, student_names_assigned_this_challenge_already, challenges_to_display, challenge_title_match_id, class_students) => {
+var get_students_already_assigned_challenge = (req, res, next, challenges_to_display, challenge_title_match_id, class_students) => {
 	return new Promise((resolve, reject) => {
 		try {
 
-			student_ids_assigned_this_challenge_already.forEach((element, index) => {
-				db_connection.query(
-					'SELECT CONCAT(student_name, student_number) FROM Student WHERE student_id = ?;',
-					[element],
-					function (err_2, rows_2) {
+			db_connection.query(
+				'SELECT CONCAT(Student.student_name, Student.student_number), Student.student_id FROM Assigned_Challenges, Challenge_Teacher, Student WHERE Assigned_Challenges.challenge_teacher_id = Challenge_Teacher.challenge_teacher_id AND Assigned_Challenges.student_id = Student.student_id AND Assigned_Challenges.challenge_teacher_id = (SELECT challenge_teacher_id FROM Challenge_Teacher WHERE teacher_id = ? AND challenge_file_id = ?);',
+				[req.user.id, challenge_title_match_id[_.findIndex(challenge_title_match_id, function (el) { return el[0] == req.body.assign_challenge_dd })][1]],
+				function (err, rows) {
 
-						if (err_2) {
-							console.log(err_2);
-							req.flash('error', ' An error occured');
-							res.locals.message = req.flash();
-							res.render('teacher_challenges/create_challenges', {
-								title: 'Create Challenges',
-								menu_id: 'create_challenges',
-								role: req.user.role,
-								email: req.user.email,
-								challenges_to_display: challenges_to_display,
-								challenge_title_match_id: challenge_title_match_id,
-								class_students: class_students,
-								session_id: req.sessionID,
-								session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
-							});
-							reject(err);
-						}
-
-						// console.log(rows_2);
-						student_names_assigned_this_challenge_already.push(rows_2[0]['CONCAT(student_name, student_number)']);
-
-						// console.log('student_names_assigned_this_challenge_already');
-						// console.log(student_names_assigned_this_challenge_already);
-
-						resolve(student_names_assigned_this_challenge_already);
-
+					if (err) {
+						console.log(err);
+						req.flash('error', ' An error occured');
+						res.locals.message = req.flash();
+						return res.render('teacher_challenges/create_challenges', {
+							title: 'Create Challenges',
+							menu_id: 'create_challenges',
+							role: req.user.role,
+							email: req.user.email,
+							challenges_to_display: challenges_to_display,
+							challenge_title_match_id: challenge_title_match_id,
+							class_students: class_students,
+							session_id: req.sessionID,
+							session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+						});
+						reject(err)
 					}
-				);
-			});
+
+					resolve(rows);
+
+				}
+			);
+
 		} catch (error) {
 			reject(error);
 		}
 	});
-};
+}
 
 
 module.exports = router;

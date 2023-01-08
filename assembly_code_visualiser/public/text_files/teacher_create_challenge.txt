@@ -1,4 +1,4 @@
 ###CHALLENGE TITLE###
-This is a second test title
+This is made on Jan 9
 ###CHALLENGE DESCRIPTION###
-This is a second test description
+This is a test after changing to use challenge_teacher_id

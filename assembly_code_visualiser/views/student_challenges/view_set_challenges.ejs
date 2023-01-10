@@ -91,16 +91,11 @@
 									<td>
 										<%= element[3].toString() %>
 									</td>
-									<!-- <td>
-										<form action="/create_challenges/edit/<#%= index.toString() %>" method="post">
-											<button type="submit" value="edit_<#%= index.toString() %>">Edit</button>
+									<td>
+										<form action="/view_set_challenges/view_completed/<%= element[1].toString() %>" method="post">
+											<button type="submit" value="view_completed_<%= element[1].toString() %>">View Answer</button>
 										</form>
 									</td>
-									<td>
-										<form action="/create_challenges/delete/<#%= index.toString() %>" method="post">
-											<button type="submit" value="delete_<#%= index.toString() %>">Delete</button>
-										</form>
-									</td> -->
 								</tr>
 							<% }); %>
 		

@@ -30,7 +30,7 @@ router.get('/', auth.check_authenticated, async function (req, res, next) {
 			var all_completed_challenges = [];
 
 			rows.forEach(element => {
-				all_completed_challenges.push([element['challenge_blob'].toString(), element['challenge_teacher_id'], moment(element['due_date']).utc(utc_datetime).local().format(), moment(element['completion_date']).utc(utc_datetime).local().format()]);
+				all_completed_challenges.push([element['challenge_blob'].toString(), element['challenge_teacher_id'], moment(element['due_date']).utc(utc_datetime).local().format(), moment(element['completion_date']).utc(utc_datetime).local().format(), element['solution_blob'].toString()]);
 			});
 
 			console.log('all_completed_challenges');
@@ -97,6 +97,29 @@ router.get('/', auth.check_authenticated, async function (req, res, next) {
 						challenge_title: element[0].split('\n')[1].toString(),
 						challenge_description: element[0].split('\n')[3].toString(),
 						assigned_challenge_id: element[1].toString()
+					});
+
+				});
+
+			});
+
+			useful_vars['all_completed_challenges'].forEach(async (element, index) => {
+
+				var route_view_completed = '/view_completed/' + element[1];
+
+				router.post(route_view_completed, async function (req, res, next) {
+
+					res.locals.message = req.flash();
+
+					res.render('student_challenges/view_completed_challenge', {
+						title: 'View Completed Challenge',
+						role: req.user.role,
+						email: req.user.email,
+						session_id: req.sessionID,
+						session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+						challenge_title: element[0].split('\n')[1].toString(),
+						challenge_description: element[0].split('\n')[3].toString(),
+						challenge_answer: element[4].toString()
 					});
 
 				});
@@ -176,7 +199,7 @@ var get_all_solved_unsolved_challenges = (req, res, next, solved) => {
 		try {
 
 			if (solved) {
-				var query_to_run = 'SELECT * FROM Challenge_File, Challenge_Teacher, Assigned_Challenges, Solution_Student WHERE Challenge_File.challenge_file_id = Challenge_Teacher.challenge_file_id AND Challenge_Teacher.challenge_teacher_id = Assigned_Challenges.challenge_teacher_id AND Solution_Student.assigned_challenge_id = Assigned_Challenges.assigned_challenge_id AND Assigned_Challenges.student_id = ? AND Assigned_Challenges.assigned_challenge_id IN (SELECT Solution_Student.assigned_challenge_id FROM Solution_Student, Assigned_Challenges WHERE Solution_Student.assigned_challenge_id = Assigned_Challenges.assigned_challenge_id) ORDER BY Assigned_Challenges.due_date ASC;';
+				var query_to_run = 'SELECT * FROM Challenge_File, Challenge_Teacher, Assigned_Challenges, Solution_Student, Solution_File WHERE Challenge_File.challenge_file_id = Challenge_Teacher.challenge_file_id AND Challenge_Teacher.challenge_teacher_id = Assigned_Challenges.challenge_teacher_id AND Solution_Student.assigned_challenge_id = Assigned_Challenges.assigned_challenge_id AND Solution_File.solution_file_id = Solution_Student.solution_file_id AND Assigned_Challenges.student_id = ? AND Assigned_Challenges.assigned_challenge_id IN (SELECT Solution_Student.assigned_challenge_id FROM Solution_Student, Assigned_Challenges WHERE Solution_Student.assigned_challenge_id = Assigned_Challenges.assigned_challenge_id) ORDER BY Assigned_Challenges.due_date ASC;';
 			} else {
 				var query_to_run = 'SELECT * FROM Challenge_File, Challenge_Teacher, Assigned_Challenges WHERE Challenge_File.challenge_file_id = Challenge_Teacher.challenge_file_id AND Challenge_Teacher.challenge_teacher_id = Assigned_Challenges.challenge_teacher_id AND Assigned_Challenges.student_id = ? AND Assigned_Challenges.assigned_challenge_id NOT IN (SELECT Solution_Student.assigned_challenge_id FROM Solution_Student, Assigned_Challenges WHERE Solution_Student.assigned_challenge_id = Assigned_Challenges.assigned_challenge_id) ORDER BY Assigned_Challenges.due_date ASC;';
 			};

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<% include ../partials/head %>
+</head>
+
+<body>
+	<div class="container-fluid">
+
+		<% include ../partials/menu %>
+
+		<div class="row">
+			<div class="col-md-12">
+
+					<!-- challenge title -->
+					<div class="row">
+						<div class="col-md-12">
+							<label for="challenge_title">CHALLENGE TITLE</label>
+							<textarea id="challenge_title" name="challenge_title" wrap="off"
+								placeholder="Generic Challenge Title" readonly
+								style="overflow-y: scroll; height: 1.5em; width: 100%;"><%= challenge_title %></textarea>
+						</div>
+					</div>
+
+					<!-- challenge description -->
+					<div class="row">
+						<div class="col-md-12">
+							<label for="challenge_description">CHALLENGE DESCRIPTION</label>
+							<!-- <input type="text" id="challenge_description" name="challenge_description" placeholder="Generic Challenge Description" required style="height: 20em;" /> -->
+							<textarea id="challenge_description" name="challenge_description" wrap="off"
+								placeholder="Generic Challenge Description" readonly
+								style="overflow-y: scroll; height: 20em; width: 100%;"><%= challenge_description %></textarea>
+						</div>
+					</div>
+
+					<!-- challenge answer -->
+					<div class="row">
+						<div class="col-md-12">
+							<label for="challenge_answer">CHALLENGE ANSWER</label>
+							<textarea id="challenge_answer" name="challenge_answer" wrap="off" placeholder="Generic Challenge Answer"
+								readonly style="overflow-y: scroll; height: 20em; width: 100%;"><%= challenge_answer %></textarea>
+						</div>
+					</div>
+
+					<button onclick="location.href='../';">Go Back</button>
+
+			</div>
+		</div>
+
+	</div>
+</body>
+
+<% include ../partials/script %>
+
+</html>

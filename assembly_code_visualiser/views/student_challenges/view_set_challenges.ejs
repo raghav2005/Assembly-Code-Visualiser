@@ -9,55 +9,148 @@
 	<div class="container-fluid">
 
 		<% include ../partials/menu %>
+		
+		<% if (typeof all_completed_challenges === "undefined" && typeof all_missed_challenges === "undefined" && typeof all_challenges_to_do === "undefined") { %>
+			<h4>Go back to the <a href="../">Home</a> Page</h4>
+		<% } else { %>
 
+			<!-- CHALLENGES TO DO -->
 			<div class="row">
 				<div class="col-md-12">
 
-					<% if (typeof challenges_to_display==="undefined" ) { %>
-						<h4>Go back to the <a href="../">Home</a> Page</h4>
+					<h4>CHALLENGES TO COMPLETE:</h4>
+
+					<% if (typeof all_challenges_to_do === "undefined" || all_challenges_to_do.length == 0 || all_challenges_to_do == []) { %>
+						<h5>No Challenges set</h5>
 					<% } else { %>
 
-						<% if (challenges_to_display.length == 0 || challenges_to_display == []) { %>
-							<h4>No Challenges set. Go back to the <a href="../">Home</a> Page</h4>
-						<% } else { %>
-							<table id="active_challenges">
-							
-								<tr>
-									<th>Challenge Title</th>
-									<th>Challenge Description</th>
-									<th>Due Date</th>
-								</tr>
+						<table id="active_challenges">
+						
+							<tr>
+								<th>Challenge Title</th>
+								<th>Challenge Description</th>
+								<th>Due Date</th>
+							</tr>
 
-								<% challenges_to_display.forEach((element, index)=> { %>
-									<tr>
-										<td>
-											<%= element[0].split('\n')[1].toString() %>
-										</td>
-										<td>
-											<%= element[0].split('\n')[3].toString() %>
-										</td>
-										<td>
-											<%= element[2].toString() %>
-										</td>
-										<!-- <td>
-											<form action="/create_challenges/edit/<#%= index.toString() %>" method="post">
-												<button type="submit" value="edit_<#%= index.toString() %>">Edit</button>
-											</form>
-										</td>
-										<td>
-											<form action="/create_challenges/delete/<#%= index.toString() %>" method="post">
-												<button type="submit" value="delete_<#%= index.toString() %>">Delete</button>
-											</form>
-										</td> -->
-									</tr>
-								<% }); %>
-								
-							</table>
-						<% } %>
+							<% all_challenges_to_do.forEach((element, index)=> { %>
+								<tr>
+									<td>
+										<%= element[0].split('\n')[1].toString() %>
+									</td>
+									<td>
+										<%= element[0].split('\n')[3].toString() %>
+									</td>
+									<td>
+										<%= element[2].toString() %>
+									</td>
+									<td>
+										<form action="/view_set_challenges/complete_challenge/<%= element[1].toString() %>" method="post">
+											<button type="submit" value="complete_challenge_<%= element[1].toString() %>">Complete Challenge</button>
+										</form>
+									</td>
+								</tr>
+							<% }); %>
+							
+						</table>
 
 					<% } %>
+
 				</div>
 			</div>
+
+			<!-- CHALLENGES FINISHED IN TIME -->
+			<div class="row">
+				<div class="col-md-12">
+			
+					<h4>COMPLETED CHALLENGES:</h4>
+			
+					<% if (typeof all_completed_challenges==="undefined" || all_completed_challenges.length==0 || all_completed_challenges==[]) { %>
+						<h5>No Completed Challenges</h5>
+					<% } else { %>
+		
+						<table id="active_challenges">
+		
+							<tr>
+								<th>Challenge Title</th>
+								<th>Challenge Description</th>
+								<th>Due Date</th>
+								<th>Completion Date</th>
+							</tr>
+		
+							<% all_completed_challenges.forEach((element, index)=> { %>
+								<tr>
+									<td>
+										<%= element[0].split('\n')[1].toString() %>
+									</td>
+									<td>
+										<%= element[0].split('\n')[3].toString() %>
+									</td>
+									<td>
+										<%= element[2].toString() %>
+									</td>
+									<td>
+										<%= element[3].toString() %>
+									</td>
+									<!-- <td>
+										<form action="/create_challenges/edit/<#%= index.toString() %>" method="post">
+											<button type="submit" value="edit_<#%= index.toString() %>">Edit</button>
+										</form>
+									</td>
+									<td>
+										<form action="/create_challenges/delete/<#%= index.toString() %>" method="post">
+											<button type="submit" value="delete_<#%= index.toString() %>">Delete</button>
+										</form>
+									</td> -->
+								</tr>
+							<% }); %>
+		
+						</table>
+			
+					<% } %>
+			
+				</div>
+			</div>
+
+			<!-- CHALLENGES NOT FINISHED IN TIME -->
+			<div class="row">
+				<div class="col-md-12">
+			
+					<h4>MISSED CHALLENGES:</h4>
+			
+					<% if (typeof all_missed_challenges==="undefined" || all_missed_challenges.length==0 || all_missed_challenges==[]) { %>
+						<h5>No Completed Challenges</h5>
+					<% } else { %>
+			
+						<table id="active_challenges">
+		
+							<tr>
+								<th>Challenge Title</th>
+								<th>Challenge Description</th>
+								<th>Due Date</th>
+							</tr>
+		
+							<% all_missed_challenges.forEach((element, index)=> { %>
+								<tr>
+									<td>
+										<%= element[0].split('\n')[1].toString() %>
+									</td>
+									<td>
+										<%= element[0].split('\n')[3].toString() %>
+									</td>
+									<td>
+										<%= element[2].toString() %>
+									</td>
+								</tr>
+							<% }); %>
+		
+						</table>
+			
+					<% } %>
+			
+				</div>
+			</div>
+
+		<% } %>
 
 	</div>
 </body>

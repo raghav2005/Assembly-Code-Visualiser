@@ -106,7 +106,6 @@ router.get('/', auth.check_authenticated, async function (req, res, next) {
 			
 		}).then(async (useful_vars) => {
 
-			// TODO CONTINUE STUFF HERE
 			useful_vars['challenges_to_display'].forEach(async (element, index) => {
 
 				var route_delete = '/delete/' + element[1];

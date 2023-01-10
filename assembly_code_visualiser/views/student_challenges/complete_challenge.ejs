@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<% include ../partials/head %>
+</head>
+
+<body>
+	<div class="container-fluid">
+
+		<% include ../partials/menu %>
+
+		<div class="row">
+			<div class="col-md-12">
+
+				<form action="/view_set_challenges/complete_challenge/complete" method="post">
+
+					<!-- challenge title -->
+					<div class="row">
+						<div class="col-md-12">
+							<label for="challenge_title">CHALLENGE TITLE</label>
+							<textarea id="challenge_title" name="challenge_title" wrap="off"
+								placeholder="Generic Challenge Title" readonly
+								style="overflow-y: scroll; height: 1.5em; width: 100%;"><%= challenge_title %></textarea>
+						</div>
+					</div>
+
+					<!-- challenge description -->
+					<div class="row">
+						<div class="col-md-12">
+							<label for="challenge_description">CHALLENGE DESCRIPTION</label>
+							<textarea id="challenge_description" name="challenge_description" wrap="off"
+								placeholder="Generic Challenge Description" readonly
+								style="overflow-y: scroll; height: 20em; width: 100%;"><%= challenge_description %></textarea>
+						</div>
+					</div>
+
+					<!-- challenge answer -->
+					<div class="row">
+						<div class="col-md-12">
+							<label for="challenge_answer">CHALLENGE ANSWER</label>
+							<textarea id="challenge_answer" name="challenge_answer" wrap="off"
+								placeholder="Generic Challenge Answer" required
+								style="overflow-y: scroll; height: 20em; width: 100%;"></textarea>
+						</div>
+					</div>
+
+					<!-- submit button -->
+					<button type="submit" value="Complete">Complete</button>
+
+					<!-- hidden to be retrievable in js file -->
+					<div class="row" hidden aria-hidden="true">
+						<div class="col-md-12">
+							<label for="assigned_challenge_id">ASSIGNED CHALLENGE ID</label>
+							<textarea id="assigned_challenge_id"
+								name="assigned_challenge_id"><%= assigned_challenge_id %></textarea>
+						</div>
+					</div>
+
+				</form>
+
+				<% if (message.error) { %>
+					<div class="alert alert-danger" role="alert">
+						<strong>
+							<%= message.error %>
+						</strong>
+					</div>
+				<% } %>
+
+				<% if (message.success) { %>
+					<div class="alert alert-success" role="alert">
+						<strong>
+							<%= message.success %>
+						</strong>
+					</div>
+				<% } %>
+
+			</div>
+		</div>
+	
+	</div>
+</body>
+
+<% include ../partials/script %>
+
+</html>

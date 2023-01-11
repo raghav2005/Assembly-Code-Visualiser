@@ -117,7 +117,38 @@ router.get('/', auth.check_authenticated, async function (req, res, next) {
 
 							return useful_vars;
 
-						}).then((useful_vars) => {
+						}).then(async (useful_vars) => {
+
+							useful_vars['students_solved'].forEach(async (element_latest, index_latest) => {
+
+								var route_view_solution = route_more_info + '/view_answer/' + element_latest[1];
+
+								router.post(route_view_solution, async function (req, res, next) {
+
+									res.locals.message = req.flash();
+
+									await get_answer_blob(req, res, next, parseInt(element[1]), parseInt(element_latest[1])).then((rows) => {
+
+										rows.forEach(first_row => {
+											answer_blob = first_row['solution_blob'];
+										});
+
+										return res.render('teacher_challenges/view_answer', {
+											title: 'View Completed Challenge',
+											role: req.user.role,
+											email: req.user.email,
+											session_id: req.sessionID,
+											session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+											challenge_title: element[0].split('\n')[1].toString(),
+											challenge_description: element[0].split('\n')[3].toString(),
+											challenge_answer: answer_blob.toString()
+										});
+
+									});
+
+								});
+							
+							});
 
 							return res.render('teacher_challenges/more_information', {
 								title: 'More Information',
@@ -127,6 +158,7 @@ router.get('/', auth.check_authenticated, async function (req, res, next) {
 								session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
 								challenge_title: element[0].split('\n')[1].toString(),
 								challenge_description: element[0].split('\n')[3].toString(),
+								challenge_teacher_id: element[1].toString(),
 								students_solved: useful_vars['students_solved'],
 								students_not_solved_before_due: useful_vars['students_not_solved_before_due'],
 								students_not_solved_after_due: useful_vars['students_not_solved_after_due']
@@ -143,14 +175,13 @@ router.get('/', auth.check_authenticated, async function (req, res, next) {
 							session_id: req.sessionID,
 							session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
 							challenge_title: element[0].split('\n')[1].toString(),
-							challenge_description: element[0].split('\n')[3].toString()
+							challenge_description: element[0].split('\n')[3].toString(),
+							challenge_teacher_id: element[1].toString()
 						});	
 						
 					}
 
 				});
-
-				
 
 			});
 
@@ -292,9 +323,40 @@ var get_students_assigned_challenge_teacher_and_not_solved = (req, res, next, ch
 	});
 };
 
+var get_answer_blob = (req, res, next, challenge_teacher_id, student_id) => {
+	return new Promise((resolve, reject) => {
+		try {
 
-// * all rows with unique assigned_challenge_id, i.e. all combinations of challenges and students that have been assigned those challenges
-// 'SELECT * FROM Assigned_Challenges, Challenge_Teacher, Challenge_File WHERE Assigned_Challenges.challenge_teacher_id = Challenge_Teacher.challenge_teacher_id AND Challenge_Teacher.challenge_file_id = Challenge_File.challenge_file_id AND Assigned_Challenges.challenge_teacher_id IN (SELECT challenge_teacher_id FROM Challenge_Teacher WHERE teacher_id = 5);'
+			// get all students who have been assigned challenge_teacher_id and solved
+			db_connection.query(
+				'SELECT * FROM Solution_File, Solution_Student WHERE Solution_File.solution_file_id = Solution_Student.solution_file_id AND Solution_Student.assigned_challenge_id = (SELECT assigned_challenge_id FROM Assigned_Challenges WHERE challenge_teacher_id = ? AND student_id = ?);',
+				[challenge_teacher_id, student_id],
+				function (err, rows) {
+
+					if (err) {
+						console.log(err);
+						req.flash('error', ' An error occured');
+						res.locals.message = req.flash();
+						return res.render('teacher_challenges/view_student_challenges', {
+							title: 'View Student Challenges',
+							menu_id: 'view_student_challenges',
+							role: req.user.role,
+							email: req.user.email,
+							session_id: req.sessionID,
+							session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+						});
+						reject(err);
+					};
+
+					resolve(rows);
+				}
+			);
+
+		} catch (error) {
+			reject(error);
+		}
+	});
+};
 
 
 module.exports = router;

@@ -59,11 +59,11 @@
 								<td>
 									<%= element[3].toString() %>
 								</td>
-								<!-- <td>
-									<form action="/view_student_challenges/more_information/<#%= element[1].toString() %>" method="post">
-										<button type="submit" value="more_information_<#%= element[1].toString() %>">More Information</button>
+								<td>
+									<form action="/view_student_challenges/more_information/<%= challenge_teacher_id.toString() %>/view_answer/<%= element[1].toString() %>" method="post">
+										<button type="submit" value="view_answer">See Solution</button>
 									</form>
-								</td> -->
+								</td>
 							</tr>
 						<% }); %>
 	

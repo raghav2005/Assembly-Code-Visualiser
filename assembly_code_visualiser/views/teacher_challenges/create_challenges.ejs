@@ -113,81 +113,12 @@
 						<div class="col-md-6"></div>
 					</div>
 
-					<!-- <div class="row">
-						<div class="col-md-12">
-					
-							<#% if (typeof class_students==="undefined" ) { %>
-
-							<#% } else { %>
-					
-								<table>
-				
-									<tr>
-										<th>Class Title</th>
-										<th>Class Students</th>
-										<th></th>
-									</tr>
-				
-									<#% class_students.forEach((element, index) => { %>
-										<tr>
-											<td>
-												<input type="checkbox" name="student" value="<#%= element[2].toString() %>" />
-											</td>
-											<td>
-												<#%= element[0].toString() %>
-											</td>
-											<td>
-												<#%= element[2].toString() %>
-											</td>
-										</tr>
-									<#% }); %>
-								</table>
-				
-							<#% } %>
-					
-						</div>
-					</div> -->
-
-					<!-- DROPDOWN FOR CLASSES WITH STUDENTS -->
-					<!-- <div class="row">
-						<div class="col-md-12">
-					
-							<%# if (typeof class_students==="undefined" ) { %>
-
-							<%# } else { %>
-								<%# class_students.forEach((element, index) => { %>
-
-									<select id="class_<#%= element[0].toString() %>" name="class_<#%= element[0].toString() %>">
-
-										<#% if (element[2].length === 0 || !element[2].length) { %>
-											<option value="" selected hidden>no students in this class</option>
-										<#% } else { %>
-											<option value="" selected hidden>select student(s)</option>
-											<#% element[2].toString().split(',').forEach((element_2, index_2) => { %>
-												<option value="<#%= element_2 %>">
-													<#%= element_2 %>
-												</option>
-											<#%}); %>
-										<#% } %>
-
-									</select>
-
-								<#% }); %>
-							<#% } %>
-					
-						</div>
-					</div> -->
-
 					<% if (typeof class_students==="undefined" ) { %>
 						
 					<% } else { %>
 						<!-- DROPDOWN FOR CLASSES WITH STUDENTS -->
 						<% class_students.forEach((element, index)=> { %>
 							<div class="row">
-
-								<!-- <div class="col-md-1">
-									<input type="checkbox" name="all_students_in_class" id="checkbox_<%= element[0].toString() %>" />
-								</div> -->
 
 								<div class="col-md-6">
 				
@@ -281,13 +212,6 @@
 							<textarea id="challenges_to_display" name="challenges_to_display"><%- challenges_to_display %></textarea>
 						</div>
 					</div>
-
-					<!-- <div class="row">
-						<div class="col-md-12">
-							<label for="students_selected">SELECTED STUDENTS TO ASSIGN CHALLENGE TO</label>
-							<textarea id="students_selected" name="students_selected"></textarea>
-						</div>
-					</div> -->
 
 					<div class="row" hidden aria-hidden="true">
 						<div class="col-md-12">

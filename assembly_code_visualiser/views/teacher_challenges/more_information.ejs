@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<% include ../partials/head %>
+</head>
+
+<body>
+	<div class="container-fluid">
+
+		<% include ../partials/menu %>
+
+		<div class="row">
+			<div class="col-md-12">
+
+				<div class="row">
+					<!-- challenge title -->
+					<div class="col-md-4">
+						<label for="challenge_title">CHALLENGE TITLE</label>
+						<textarea id="challenge_title" name="challenge_title" wrap="off" placeholder="Generic Challenge Title" readonly style="overflow-y: scroll; height: 1.5em; width: 100%;"><%= challenge_title %></textarea>
+					</div>
+					<!-- challenge description -->
+					<div class="col-md-8">
+						<label for="challenge_description">CHALLENGE DESCRIPTION</label>
+						<textarea id="challenge_description" name="challenge_description" wrap="off" placeholder="Generic Challenge Description" readonly style="overflow-y: scroll; height: 20em; width: 100%;"><%= challenge_description %></textarea>
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+
+		<!-- STUDENTS COMPLETED -->
+		<div class="row">
+			<div class="col-md-12">
+		
+				<h4>Students that have Submitted:</h4>
+		
+				<% if (typeof students_solved === "undefined" || students_solved == [] || students_solved.length == 0) { %>
+					<h5>No Students have solved this Challenge yet</h5>
+				<% } else { %>
+	
+					<table>
+	
+						<tr>
+							<th>Student ID</th>
+							<th>Due Date</th>
+							<th>Completion Date</th>
+						</tr>
+	
+						<% students_solved.forEach((element, index)=> { %>
+							<tr>
+								<td>
+									<%= element[0].toString() %>
+								</td>
+								<td>
+									<%= element[2].toString() %>
+								</td>
+								<td>
+									<%= element[3].toString() %>
+								</td>
+								<!-- <td>
+									<form action="/view_student_challenges/more_information/<#%= element[1].toString() %>" method="post">
+										<button type="submit" value="more_information_<#%= element[1].toString() %>">More Information</button>
+									</form>
+								</td> -->
+							</tr>
+						<% }); %>
+	
+					</table>
+	
+				<% } %>
+		
+			</div>
+		</div>
+
+		<!-- STUDENTS NOT COMPLETED BUT BEFORE DEADLINE -->
+		<div class="row">
+			<div class="col-md-12">
+		
+				<h4>Students yet to Submit:</h4>
+		
+				<% if (typeof students_not_solved_before_due==="undefined" || students_not_solved_before_due==[] || students_not_solved_before_due.length==0) { %>
+					<h5>No Students left to Submit</h5>
+				<% } else { %>
+		
+					<table>
+	
+						<tr>
+							<th>Student ID</th>
+							<th>Due Date</th>
+						</tr>
+	
+						<% students_not_solved_before_due.forEach((element, index)=> { %>
+							<tr>
+								<td>
+									<%= element[0].toString() %>
+								</td>
+								<td>
+									<%= element[2].toString() %>
+								</td>
+							</tr>
+						<% }); %>
+	
+					</table>
+	
+				<% } %>
+		
+			</div>
+		</div>
+
+		<!-- STUDENTS NOT COMPLETED AND AFTER DEADLINE -->
+		<div class="row">
+			<div class="col-md-12">
+		
+				<h4>Students that missed the deadline:</h4>
+		
+				<% if (typeof students_not_solved_after_due==="undefined" || students_not_solved_after_due==[] || students_not_solved_after_due.length==0) { %>
+					<h5>No Students have missed the deadline</h5>
+				<% } else { %>
+		
+					<table>
+	
+						<tr>
+							<th>Student ID</th>
+							<th>Due Date</th>
+						</tr>
+	
+						<% students_not_solved_after_due.forEach((element, index)=> { %>
+							<tr>
+								<td>
+									<%= element[0].toString() %>
+								</td>
+								<td>
+									<%= element[2].toString() %>
+								</td>
+							</tr>
+						<% }); %>
+	
+					</table>
+		
+				<% } %>
+		
+			</div>
+		</div>
+
+	</div>
+</body>
+
+<% include ../partials/script %>
+
+</html>

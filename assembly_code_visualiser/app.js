@@ -21,6 +21,7 @@ var login_router = require('./routes/login_sign_up/login');
 var sign_up_router = require('./routes/login_sign_up/sign_up');
 var teacher_challenges_router = require('./routes/teacher_challenges/create_challenges');
 var student_challenges_router = require('./routes/student_challenges/view_set_challenges');
+var teacher_challenges_view_student_challenges_router = require('./routes/teacher_challenges/view_student_challenges');
 
 // use dotenv (local configurations)
 require('dotenv').config()
@@ -81,6 +82,7 @@ app.use('/create_challenges/delete', teacher_challenges_router);
 app.use('/create_challenges/assign', teacher_challenges_router);
 app.use('/create_challenges/edit', teacher_challenges_router);
 app.use('/view_set_challenges', student_challenges_router);
+app.use('/view_student_challenges', teacher_challenges_view_student_challenges_router);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<% include ../partials/head %>
+</head>
+
+<body>
+	<div class="container-fluid">
+
+		<% include ../partials/menu %>
+
+		<% if ((typeof all_assigned_challenges === "undefined" || all_assigned_challenges == [] || all_assigned_challenges.length == 0) && (typeof all_not_assigned_challenges === "undefined" || all_not_assigned_challenges == [] || all_not_assigned_challenges.length == 0)) { %>
+			<h4>No Challenges have been Created yet</h4>
+		<% } else { %>
+		
+			<!-- ASSIGNED CHALLENGES -->
+			<div class="row">
+				<div class="col-md-12">
+	
+					<h4>CHALLENGES THAT HAVE BEEN ASSIGNED:</h4>
+	
+					<% if (typeof all_assigned_challenges === "undefined" || all_assigned_challenges == [] || all_assigned_challenges.length == 0) { %>
+						<h5>No Challenges have been Assigned yet</h5>
+					<% } else { %>
+	
+						<table>
+
+							<tr>
+								<th>Challenge Title</th>
+								<th>Challenge Description</th>
+							</tr>
+
+							<% all_assigned_challenges.forEach((element, index)=> { %>
+								<tr>
+									<td>
+										<%= element[0].split('\n')[1].toString() %>
+									</td>
+									<td>
+										<%= element[0].split('\n')[3].toString() %>
+									</td>
+									<td>
+										<form
+											action="/view_student_challenges/more_information/<%= element[1].toString() %>" method="post">
+											<button type="submit" value="more_information_<%= element[1].toString() %>">More Information</button>
+										</form>
+									</td>
+								</tr>
+							<% }); %>
+
+						</table>
+
+					<% } %>
+	
+				</div>
+			</div>
+	
+			<!-- ASSIGNED CHALLENGES -->
+			<div class="row">
+				<div class="col-md-12">
+			
+					<h4>CHALLENGES THAT HAVEN'T BEEN ASSIGNED:</h4>
+			
+					<% if (typeof all_not_assigned_challenges === "undefined" || all_not_assigned_challenges == [] || all_not_assigned_challenges.length == 0) { %>
+						<h5>All Challenges have been Assigned</h5>
+					<% } else { %>
+			
+							<table>
+
+								<tr>
+									<th>Challenge Title</th>
+									<th>Challenge Description</th>
+								</tr>
+			
+								<% all_not_assigned_challenges.forEach((element, index)=> { %>
+									<tr>
+										<td>
+											<%= element[0].split('\n')[1].toString() %>
+										</td>
+										<td>
+											<%= element[0].split('\n')[3].toString() %>
+										</td>
+									</tr>
+								<% }); %>
+			
+							</table>
+			
+					<% } %>
+			
+				</div>
+			</div>
+
+		<% } %>
+		
+	</div>
+</body>
+
+<% include ../partials/script %>
+
+</html>

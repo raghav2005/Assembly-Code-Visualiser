@@ -1,6 +1,3 @@
-// TODO: FIX CHALLENGE EDIT BUTTON NOT WORKING, PERHAPS DO IT WITH THE ID RATHER THAN THE LIST INDEX!!!
-// TODO: FIX CHALLENGE ASSIGNED WHEN NO STUDENTS SELECTED; SHOULD DISPLAY ERROR, BUT JUST GETTING STUCK
-
 var express = require('express');
 var router = express.Router();
 
@@ -834,7 +831,7 @@ var get_students_already_assigned_challenge = (req, res, next, challenges_to_dis
 			reject(error);
 		}
 	});
-}
+};
 
 
 module.exports = router;

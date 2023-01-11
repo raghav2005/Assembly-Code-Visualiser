@@ -233,39 +233,6 @@ var get_all_solved_unsolved_challenges = (req, res, next, solved) => {
 		}
 	});
 };
-var get_all_assigned_challenges = (req, res, next) => {
-	return new Promise((resolve, reject) => {
-		try {
-
-			db_connection.query(
-				'SELECT * FROM Challenge_File, Challenge_Teacher, Assigned_Challenges WHERE Challenge_File.challenge_file_id = Challenge_Teacher.challenge_file_id AND Challenge_Teacher.challenge_teacher_id = Assigned_Challenges.challenge_teacher_id AND Assigned_Challenges.student_id = ? ORDER BY Assigned_Challenges.due_date ASC;',
-				[req.user.id],
-				function (err, rows) {
-
-					if (err) {
-						console.log(err);
-						req.flash('error', ' An error occured');
-						res.locals.message = req.flash();
-						return res.render('student_challenges/view_set_challenges', {
-							title: 'View Set Challenges',
-							menu_id: 'view_set_challenges',
-							role: req.user.role,
-							email: req.user.email,
-							session_id: req.sessionID,
-							session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
-						});
-						reject(err);
-					};
-
-					resolve(rows);
-				}
-			);
-
-		} catch (error) {
-			reject(error);
-		}
-	});
-};
 
 // create new challenge and put in database
 router.post('/complete_challenge/complete', function (req, res, next) {

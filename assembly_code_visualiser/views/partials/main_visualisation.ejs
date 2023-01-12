@@ -23,17 +23,7 @@
 			<div class="line-numbers col-md-2 scroll_together">
 				<span></span>
 			</div>
-			<textarea class="scroll_together" id="code_area" rows=27 wrap="off">
-		INP
-loop 	OUT
-		STA count
-		SUB one
-		STA count
-		BRP loop
-		HLT
-
-one		DAT 1
-count 	DAT</textarea>
+			<textarea class="scroll_together" id="code_area" rows=27 wrap="off"></textarea>
 			<!-- <div class="scroll_together" id="code_area" contenteditable="true"><div class="loop_highlight">mainloop:</div></div> -->
 		</div>
 	</div>
@@ -218,7 +208,8 @@ count 	DAT</textarea>
 					<div class="col-md-4" id="pre-created_programs_wrapper">
 						<select id="pre-created_programs" name="pre-created_programs">
 							<option value="" selected hidden>Pre-created Programs</option>
-							<option value="add" id="opt_1">add</option>
+							<option value="count_down" id="count_down">count_down</option>
+							<option value="two" id="two">two</option>
 							<!-- TODO: all pre-created programs (either files from public or other directory, or perhaps from database (files seems most reasonable as I will have to figure out upload eventually)) -->
 						</select>
 					</div>

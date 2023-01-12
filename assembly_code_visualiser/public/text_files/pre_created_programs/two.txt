@@ -1,0 +1,10 @@
+		INP
+hello 	OUT
+		STA count
+		SUB two
+		STA count
+		BRP hello
+		HLT
+
+two		DAT 1
+count 	DAT

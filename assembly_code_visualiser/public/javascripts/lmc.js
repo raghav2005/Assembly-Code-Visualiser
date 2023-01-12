@@ -2099,3 +2099,21 @@ function step_program(LMC) {
 	};
 
 };
+
+// for pre-created programs loading into assembly code area
+$("#pre-created_programs").on("change", function() {
+	
+	try {
+	
+		var selected_option = $("#pre-created_programs").val().toString();
+		var directory = '../text_files/pre_created_programs/' + selected_option + '.txt';
+
+		fetch(directory).then(response => response.text()).then(text => {
+			document.getElementById("code_area").value = text;
+		});
+
+	} catch (error) {
+		document.getElementById("code_area").value = "does not exist";
+	}
+
+});

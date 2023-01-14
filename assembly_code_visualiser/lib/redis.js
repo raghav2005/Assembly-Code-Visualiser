@@ -3,6 +3,7 @@ var { createClient } = require('redis');
 
 require('dotenv').config()
 
+// from .env
 var REDIS_HOST = process.env.REDIS_HOST
 var REDIS_PORT = process.env.REDIS_PORT
 var REDIS_DATABASE = process.env.REDIS_DATABASE
@@ -23,5 +24,6 @@ redisClient.on('error', function (err) {
 redisClient.on('connect', function (err) {
 	console.log('Connected to Redis..!');
 });
+
 
 module.exports = redisClient;

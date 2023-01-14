@@ -1,3 +1,4 @@
+// all libs/modules
 var express = require('express');
 var router = express.Router();
 
@@ -5,18 +6,12 @@ var auth = require('../lib/auth');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-	
-	// req.session.passport.user doesn't exist before authorisation
-	// try {
-	// 	console.log('req.session.passport.user:', req.session.passport.user);
-	// } catch (err) {
-	// 	console.log(err);
-	// }
 
 	console.log('req.user:', req.user);
 
 	res.locals.message = req.flash();
 
+	// no user
 	if (typeof req.user == 'undefined') {
 		res.render('index', {
 			title: 'Home',
@@ -24,7 +19,7 @@ router.get('/', function(req, res, next) {
 			session_id: req.sessionID,
 			session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
 		});
-	} else {
+	} else { // user exists
 		res.render('index', {
 			title: 'Home',
 			menu_id: 'home',
@@ -85,6 +80,7 @@ router.post('/logout', function(req, res) {
 			return next(err);
 		}
 
+		// remove cookies and destroy session
 		req.session.destroy((error) => {
 			
 			if (error) {
@@ -96,5 +92,6 @@ router.post('/logout', function(req, res) {
 		});
 	});
 });
+
 
 module.exports = router;

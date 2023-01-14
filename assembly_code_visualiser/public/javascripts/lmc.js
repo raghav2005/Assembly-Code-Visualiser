@@ -224,17 +224,6 @@ class Little_Man_Computer {
 		this.reset_verbose_output();
 	};
 
-	// get operand and see if memory location required, or if register required
-	// get_addressing_mode(operand) {
-	// 	if (operand[0] === '#') {
-	// 		return 'direct'
-	// 	} else if (operand[0] === 'R') {
-	// 		return 'immediate'
-	// 	} else {
-	// 		return 'error'
-	// 	};
-	// };
-
 	// change border color of element to blue if gray, and vice-versa
 	activate_deactivate_wrapper(element) {
 
@@ -271,6 +260,7 @@ class Little_Man_Computer {
 
 	};
 
+	// get code from Assembly Code text area
 	scan_code() {
 
 		this.labels = {};
@@ -286,6 +276,7 @@ class Little_Man_Computer {
 				
 				var instruction = line.split(/\s+/);
 
+				// variable that stores input
 				if (instruction.length == 2) {
 					
 					if (instruction[1] == 'DAT') {
@@ -297,6 +288,7 @@ class Little_Man_Computer {
 
 				};
 
+				// variable that stores value after DAT
 				if (instruction.length == 3) {
 
 					if (instruction[1] == 'DAT') {
@@ -314,13 +306,12 @@ class Little_Man_Computer {
 		};
 	};
 
+	// into RAM from Assembly Code after converting to opcode + operand form
 	load() {
 
-		// clearInterval(this.carry_on);
 		this.load_RAM_from_frontend();
 
 		this.paused = true;
-		// this.activate_deactivate_wrapper('step_program');
 		this.cycles = 0;
 		this.assembly_code_error = false;
 
@@ -375,7 +366,7 @@ class Little_Man_Computer {
 								operand = '@' + operand;
 							};
 
-						} else if (operand.substring(0, 1) == '#') {
+						} else if (operand.substring(0, 1) == '#') { // immediate addressing
 
 							operand = operand.substring(1);
 
@@ -419,7 +410,7 @@ class Little_Man_Computer {
 							operand = this.labels[operand];
 						};
 						
-						//Indirect Addressing
+						// Indirect Addressing
 						if (operand.length > 1) {
 
 							if (operand.substring(0, 1) == '@') {
@@ -517,6 +508,7 @@ class Little_Man_Computer {
 		let FDE_list = FDE.split('\n');
 		let verbose_list = verbose.split('\n');
 
+		// dealing with errors of log_outputs
 		if (FDE_list.length >= 3 && verbose_list.length >= 3) {
 			if (FDE_list[(FDE_list.length - 1) - 1] == FDE_list[(FDE_list.length - 1) - 2] || verbose_list[(verbose_list.length - 1) - 1] == verbose_list[(verbose_list.length - 1) - 2]) {
 				this.assembly_code_error = true;
@@ -1158,8 +1150,6 @@ class Little_Man_Computer {
 	// asynchronous so order of events is followed
 	async process_instruction() {
 
-		// ! NEED TO UPDATE STATUS REGISTER (EVEN IF NOT USED) - WHENEVER LOOP BEING USED / BRANCHING / ERROR
-
 		if (this.assembly_code_error == false) {
 
 			// must be done in order, so await is used
@@ -1168,58 +1158,15 @@ class Little_Man_Computer {
 			// halt instruction
 			if (instruction == '000') {
 
-				// this.log_output('HLT');
-				// this.log_output('Executing instruction...');
-				// this.log_output('Program stopped');
-
-				// this.cycles++;
-
-				// this.log_output('####################');
-				// this.log_output('Program executed in ' + this.cycles + ' FDE cycles');
-
-				// this.cycles = 0;
-				// this.paused = true;
-
-				// this.stop = true;
-
 				await this.process_instruction_HLT();
-
-				// document.getElementById('pausebtn').innerHTML = '<i class="fa fa-play"></i>';
-
-				// clearInterval(this.carry_on);
 
 			} else if (instruction == '901') { // input instruction
 
-				// this.log_output('INP');
-				// this.log_output('Executing instruction...');
-				// this.log_output('Waiting for user input...');
-				// this.cycles++;
-
-				// ! MAKE THIS WORK SO CAN'T DO ANYTHING UNTIL SOMETHING INPUTTED INTO INPUT BOX IN CONTROLBOX
-
-				// this.inp = prompt('User input:');
-				// document.getElementById('input').value = this.inp;
-				// document.getElementById('input').value = document.getElementById('input').value + this.inp + '\n';
-				// document.getElementById('input').scrollTop = document.getElementById('input').scrollHeight;
-
 				await this.process_instruction_INP();
-
-				// this.log_output('Store user input in Accumulator: ' + this.inp);
-				// document.getElementById('accumulator').value = this.inp;
 
 			} else if (instruction == '902') { // output instruction
 
-				// this.log_output('OUT');
-				// this.log_output('Executing instruction...');
-				// this.log_output('Output value held in Accumulator: ' + document.getElementById('accumulator').value);
-
-				// this.cycles++;
-
 				await this.process_instruction_OUT();
-
-				// document.getElementById('output').value = document.getElementById('output').value + document.getElementById('accumulator').value + '\n';
-				// document.getElementById('output').value = document.getElementById('accumulator').value;
-				// document.getElementById('output').scrollTop = document.getElementById('output').scrollHeight;
 
 			} else {
 
@@ -1240,159 +1187,22 @@ class Little_Man_Computer {
 				var accumulator = parseInt(document.getElementById('accumulator').value);
 
 				if (opcode == '1') { // add instruction
-
-					// this.log_output('ADD');
-					// this.log_output('Executing instruction...');
-
-					// this.cycles++;
-
-					// var MBR;
-
 					var MBR, accumulator = await this.process_instruction_ADD(direct, operand, accumulator);
-
-					// if (direct) {
-					// 	MBR = parseInt(operand);
-					// 	this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
-					// 	document.getElementById('MBR').value = MBR;
-					// } else {
-					// 	MBR = parseInt(document.getElementById('memory_location_' + operand).value);
-					// 	this.log_output('Set MAR to operand of the current instruction: ' + operand);
-					// 	this.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
-					// 	document.getElementById('MAR').value = operand;
-					// 	document.getElementById('MBR').value = MBR;
-					// };
-
-					// this.log_output('Add MBR value to Accumulator and store the result in Accumulator: ' + accumulator + '+' + MBR + '=' + (accumulator + MBR));
-					// accumulator += MBR;
-					// document.getElementById('accumulator').value = accumulator;
-
 				} else if (opcode == '2') { // subtract instruction
-
-					// this.log_output('SUB');
-					// this.log_output('Executing instruction...');
-
-					// this.cycles++;
-
-					// var MBR;
-
 					var MBR, accumulator = await this.process_instruction_SUB(direct, operand, accumulator);
-
-					// if (direct) {
-					// 	MBR = parseInt(operand);
-					// 	this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
-					// 	document.getElementById('MBR').value = MBR;
-					// } else {
-					// 	MBR = parseInt(document.getElementById('memory_location_' + operand).value);
-					// 	this.log_output('Set MAR to operand of the current instruction: ' + operand);
-					// 	this.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
-					// 	document.getElementById('MAR').value = operand;
-					// 	document.getElementById('MBR').value = MBR;
-					// };
-
-					// this.log_output('Subtract MBR value from Accumulator and store the result in Accumulator: ' + accumulator + '-' + MBR + '=' + (accumulator - MBR));
-					// accumulator -= MBR;
-					// document.getElementById('accumulator').value = accumulator;
-
 				} else if (opcode == '5') { // load to accumulator
-
-					// this.log_output('LDA');
-					// this.log_output('Executing instruction...');
-
-					// this.cycles++;
-
-					// var MBR;
-
 					var MBR = await this.process_instruction_LDA(direct, operand);
-
-					// if (direct) {
-					// 	MBR = parseInt(operand);
-					// 	this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
-					// 	document.getElementById('MBR').value = MBR;
-					// } else {
-					// 	MBR = parseInt(document.getElementById('memory_location_' + operand).value);
-					// 	this.log_output('Set MAR to operand of the current instruction: ' + operand);
-					// 	this.log_output('Fetch data at location held by MAR (' + operand + ') and store it in MBR: ' + MBR);
-					// 	document.getElementById('MAR').value = operand;
-					// 	document.getElementById('MBR').value = MBR;
-					// };
-
-					// document.getElementById('accumulator').value = MBR;
-					// this.log_output('Store MBR value in Accumulator: ' + MBR);
-
 				} else if (opcode == '3') { // store accumulator value in memory
-
-					// this.log_output('STA');
-					// this.log_output('Executing instruction...');
-
-					// this.cycles++;
-					// this.log_output('Set MAR to operand of the current instruction: ' + operand);
-
-					// var MBR = parseInt(document.getElementById('accumulator').value);
-
 					var MBR = await this.process_instruction_STA(operand);
-
-					// this.log_output('Set MBR to value held in Accumulator: ' + MBR);
-					// this.log_output('Store MBR value ' + MBR + ' at memory location held in MAR: ' + operand);
-
-					// document.getElementById('MAR').value = operand;
-					// document.getElementById('MBR').value = MBR;
-					// document.getElementById('memory_location_' + operand).value = MBR;
-
 				} else if (opcode == '6') { // always branch
-
-					// this.log_output('BRA');
-					// this.log_output('Executing instruction...');
-
-					// this.cycles++;
-
 					await this.process_instruction_BRA(operand);
-
-					// document.getElementById('PC').value = operand;
-					// this.program_counter = parseInt(operand);
-					// this.log_output('Set PC to operand of instruction: ' + operand);
-
 				} else if (opcode == '7') { // branch if zero
-
-					// this.log_output('BRZ');
-					// this.log_output('Executing instruction...');
-
-					// this.cycles++;
-
 					await this.process_instruction_BRZ(operand, accumulator);
-
-					// this.log_output('Check if value held in Accumulator is 0');
-
-					// if (accumulator == 0) {
-					// 	this.log_output('0 == 0 - true');
-					// 	this.log_output('Set PC to operand of instruction: ' + operand);
-					// 	document.getElementById('PC').value = operand;
-					// 	this.program_counter = parseInt(operand);
-					// } else {
-					// 	this.log_output(accumulator + ' == 0 - false');
-					// };
-
 				} else if (opcode == '8') { // branch if positive or 0
-
-					// this.log_output('BRP');
-					// this.log_output('Executing instruction...');
-
-					// this.cycles++;
-
 					await this.process_instruction_BRP(operand, accumulator);
-
-					// this.log_output('Check if value held in Accumulator is positive (>= 0)');
-
-					// if (accumulator >= 0) {
-					// 	this.log_output(accumulator + ' >= 0 - true');
-					// 	this.log_output('Set PC to operand of instruction: ' + operand);
-					// 	document.getElementById('PC').value = operand;
-					// 	this.program_counter = parseInt(operand);
-					// } else {
-					// 	this.log_output(accumulator + ' >= 0 - false');
-					// };
 				};
 			};
-		} else {
+		} else { // invalid instruction - not recongnised
 			alert('Error in assembly code! Executing HLT instruction!');
 			this.activate_wrapper('status_register_wrapper');
 			document.getElementById('status_register').value = '-1';
@@ -1404,17 +1214,14 @@ class Little_Man_Computer {
 
 	step() {
 
-		// clearInterval(this.carry_on);
 		this.paused = true;
 		this.animation_interval = parseInt(this.time_numerator / document.getElementById('clock_speed').value);
-		// document.getElementById('pausebtn').innerHTML = '<i class="fa fa-play"></i>';
 		this.process_instruction();
 
 	};
 
 	async run() {
 
-		// clearInterval(this.carry_on);
 		this.cycles = 0;
 		this.stop = false;
 
@@ -1423,64 +1230,14 @@ class Little_Man_Computer {
 
 		this.scan_code();
 
-		// this.clock = document.getElementById('clock').value;
 		this.paused = false;
 		this.animation_interval = parseInt(this.time_numerator / document.getElementById('clock_speed').value);
-		// document.getElementById('pausebtn').innerHTML = '<i class="fa fa-pause"></i>';
-		// this.carry_on = setInterval(this.process_instruction(), parseInt(this.time_lapse / this.clock));
 
 		while (!this.stop) {
 			await this.process_instruction();
 		};
 
-		// while (!this.stop) {
-		// 	setTimeout(this.process_instruction(), 10000);
-		// };
-
-		// this.carry_on = setInterval(() => {
-		// 	if (this.stop) {
-		// 		clearInterval(this.carry_on);
-		// 	} else {
-		// 		this.process_instruction();
-		// 	};
-		// }, 5000);
-
 	};
-
-	// pause() {
-
-	// 	if (!this.paused) {
-			
-	// 		// clearInterval(this.carry_on);
-	// 		this.paused = true;
-	// 		// document.getElementById("pausebtn").innerHTML = '<i class="fa fa-play"></i>';
-
-	// 	} else {
-			
-	// 		this.paused = false;
-	// 		document.getElementById("pausebtn").innerHTML = '<i class="fa fa-pause"></i>';
-
-	// 		if (this.cycles == 0) {
-	// 			this.run();
-	// 		} else {
-	// 			// clock = document.getElementById("clock").value;
-	// 			this.carry_on = setInterval(this.process_instruction(), parseInt(this.time_lapse / this.clock));
-	// 		};
-
-	// 	};
-	// };
-
-	// select_program() {
-	// 	if (confirm("This operation will overwrite your current program. Are you sure you want to continue?")) {
-	// 		var option = document.getElementById("files").options[document.getElementById("files").selectedIndex].value;
-	// 		document.getElementById("codeListing").value = document.getElementById("code" + option).value;
-	// 		load();
-	// 	}
-	// };
-
-	// assembly_code_error(line_no, message) {
-	// 	document.getElementById('verbose_output').value += 'Error at line ' + line_no.toString() + ': ' + message;
-	// };
 
 };
 
@@ -1490,138 +1247,6 @@ class Little_Man_Computer {
 // create instruction and LMC objects
 function initialise_LMC() {
 
-	// ! CHANGE NUMERICAL VALUE TO BE A STRING
-
-	// var HALT = new Instruction({
-	// 	name: 'HALT',
-	// 	numerical_value: 0,
-	// 	operands: []
-	// });
-	// var LDR = new Instruction({
-	// 	name: 'LDR',
-	// 	numerical_value: 10,
-	// 	operands: ['R', 'M']
-	// });
-	// var STR = new Instruction({
-	// 	name: 'STR',
-	// 	numerical_value: 11,
-	// 	operands: ['R', 'M']
-	// });
-	// var MOV = new Instruction({
-	// 	name: 'MOV',
-	// 	numerical_value: 12,
-	// 	operands: ['R', 'B']
-	// });
-	// var ADD = new Instruction({
-	// 	name: 'ADD',
-	// 	numerical_value: 20,
-	// 	operands: ['R', 'R', 'B']
-	// });
-	// var SUB = new Instruction({
-	// 	name: 'SUB',
-	// 	numerical_value: 21,
-	// 	operands: ['R', 'R', 'B']
-	// });
-	// var B = new Instruction({
-	// 	name: 'B',
-	// 	numerical_value: 30,
-	// 	operands: ['L']
-	// });
-	// var BEQ = new Instruction({
-	// 	name: 'BEQ',
-	// 	numerical_value: 31,
-	// 	operands: ['L']
-	// });
-	// var BNE = new Instruction({
-	// 	name: 'BNE',
-	// 	numerical_value: 32,
-	// 	operands: ['L']
-	// });
-	// var BGT = new Instruction({
-	// 	name: 'BGT',
-	// 	numerical_value: 33,
-	// 	operands: ['L']
-	// });
-	// var BLT = new Instruction({
-	// 	name: 'BLT',
-	// 	numerical_value: 34,
-	// 	operands: ['L']
-	// });
-	// var CMP = new Instruction({
-	// 	name: 'CMP',
-	// 	numerical_value: 35,
-	// 	operands: ['R', 'B']
-	// });
-	// var AND = new Instruction({
-	// 	name: 'AND',
-	// 	numerical_value: 40,
-	// 	operands: ['R', 'R', 'B']
-	// });
-	// var ORR = new Instruction({
-	// 	name: 'ORR',
-	// 	numerical_value: 41,
-	// 	operands: ['R', 'R', 'B']
-	// });
-	// var EOR = new Instruction({
-	// 	name: 'EOR',
-	// 	numerical_value: 42,
-	// 	operands: ['R', 'R', 'B']
-	// });
-	// var MVN = new Instruction({
-	// 	name: 'MVN',
-	// 	numerical_value: 43,
-	// 	operands: ['R', 'B']
-	// });
-	// var LSL = new Instruction({
-	// 	name: 'LSL',
-	// 	numerical_value: 44,
-	// 	operands: ['R', 'R', 'B']
-	// });
-	// var LSR = new Instruction({
-	// 	name: 'LSR',
-	// 	numerical_value: 45,
-	// 	operands: ['R', 'R', 'B']
-	// });
-	// var INP = new Instruction({
-	// 	name: 'INP',
-	// 	numerical_value: 50,
-	// 	operands: []
-	// });
-	// var OUT = new Instruction({
-	// 	name: 'OUT',
-	// 	numerical_value: 51,
-	// 	operands: []
-	// });
-	// var VAR = new Instruction({
-	// 	name: 'VAR',
-	// 	numerical_value: 900,
-	// 	operands: []
-	// });
-
-	// var instruction_set = {
-	// 	'LDR': LDR,
-	// 	'STR': STR,
-	// 	'ADD': ADD,
-	// 	'SUB': SUB,
-	// 	'MOV': MOV,
-	// 	'CMP': CMP,
-	// 	'B': B,
-	// 	'BEQ': BEQ,
-	// 	'BNE': BNE,
-	// 	'BGT': BGT,
-	// 	'BLT': BLT,
-	// 	'AND': AND,
-	// 	'ORR': ORR,
-	// 	'EOR': EOR,
-	// 	'MVN': MVN,
-	// 	'LSL': LSL,
-	// 	'LSR': LSR,
-	// 	'INP': INP,
-	// 	'OUT': OUT,
-	// 	'HALT': HALT,
-	// 	'VAR': VAR
-	// };
-	
 	var INP = new Instruction({ // get user input + store in accumulator
 		name: 'INP',
 		numerical_value: '901',
@@ -1678,6 +1303,7 @@ function initialise_LMC() {
 		operands: [] // will be number, RAM address
 	});
 
+	// dictionary of Instruction objects
 	var instruction_set = {
 	'INP': INP,
 	'OUT': OUT,
@@ -1705,6 +1331,7 @@ function initialise_LMC() {
 		general_registers.push('0'.repeat(RAM_value_length));
 	}
 
+	// LMC object with all processing
 	var LMC = new Little_Man_Computer({
 		instruction_set: instruction_set,
 		RAM: RAM,
@@ -1814,11 +1441,6 @@ window.addEventListener('click', function () {
 	LMC.load_RAM_from_frontend();
 	LMC.load_general_registers_from_backend();
 
-	// // BELOW WORKS
-	// control_bus.setOptions({
-	// 	end: document.getElementById('memory_98_wrapper'),
-	// 	path: 'fluid'
-	// });
 });
 
 
@@ -1993,8 +1615,8 @@ $(document).ready(function () {
 	/**
 	 * bindScroll
 	 *
-	 * a jqeury plugin that will bind the scroll to the given elements.
-	 * each element should have a data attribute called scrollid. This
+	 * a jQuery plugin that will bind the scroll to the given elements.
+	 * Each element should have a data attribute called scrollid. This
 	 * will let the plugin know not to apply the scrolling bind to that active
 	 * element. If element is to be a horizontal scroll, specify by setting
 	 * data-horizontal attribute to true.
@@ -2108,6 +1730,7 @@ $("#pre-created_programs").on("change", function() {
 		var selected_option = $("#pre-created_programs").val().toString();
 		var directory = '../text_files/pre_created_programs/' + selected_option + '.txt';
 
+		// get file with same name as pre-created_programs selection and put that into text area
 		fetch(directory).then(response => response.text()).then(text => {
 			document.getElementById("code_area").value = text;
 		});

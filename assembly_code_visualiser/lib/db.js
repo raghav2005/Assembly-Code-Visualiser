@@ -2,12 +2,14 @@ var mysql = require('mysql');
 
 require('dotenv').config()
 
+// from .env
 var DB_HOST = process.env.DB_HOST
 var DB_USER = process.env.DB_USER
 var DB_PASSWORD = process.env.DB_PASSWORD
 var DB_DATABASE = process.env.DB_DATABASE
 var DB_PORT = process.env.DB_PORT
 
+// connect to db, creation of tables done in phpMyAdmin UI
 var connection = mysql.createConnection({
 	host: DB_HOST,
 	user: DB_USER,
@@ -23,5 +25,6 @@ connection.connect(function (error) {
 		console.log('Connected to Database..!');
 	}
 });
+
 
 module.exports = connection;

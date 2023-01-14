@@ -1,10 +1,13 @@
 		INP
+
 loop 	OUT
-		STA count
-		SUB one
-		STA count
+		STA var1
+		SUB var2
+		STA var1
 		BRP loop
 		HLT
 
-one		DAT 1
-count 	DAT
+var2 	DAT 1
+var1 	DAT
+
+// Counts down in decrements of var2 (1), starting with the inputted number

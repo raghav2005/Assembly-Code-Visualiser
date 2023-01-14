@@ -1,0 +1,24 @@
+		INP
+		STA num1
+		INP 
+		STA num2
+
+loop		LDA total
+		ADD num1
+		STA total
+		LDA num2
+		SUB one
+		STA num2
+		BRP loop
+		LDA total
+		SUB num1
+		STA total
+		OUT
+		HLT
+		
+num1	DAT
+num2	DAT
+one		DAT 1
+total		DAT 0
+
+// Multiply 2 inputs

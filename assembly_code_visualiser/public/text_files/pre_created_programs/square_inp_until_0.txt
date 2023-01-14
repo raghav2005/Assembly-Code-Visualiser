@@ -1,0 +1,29 @@
+start		LDA #0
+		STA result
+		STA count
+		INP
+		BRZ end
+		STA value
+
+loop		LDA result
+		ADD value
+		STA result
+		LDA count
+		ADD #1
+		STA count
+		SUB value
+		BRZ endloop
+		BRA loop
+
+endloop	LDA result
+		OUT
+		BRA start
+
+end		HLT
+
+result	DAT 0
+count	DAT 0
+value	DAT
+
+// Output the square of the inputted number
+// Keep asking for an input and outputting until 0 is entered

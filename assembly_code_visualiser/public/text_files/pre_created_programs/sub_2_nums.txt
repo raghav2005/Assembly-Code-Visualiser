@@ -1,0 +1,10 @@
+		INP
+		STA num1
+		INP
+		SUB num1
+		OUT
+		HLT
+
+num1	DAT
+
+// Subtract 2 inputs

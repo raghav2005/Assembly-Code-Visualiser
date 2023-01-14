@@ -23,7 +23,19 @@
 			<div class="line-numbers col-md-2 scroll_together">
 				<span></span>
 			</div>
-			<textarea class="scroll_together" id="code_area" rows=27 wrap="off"></textarea>
+			<textarea class="scroll_together" id="code_area" rows=27 wrap="off">
+		INP
+loop 	OUT
+		STA var1
+		SUB var2
+		STA var1
+		BRP loop
+		HLT
+
+var2 	DAT 1
+var1 	DAT
+
+// Counts down in decrements of var2 (1), starting with the inputted number</textarea>
 			<!-- <div class="scroll_together" id="code_area" contenteditable="true"><div class="loop_highlight">mainloop:</div></div> -->
 		</div>
 	</div>
@@ -150,7 +162,7 @@
 		<span>
 			<div class="row">
 				<div class="col-md-5">User Controlbox for Visualisation</div>
-				<div class="col-md-7"><input type="range" id="clock_speed" min="10" max="500" value="50"></div>
+				<div class="col-md-7"><input type="range" id="clock_speed" min="5" max="5000" value="25"></div>
 			</div>
 		</span>
 	</div>
@@ -208,9 +220,13 @@
 					<div class="col-md-4" id="pre-created_programs_wrapper">
 						<select id="pre-created_programs" name="pre-created_programs">
 							<option value="" selected hidden>Pre-created Programs</option>
-							<option value="count_down" id="count_down">count_down</option>
-							<option value="two" id="two">two</option>
-							<!-- TODO: all pre-created programs (either files from public or other directory, or perhaps from database (files seems most reasonable as I will have to figure out upload eventually)) -->
+							<option value="add_2_nums" id="add_2_nums">add 2 nums</option>
+							<option value="sub_2_nums" id="sub_2_nums">sub 2 nums</option>
+							<option value="mult_2_nums" id="mult_2_nums">mult 2 nums</option>
+							<option value="count_down" id="count_down">count down</option>
+							<option value="immediate_addressing" id="immediate_addressing">immediate addressing</option>
+							<option value="square_inp_until_0" id="square_inp_until_0">square inp until 0</option>
+							<option value="bubble_sort" id="bubble_sort">bubble sort</option>
 						</select>
 					</div>
 				

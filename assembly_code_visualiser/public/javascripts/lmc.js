@@ -40,7 +40,7 @@ class Little_Man_Computer {
 
 		// this.clock = 25;
 		// this.time_lapse = 10000;
-		this.time_numerator = 15000;
+		this.time_numerator = 10000;
 		this.paused = true;
 
 		this.labels = {};

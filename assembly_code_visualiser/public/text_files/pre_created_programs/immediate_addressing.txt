@@ -1,0 +1,9 @@
+LDA #5
+OUT
+ADD #7
+OUT
+SUB #2
+OUT
+HLT
+
+// Using # means using the actual integer value rather than a variable

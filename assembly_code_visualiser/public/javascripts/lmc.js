@@ -1658,6 +1658,30 @@ document.getElementById('code_area').addEventListener('keydown', function (key) 
 	};
 }, false);
 
+// triggered when a file is chosen for upload program
+document.getElementById('upload_program_actual').addEventListener('change', () => {
+	let files = document.getElementById('upload_program_actual').files;
+
+	if (files.length == 0) return;
+
+	const file = files[0];
+
+	let reader = new FileReader();
+
+	reader.onload = (element) => {
+		const file = element.target.result;
+
+		// regular expression to identify carriage
+		// returns and line breaks
+		const lines = file.split(/\r\n|\n/);
+		document.getElementById('code_area').value = lines.join('\n');
+	};
+
+	reader.onerror = (element) => alert(element.target.error.name);
+	reader.readAsText(file);
+
+});
+
 
 // functions called from HTML buttons
 
@@ -1684,12 +1708,6 @@ function open_link_new_tab(location) {
 	var redirect_to = window.location.toString() + (window.location.toString().includes('/') ? location : ('/' + location));
 
 	window.open(redirect_to, '_blank');
-};
-
-// ! WILL NOT DO THIS - THIS IS JUST AN EXAMPLE FOR FUTURE USE IN LMC METHOD
-function upload_program(LMC) {
-	// LMC.activate_deactivate_wrapper('ALU_wrapper');
-	// LMC.activate_deactivate_wrapper('memory_01_wrapper');
 };
 
 function load_into_RAM(LMC) {

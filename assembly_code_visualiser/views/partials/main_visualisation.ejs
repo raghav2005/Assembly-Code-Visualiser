@@ -194,7 +194,9 @@ var1 	DAT
 				<div class="row" id="controlbox_row_1_column_2">
 
 					<div class="col-md-3" id="upload_program_wrapper">
-						<button id="upload_program" onclick="upload_program(LMC)">Upload Program</button>
+						<!-- button acts as label for hidden input file field -->
+						<input hidden type="file" id="upload_program_actual" name="Upload Program" accept="text/plain"/>
+						<button id="upload_program"><label for="upload_program_actual">Upload Program</label></button>
 					</div>
 
 					<div class="col-md-3" id="reset_RAM_wrapper">

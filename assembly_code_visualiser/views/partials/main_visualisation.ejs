@@ -36,7 +36,6 @@ var2 	DAT 1
 var1 	DAT
 
 // Counts down in decrements of var2 (1), starting with the inputted number</textarea>
-			<!-- <div class="scroll_together" id="code_area" contenteditable="true"><div class="loop_highlight">mainloop:</div></div> -->
 		</div>
 	</div>
 
@@ -47,8 +46,6 @@ var1 	DAT
 				<div class="col-md-4">
 					<span id="general_registers_title">General Purpose Registers</span>
 				</div>
-				<!-- <div class="col-md-4"></div>
-				<div class="col-md-4"></div> -->
 			</div>
 
 			<div class="row">
@@ -167,6 +164,7 @@ var1 	DAT
 		</span>
 	</div>
 	
+	<!-- log outputs -->
 	<div class="col-md-3">
 		<span>FDE Cycle Output</span>
 	</div>
@@ -219,6 +217,7 @@ var1 	DAT
 						<button id="clear_editor" onclick="clear_editor()">Clear Editor</button>
 					</div>
 
+					<!-- pre-created dropdown logic in lmc.js -->
 					<div class="col-md-4" id="pre-created_programs_wrapper">
 						<select id="pre-created_programs" name="pre-created_programs">
 							<option value="" selected hidden>Pre-created Programs</option>
@@ -280,8 +279,4 @@ var1 	DAT
 
 </div>
 
-<!-- <button onclick="test_onclick(LMC)">Click me</button>
-<p id="test_p"></p> -->
-
 <% include ./lmc_script %>
-

@@ -36,13 +36,6 @@ router.get('/', auth.check_authenticated, async function (req, res, next) {
 				challenge_title_match_id.push([element[0].split('\n')[1], element[1]]);
 			});
 
-			// console.log('challenges_to_display');
-			// console.log(challenges_to_display);
-			// console.log('challenges_only');
-			// console.log(challenges_only);
-			// console.log('challenge_title_match_id');
-			// console.log(challenge_title_match_id);
-
 			return {
 				'challenges_to_display': challenges_to_display,
 				// 'challenges_only': challenges_only,
@@ -59,16 +52,6 @@ router.get('/', auth.check_authenticated, async function (req, res, next) {
 					classes.push([element['CONCAT(year_group, class_code)'], element['class_id']]);
 				});
 			});
-
-			// console.log('classes');
-			// console.log(classes);
-
-			// console.log('challenges_to_display');
-			// console.log(useful_vars['challenges_to_display']);
-			// console.log('challenges_only');
-			// console.log(useful_vars['challenges_only']);
-			// console.log('challenge_title_match_id');
-			// console.log(useful_vars['challenge_title_match_id']);
 
 			useful_vars['classes'] = classes;
 
@@ -90,8 +73,6 @@ router.get('/', auth.check_authenticated, async function (req, res, next) {
 
 			console.log('challenges_to_display');
 			console.log(useful_vars['challenges_to_display']);
-			// console.log('challenges_only');
-			// console.log(useful_vars['challenges_only']);
 			console.log('challenge_title_match_id');
 			console.log(useful_vars['challenge_title_match_id']);
 			console.log('classes');
@@ -105,6 +86,7 @@ router.get('/', auth.check_authenticated, async function (req, res, next) {
 
 			useful_vars['challenges_to_display'].forEach(async (element, index) => {
 
+				// delete route for each challenge using the challenge_teacher_id
 				var route_delete = '/delete/' + element[1];
 
 				router.post(route_delete, async function (req, res, next) {
@@ -115,6 +97,7 @@ router.get('/', auth.check_authenticated, async function (req, res, next) {
 
 				});
 
+				// edit route for each challenge using the challenge_teacher_id
 				var route_edit = '/edit/' + element[1];
 
 				router.post(route_edit, async function (req, res, next) {
@@ -170,7 +153,7 @@ var get_challenge_txt_and_id = (req, res, next) => {
 	return new Promise((resolve, reject) => {
 		try {
 
-			// record relation b/w teacher and challenge
+			// get challenge text from teacher_id
 			db_connection.query(
 				'SELECT * FROM Challenge_File, Challenge_Teacher WHERE Challenge_File.challenge_file_id = Challenge_Teacher.challenge_file_id AND Challenge_Teacher.teacher_id = ?;',
 				[req.user.id],
@@ -290,7 +273,7 @@ var delete_challenge = (req, res, next, challenges_to_display_element) => {
 	return new Promise((resolve, reject) => {
 		try {
 
-			// get classes of currently signed in teacher
+			// delete challenge
 			db_connection.query(
 				'DELETE FROM Challenge_File WHERE challenge_file_id = (SELECT challenge_file_id FROM Challenge_Teacher WHERE challenge_teacher_id = ?);',
 				[challenges_to_display_element[1]],
@@ -799,6 +782,7 @@ var get_students_already_assigned_challenge = (req, res, next, challenges_to_dis
 	return new Promise((resolve, reject) => {
 		try {
 
+			// get the students who have already been assigned the specific challenge
 			db_connection.query(
 				'SELECT CONCAT(Student.student_name, Student.student_number), Student.student_id FROM Assigned_Challenges, Challenge_Teacher, Student WHERE Assigned_Challenges.challenge_teacher_id = Challenge_Teacher.challenge_teacher_id AND Assigned_Challenges.student_id = Student.student_id AND Assigned_Challenges.challenge_teacher_id = (SELECT challenge_teacher_id FROM Challenge_Teacher WHERE teacher_id = ? AND challenge_file_id = ?);',
 				[req.user.id, challenge_title_match_id[_.findIndex(challenge_title_match_id, function (el) { return el[0] == req.body.assign_challenge_dd })][1]],

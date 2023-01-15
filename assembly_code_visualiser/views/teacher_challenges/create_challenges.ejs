@@ -13,6 +13,7 @@
 
 		<% include ../partials/menu %>
 
+		<!-- create a new challenge -->
 		<div class="row">
 			<div class="col-md-12">
 
@@ -24,6 +25,7 @@
 			</div>
 		</div>
 
+		<!-- display created challenges -->
 		<div class="row">
 			<div class="col-md-12">
 				
@@ -50,11 +52,13 @@
 									<td>
 										<%= element[0].split('\n')[3].toString() %>
 									</td>
+									<!-- edit challenge -->
 									<td>
 										<form action="/create_challenges/edit/<%= element[1].toString() %>" method="post">
 											<button type="submit" value="edit_<%= element[1].toString() %>">Edit</button>
 										</form>
 									</td>
+									<!-- create challenge -->
 									<td>
 										<form action="/create_challenges/delete/<%= element[1].toString() %>" method="post">
 											<button type="submit" value="delete_<%= element[1].toString() %>">Delete</button>
@@ -70,6 +74,7 @@
 			</div>
 		</div>
 
+		<!-- assign challenges -->
 		<div class="row">
 			<div class="col-md-12">
 		
@@ -137,7 +142,7 @@
 									</select>
 
 								</div>
-
+								<!-- only show select all / deselect all buttons if there are students in that class -->
 								<% if (element[2].length === 0 || !element[2].length) { %>
 									<div class="col-md-3"></div>
 									<div class="col-md-3"></div>

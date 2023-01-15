@@ -72,13 +72,8 @@
 						</div>
 						<div class="col-md-9">
 							<!-- drop-down menu options -->
-							<!-- TODO: MAKE THESE OPTION VALUES DYNAMIC - FROM THE DATABASE -->
 							<select id="teacher_initials" name="teacher_initials" required>
 								<option value="" selected hidden>select your class</option>
-								<!-- <option value="MWD">MWD</option>
-								<option value="SCH">SCH</option>
-								<option value="ASY">ASY</option>
-								 -->
 								<% if (typeof class_codes === "undefined" ) { %>
 									<option value="no_teacher">no teacher has signed up yet</option>
 								<% } else { %>

@@ -29,7 +29,6 @@
 						<div class="row">
 							<div class="col-md-12">
 								<label for="challenge_description">CHALLENGE DESCRIPTION</label>
-								<!-- <input type="text" id="challenge_description" name="challenge_description" placeholder="Generic Challenge Description" required style="height: 20em;" /> -->
 								<textarea id="challenge_description" name="challenge_description" wrap="off"
 									placeholder="Generic Challenge Description" required
 									style="overflow-y: scroll; height: 20em; width: 100%;"><%= challenge_description %></textarea>
@@ -74,15 +73,15 @@
 								<%= message.error %>
 							</strong>
 						</div>
-						<% } %>
+					<% } %>
 
-							<% if (message.success) { %>
-								<div class="alert alert-success" role="alert">
-									<strong>
-										<%= message.success %>
-									</strong>
-								</div>
-								<% } %>
+					<% if (message.success) { %>
+						<div class="alert alert-success" role="alert">
+							<strong>
+								<%= message.success %>
+							</strong>
+						</div>
+					<% } %>
 
 				</div>
 			</div>

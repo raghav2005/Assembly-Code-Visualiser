@@ -29,6 +29,7 @@ router.get('/', auth.check_authenticated, async function (req, res, next) {
 
 			var all_completed_challenges = [];
 
+			// from db to list
 			rows.forEach(element => {
 				all_completed_challenges.push([element['challenge_blob'].toString(), element['challenge_teacher_id'], moment(element['due_date']).utc(utc_datetime).local().format(), moment(element['completion_date']).utc(utc_datetime).local().format(), element['solution_blob'].toString()]);
 			});
@@ -46,6 +47,7 @@ router.get('/', auth.check_authenticated, async function (req, res, next) {
 			
 				var all_missed_challenges = [];
 
+				// from db to list
 				rows.forEach(element => {
 					all_missed_challenges.push([element['challenge_blob'].toString(), element['challenge_teacher_id'], moment(element['due_date']).utc(utc_datetime).local().format()]);
 				});
@@ -65,6 +67,7 @@ router.get('/', auth.check_authenticated, async function (req, res, next) {
 
 				var all_challenges_to_do = [];
 
+				// from db to list
 				rows.forEach(element => {
 					all_challenges_to_do.push([element['challenge_blob'].toString(), element['challenge_teacher_id'], moment(element['due_date']).utc(utc_datetime).local().format()]);
 				});

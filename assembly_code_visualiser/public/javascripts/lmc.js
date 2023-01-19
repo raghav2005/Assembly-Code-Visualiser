@@ -195,7 +195,7 @@ class Little_Man_Computer {
 		address_bus.setOptions({
 			end: LeaderLine.pointAnchor(document.getElementById('memory_10_wrapper'), {
 				x: 0,
-				y: '19%'
+				y: '23%'
 			}),
 			path: 'straight',
 			color: '#AAAAAA'
@@ -206,7 +206,7 @@ class Little_Man_Computer {
 		data_bus.setOptions({
 			end: LeaderLine.pointAnchor(document.getElementById('memory_80_wrapper'), {
 				x: 0,
-				y: '99%'
+				y: '86%'
 			}),
 			path: 'straight',
 			color: '#AAAAAA'
@@ -595,7 +595,7 @@ class Little_Man_Computer {
 						address_bus.setOptions({
 							end: LeaderLine.pointAnchor(document.getElementById('memory_10_wrapper'), {
 								x: 0,
-								y: '19%'
+								y: '23%'
 							}),
 							path: 'straight',
 							color: '#AAAAAA'
@@ -603,7 +603,7 @@ class Little_Man_Computer {
 						data_bus.setOptions({
 							end: LeaderLine.pointAnchor(document.getElementById('memory_80_wrapper'), {
 								x: 0,
-								y: '99%'
+								y: '86%'
 							}),
 							path: 'straight',
 							color: '#AAAAAA'
@@ -1349,7 +1349,7 @@ function create_buses() {
 		document.getElementById('MAR_wrapper'),
 		LeaderLine.pointAnchor(document.getElementById('memory_10_wrapper'), {
 			x: 0,
-			y: '19%'
+			y: '23%'
 		}),
 		{
 			color: '#AAAAAA',
@@ -1373,7 +1373,7 @@ function create_buses() {
 		document.getElementById('control_unit_wrapper'),
 		LeaderLine.pointAnchor(document.getElementById('memory_50_wrapper'), {
 			x: 0,
-			y: '36%'
+			y: '14%'
 		}),
 		{
 			color: '#AAAAAA',
@@ -1398,7 +1398,7 @@ function create_buses() {
 		document.getElementById('MBR_wrapper'),
 		LeaderLine.pointAnchor(document.getElementById('memory_80_wrapper'), {
 			x: 0,
-			y: '99%'
+			y: '86%'
 		}),
 		{
 			color: '#AAAAAA',

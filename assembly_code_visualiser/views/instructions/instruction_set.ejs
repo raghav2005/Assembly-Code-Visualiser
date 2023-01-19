@@ -10,7 +10,7 @@
 
 		<% include ../partials/menu %>
 
-		INSTRUCTION SET STUFF (PROBABLY TABLE)
+		<!-- INSTRUCTION SET STUFF (PROBABLY TABLE)
 
 		<div class="row">
 			<div class="col-md-2"></div>
@@ -22,6 +22,169 @@
 			</div>
 			
 			<div class="col-md-2"></div>
+		</div> -->
+
+		<div class="row">
+			<div class="col-md-12">
+
+				<table>
+					<caption>Above is an explanation of the Instruction Set for the LMC. This has been taken from <a
+							href="https://en.wikipedia.org/wiki/Little_man_computer#Instructions" target="_blank">here</a>.</caption>
+					<tbody>
+						<tr>
+							<th>Numeric code
+							</th>
+							<th>Mnemonic code
+							</th>
+							<th>Instruction
+							</th>
+							<th>Description
+							</th>
+						</tr>
+						<tr>
+							<td>1xx</td>
+							<td>ADD</td>
+							<td>ADD
+							</td>
+							<td>Add the value stored in mailbox xx to whatever value is currently on the accumulator (calculator).
+								<dl>
+									<dd>Note: the contents of the mailbox are not changed, and the actions of the accumulator
+										(calculator) are not defined for add instructions that cause sums larger than 3 digits.
+										Similarly to SUBTRACT, one could set the negative flag on overflow.</dd>
+								</dl>
+							</td>
+						</tr>
+						<tr>
+							<td>2xx</td>
+							<td>SUB</td>
+							<td>SUBTRACT
+							</td>
+							<td>Subtract the value stored in mailbox xx from whatever value is currently on the accumulator
+								(calculator).
+								<dl>
+									<dd>Note: the contents of the mailbox are not changed, and the actions of the accumulator are not
+										defined for subtract instructions that cause negative results - however, a negative flag will be
+										set so that <b>7xx (BRZ)</b> and <b>8xx (BRP)</b> can be used properly.</dd>
+								</dl>
+							</td>
+						</tr>
+						<tr>
+							<td>3xx</td>
+							<td>STA</td>
+							<td>STORE
+							</td>
+							<td>Store the contents of the accumulator in mailbox xx (destructive).
+								<dl>
+									<dd>Note: the contents of the accumulator (calculator) are not changed (non-destructive), but
+										contents of mailbox are replaced regardless of what was in there (destructive)</dd>
+								</dl>
+							</td>
+						</tr>
+						<tr>
+							<td>5xx</td>
+							<td>LDA</td>
+							<td>LOAD
+							</td>
+							<td>Load the value from mailbox xx (non-destructive) and enter it in the accumulator (destructive).
+							</td>
+						</tr>
+						<tr>
+							<td>6xx</td>
+							<td>BRA</td>
+							<td>BRANCH (unconditional)</td>
+							<td>Set the program counter to the given address (value xx). That is, the value in mailbox xx will be the
+								next instruction executed.
+							</td>
+						</tr>
+						<tr>
+							<td>7xx</td>
+							<td>BRZ</td>
+							<td>BRANCH IF ZERO (conditional)
+							</td>
+							<td>If the accumulator (calculator) contains the value 000, set the program counter to the value xx.
+								Otherwise, do nothing. Whether the negative flag is taken into account is undefined. When a SUBTRACT
+								underflows the accumulator, this flag is set, after which the accumulator is undefined, potentially
+								zero, causing behavior of BRZ to be undefined on underflow. Suggested behavior would be to branch if
+								accumulator is zero and negative flag is not set.
+								<dl>
+									<dd>Note: since the program is stored in memory, data and program instructions all have the same
+										address/location format.</dd>
+								</dl>
+							</td>
+						</tr>
+						<tr>
+							<td>8xx</td>
+							<td>BRP</td>
+							<td>BRANCH IF POSITIVE (conditional)
+							</td>
+							<td>If the accumulator (calculator) is 0 or positive, set the program counter to the value xx. Otherwise, do
+								nothing. As LMC memory cells can only hold values between 0 and 999, this instruction depends solely on
+								the negative flag set by an underflow on SUBTRACT and potentially on an overflow on ADD (undefined).
+								<dl>
+									<dd>Note: since the program is stored in memory, data and program instructions all have the same
+										address/location format.</dd>
+								</dl>
+							</td>
+						</tr>
+						<tr>
+							<td>901</td>
+							<td>INP</td>
+							<td>INPUT
+							</td>
+							<td>Go to the INBOX, fetch the value from the user, and put it in the accumulator (calculator)
+								<dl>
+									<dd>Note: this will overwrite whatever value was in the accumulator (destructive)</dd>
+								</dl>
+							</td>
+						</tr>
+						<tr>
+							<td>902</td>
+							<td>OUT</td>
+							<td>OUTPUT
+							</td>
+							<td>Copy the value from the accumulator (calculator) to the OUTBOX.
+								<dl>
+									<dd>Note: the contents of the accumulator are not changed (non-destructive).</dd>
+								</dl>
+							</td>
+						</tr>
+						<tr>
+							<td>000</td>
+							<td>HLT</td>
+							<td>HALT</td>
+							<td>Stop working/end the program.</td>
+						</tr>
+						<tr>
+							<td></td>
+							<td>DAT</td>
+							<td>DATA</td>
+							<td>This is an assembler instruction which
+								simply loads the value into the next available mailbox. DAT can also be used in conjunction with labels
+								to declare variables. For example, DAT 984 will store the value 984 into a mailbox at the address of the
+								DAT instruction.
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-12">
+		
+				<p>Note that xx in the table refers to any memory location in RAM - from 00 up to and including 99. It may also be useful to look at the AQA Instruction Set. Even though we do not use it for this visualisation, it may prove helpful to understand direct and immediate addressing.</p>
+			
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-12">
+				<object id="instruction_set_viewer" data="https://filestore.aqa.org.uk/resources/computing/AQA-75162-75172-ALI.PDF"
+					type="application/pdf" width="100%">
+					You can also view the pdf from the AQA website <a href="https://filestore.aqa.org.uk/resources/computing/AQA-75162-75172-ALI.PDF">here</a>.
+				</object>
+			</div>
 		</div>
 
 	</div>

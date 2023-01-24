@@ -1,4 +1,4 @@
 ###CHALLENGE TITLE###
-This is made on Jan 9
+asdf
 ###CHALLENGE DESCRIPTION###
-This is a test after changing to use challenge_teacher_id
+asdf

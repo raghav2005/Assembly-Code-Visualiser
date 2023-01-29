@@ -361,6 +361,7 @@ svg.leader-line {
 }
 
 
+/* instruction set page */
 #instruction_set_table {
 	margin-top: 0.25em;
 	border: 0.25em double black;
@@ -375,6 +376,7 @@ svg.leader-line {
 }
 
 
+/* how to use this resource page */
 .centered_header {
 	text-align: center;
 }

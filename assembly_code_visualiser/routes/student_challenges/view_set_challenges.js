@@ -21,17 +21,19 @@ var utc_datetime = moment.utc().format();
 // coming to create_challenge page
 router.get('/', auth.check_authenticated, async function (req, res, next) {
 
+	console.log(req.user.id);
+
 	try {
 
 		res.locals.message = req.flash();
 
-		await get_all_solved_unsolved_challenges(req, res, next, true).then((rows) => {
+		await get_all_solved_unsolved_challenges(req, res, next, true, req.user.id).then((rows) => {
 
 			var all_completed_challenges = [];
 
 			// from db to list
 			rows.forEach(element => {
-				all_completed_challenges.push([element['challenge_blob'].toString(), element['challenge_teacher_id'], moment(element['due_date']).utc(utc_datetime).local().format(), moment(element['completion_date']).utc(utc_datetime).local().format(), element['solution_blob'].toString()]);
+				all_completed_challenges.push([element['challenge_blob'].toString(), element['assigned_challenge_id'], moment(element['due_date']).utc(utc_datetime).local().format(), moment(element['completion_date']).utc(utc_datetime).local().format(), element['solution_blob'].toString()]);
 			});
 
 			console.log('all_completed_challenges');
@@ -43,13 +45,13 @@ router.get('/', auth.check_authenticated, async function (req, res, next) {
 
 		}).then(async (useful_vars) => {
 
-			await get_all_unsolved_due_before_after_curr_date_challenges(req, res, next, true).then((rows) => {
+			await get_all_unsolved_due_before_after_curr_date_challenges(req, res, next, true, req.user.id).then((rows) => {
 			
 				var all_missed_challenges = [];
 
 				// from db to list
 				rows.forEach(element => {
-					all_missed_challenges.push([element['challenge_blob'].toString(), element['challenge_teacher_id'], moment(element['due_date']).utc(utc_datetime).local().format()]);
+					all_missed_challenges.push([element['challenge_blob'].toString(), element['assigned_challenge_id'], moment(element['due_date']).utc(utc_datetime).local().format()]);
 				});
 
 				console.log('all_missed_challenges');
@@ -63,13 +65,13 @@ router.get('/', auth.check_authenticated, async function (req, res, next) {
 
 		}).then(async (useful_vars) => {
 
-			await get_all_unsolved_due_before_after_curr_date_challenges(req, res, next, false).then((rows) => {
+			await get_all_unsolved_due_before_after_curr_date_challenges(req, res, next, false, req.user.id).then((rows) => {
 
 				var all_challenges_to_do = [];
 
 				// from db to list
 				rows.forEach(element => {
-					all_challenges_to_do.push([element['challenge_blob'].toString(), element['challenge_teacher_id'], moment(element['due_date']).utc(utc_datetime).local().format()]);
+					all_challenges_to_do.push([element['challenge_blob'].toString(), element['assigned_challenge_id'], moment(element['due_date']).utc(utc_datetime).local().format()]);
 				});
 
 				console.log('all_challenges_to_do');
@@ -87,7 +89,7 @@ router.get('/', auth.check_authenticated, async function (req, res, next) {
 
 				var route_complete = '/complete_challenge/' + element[1];
 
-				router.post(route_complete, async function (req, res, next) {
+				router.post(route_complete, function (req, res, next) {
 
 					res.locals.message = req.flash();
 
@@ -157,20 +159,20 @@ router.get('/', auth.check_authenticated, async function (req, res, next) {
 
 });
 
-var get_all_unsolved_due_before_after_curr_date_challenges = (req, res, next, before) => {
+var get_all_unsolved_due_before_after_curr_date_challenges = (req, res, next, before, user_id) => {
 	return new Promise((resolve, reject) => {
 		try {
 
 			// get all challenges that were due before the current date - i.e. missed
 			if (before) {
-				var query_to_run = 'SELECT * FROM Challenge_File, Challenge_Teacher, Assigned_Challenges WHERE Challenge_File.challenge_file_id = Challenge_Teacher.challenge_file_id AND Challenge_Teacher.challenge_teacher_id = Assigned_Challenges.challenge_teacher_id AND Assigned_Challenges.student_id = ? AND Assigned_Challenges.assigned_challenge_id NOT IN (SELECT Solution_Student.assigned_challenge_id FROM Solution_Student, Assigned_Challenges WHERE Solution_Student.assigned_challenge_id = Assigned_Challenges.assigned_challenge_id) AND Assigned_Challenges.due_date <= NOW() ORDER BY Assigned_Challenges.due_date ASC;';
+				var query_to_run = 'SELECT * FROM Challenge_File, Challenge_Teacher, Assigned_Challenges WHERE Challenge_File.challenge_file_id = Challenge_Teacher.challenge_file_id AND Challenge_Teacher.challenge_teacher_id = Assigned_Challenges.challenge_teacher_id AND Assigned_Challenges.student_id = ? AND Assigned_Challenges.assigned_challenge_id NOT IN (SELECT Solution_Student.assigned_challenge_id FROM Solution_Student, Assigned_Challenges WHERE Solution_Student.assigned_challenge_id = Assigned_Challenges.assigned_challenge_id) AND Assigned_Challenges.due_date < NOW() ORDER BY Assigned_Challenges.due_date ASC;';
 			} else { // all challenges that can still be solved by the student, the due date is after the current time
-				var query_to_run = 'SELECT * FROM Challenge_File, Challenge_Teacher, Assigned_Challenges WHERE Challenge_File.challenge_file_id = Challenge_Teacher.challenge_file_id AND Challenge_Teacher.challenge_teacher_id = Assigned_Challenges.challenge_teacher_id AND Assigned_Challenges.student_id = ? AND Assigned_Challenges.assigned_challenge_id NOT IN (SELECT Solution_Student.assigned_challenge_id FROM Solution_Student, Assigned_Challenges WHERE Solution_Student.assigned_challenge_id = Assigned_Challenges.assigned_challenge_id) AND Assigned_Challenges.due_date > NOW() ORDER BY Assigned_Challenges.due_date ASC;';
+				var query_to_run = 'SELECT * FROM Challenge_File, Challenge_Teacher, Assigned_Challenges WHERE Challenge_File.challenge_file_id = Challenge_Teacher.challenge_file_id AND Challenge_Teacher.challenge_teacher_id = Assigned_Challenges.challenge_teacher_id AND Assigned_Challenges.student_id = ? AND Assigned_Challenges.assigned_challenge_id NOT IN (SELECT Solution_Student.assigned_challenge_id FROM Solution_Student, Assigned_Challenges WHERE Solution_Student.assigned_challenge_id = Assigned_Challenges.assigned_challenge_id) AND Assigned_Challenges.due_date >= NOW() ORDER BY Assigned_Challenges.due_date ASC;';
 			};
 
 			db_connection.query(
 				query_to_run,
-				[req.user.id],
+				[user_id],
 				function (err, rows) {
 
 					if (err) {
@@ -197,7 +199,7 @@ var get_all_unsolved_due_before_after_curr_date_challenges = (req, res, next, be
 		}
 	});
 };
-var get_all_solved_unsolved_challenges = (req, res, next, solved) => {
+var get_all_solved_unsolved_challenges = (req, res, next, solved, user_id) => {
 	return new Promise((resolve, reject) => {
 		try {
 
@@ -209,7 +211,7 @@ var get_all_solved_unsolved_challenges = (req, res, next, solved) => {
 
 			db_connection.query(
 				query_to_run,
-				[req.user.id],
+				[user_id],
 				function (err, rows) {
 
 					if (err) {
@@ -238,7 +240,9 @@ var get_all_solved_unsolved_challenges = (req, res, next, solved) => {
 };
 
 // create new challenge and put in database
-router.post('/complete_challenge/complete', function (req, res, next) {
+router.post('/complete_challenge/complete', async function (req, res, next) {
+
+	console.log('attempted completion');
 
 	try {
 
@@ -274,6 +278,8 @@ router.post('/complete_challenge/complete', function (req, res, next) {
 			console.error(err);
 		};
 
+		console.log('student_complete_challenge.txt updated');
+
 		// all user-side scripting for validation
 		var error_message = false;
 
@@ -308,52 +314,17 @@ router.post('/complete_challenge/complete', function (req, res, next) {
 
 		var data_to_db = fs.readFileSync(complete_challenge_file_path);
 
+		console.log('before query 1');
+
 		// put file as MEDIUMBLOB in db
-		db_connection.query(
-			'INSERT INTO Solution_File (solution_blob) VALUES (?);',
-			[data_to_db],
-			function (err, rows) {
-				if (err) {
-					console.log(err);
-					req.flash('error', ' An error occured');
-					res.locals.message = req.flash();
-					return res.render('student_challenges/view_set_challenges', {
-						title: 'View Set Challenges',
-						menu_id: 'view_set_challenges',
-						role: req.user.role,
-						email: req.user.email,
-						session_id: req.sessionID,
-						session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
-					});
-				}
-				console.log(rows);
-			}
-		);
-
-		// record relation b/w student and solution
-		db_connection.query(
-			'INSERT INTO Solution_Student (solution_file_id, assigned_challenge_id, completion_date) VALUES ((SELECT solution_file_id FROM Solution_File WHERE solution_blob = ?), ?, NOW());',
-			[data_to_db, parseInt(req.body.assigned_challenge_id)],
-			function (err, rows) {
-				if (err) {
-					console.log(err);
-					req.flash('error', ' An error occured');
-					res.locals.message = req.flash();
-					return res.render('student_challenges/view_set_challenges', {
-						title: 'View Set Challenges',
-						menu_id: 'view_set_challenges',
-						role: req.user.role,
-						email: req.user.email,
-						session_id: req.sessionID,
-						session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
-					});
-				}
-				console.log(rows);
-			}
-		);
-
-		// redirect to page to create a new challenge
-		return res.redirect('/view_set_challenges');
+		await insert_solution_blob(req, res, next, data_to_db).then(async (rows) => {
+			console.log('query 1 done');
+			await insert_solution_student(req, res, next, data_to_db).then(() => {
+				console.log('query 2 done');
+				// redirect to page to create a new challenge
+				return res.redirect('/view_set_challenges');
+			});
+		});
 
 	} catch (any_error) {
 		res.locals.message = req.flash();
@@ -368,6 +339,70 @@ router.post('/complete_challenge/complete', function (req, res, next) {
 	}
 
 });
+var insert_solution_blob = (req, res, next, data_to_db) => {
+	return new Promise((resolve, reject) => {
+		try {
+
+			db_connection.query(
+				'INSERT INTO Solution_File (solution_blob) VALUES (?);',
+				[data_to_db],
+				function (err, rows) {
+					if (err) {
+						console.log(err);
+						req.flash('error', ' An error occured');
+						res.locals.message = req.flash();
+						return res.render('student_challenges/view_set_challenges', {
+							title: 'View Set Challenges',
+							menu_id: 'view_set_challenges',
+							role: req.user.role,
+							email: req.user.email,
+							session_id: req.sessionID,
+							session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+						});
+						reject(err);
+					}
+					console.log(rows);
+					resolve(rows);
+				}
+			);
+
+		} catch (error) {
+			reject(error);
+		}
+	});
+};
+var insert_solution_student = (req, res, next, data_to_db) => {
+	return new Promise((resolve, reject) => {
+		try {
+
+			db_connection.query(
+				'INSERT INTO Solution_Student (solution_file_id, assigned_challenge_id, completion_date) VALUES ((SELECT solution_file_id FROM Solution_File WHERE solution_blob = ?), ?, NOW());',
+				[data_to_db, parseInt(req.body.assigned_challenge_id)],
+				function (err, rows) {
+					if (err) {
+						console.log(err);
+						req.flash('error', ' An error occured');
+						res.locals.message = req.flash();
+						return res.render('student_challenges/view_set_challenges', {
+							title: 'View Set Challenges',
+							menu_id: 'view_set_challenges',
+							role: req.user.role,
+							email: req.user.email,
+							session_id: req.sessionID,
+							session_expiry_time: new Date(req.session.cookie.expires) - new Date(),
+						});
+						reject(err);
+					}
+					console.log(rows);
+					resolve(rows);
+				}
+			);
+
+		} catch (error) {
+			reject(error);
+		}
+	});
+};
 
 
 module.exports = router;

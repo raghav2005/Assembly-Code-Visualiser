@@ -784,8 +784,8 @@ var get_students_already_assigned_challenge = (req, res, next, challenges_to_dis
 
 			// get the students who have already been assigned the specific challenge
 			db_connection.query(
-				'SELECT CONCAT(Student.student_name, Student.student_number), Student.student_id FROM Assigned_Challenges, Challenge_Teacher, Student WHERE Assigned_Challenges.challenge_teacher_id = Challenge_Teacher.challenge_teacher_id AND Assigned_Challenges.student_id = Student.student_id AND Assigned_Challenges.challenge_teacher_id = (SELECT challenge_teacher_id FROM Challenge_Teacher WHERE teacher_id = ? AND challenge_file_id = ?);',
-				[req.user.id, challenge_title_match_id[_.findIndex(challenge_title_match_id, function (el) { return el[0] == req.body.assign_challenge_dd })][1]],
+				'SELECT CONCAT(Student.student_name, Student.student_number), Student.student_id FROM Assigned_Challenges, Challenge_Teacher, Student WHERE Assigned_Challenges.challenge_teacher_id = Challenge_Teacher.challenge_teacher_id AND Assigned_Challenges.student_id = Student.student_id AND Assigned_Challenges.challenge_teacher_id = (SELECT challenge_teacher_id FROM Challenge_Teacher WHERE challenge_teacher_id = ?);',
+				[challenge_title_match_id[_.findIndex(challenge_title_match_id, function (el) { return el[0] == req.body.assign_challenge_dd })][1]],
 				function (err, rows) {
 
 					if (err) {

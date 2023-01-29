@@ -363,12 +363,51 @@ svg.leader-line {
 
 #instruction_set_table {
 	margin-top: 0.25em;
+	border: 0.25em double black;
 }
 #instruction_set_table > tr, th, td {
 	text-align: center;
-	border: 0.5em double black;
+	border: 0.25em double black;
 	padding: 1em;
 }
 #instruction_set_viewer {
 	height: 45em;
+}
+
+
+.centered_header {
+	text-align: center;
+}
+.sub_header {
+	margin-top: 0.25em;
+	border: 0.25em double black;
+	margin-bottom: 0;
+}
+#image_explanation_table > tr, th, td {
+	text-align: center;
+	border: 0.25em double black;
+	border-top: 0;
+	padding: 1em;
+}
+#sub_header_2_t, #sub_header_2_s {
+	border: 0.25em double black;
+	border-top: 0;
+	padding-top: 0.25em;
+	margin-bottom: 0;
+}
+#sub_header_2_t {
+	margin-left: 0.14em;
+}
+#sub_header_2_s {
+	border-left: 0;
+	margin-right: -0.14em;
+}
+#pages_info_table {
+	table-layout: fixed;
+}
+#pages_info_table > tr, th, td {
+	text-align: center;
+	border: 0.25em double black;
+	border-top: 0;
+	padding: 1em;
 }

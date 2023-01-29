@@ -359,3 +359,16 @@ svg.leader-line {
 #logout_form {
 	display: none;
 }
+
+
+#instruction_set_table {
+	margin-top: 0.25em;
+}
+#instruction_set_table > tr, th, td {
+	text-align: center;
+	border: 0.5em double black;
+	padding: 1em;
+}
+#instruction_set_viewer {
+	height: 45em;
+}

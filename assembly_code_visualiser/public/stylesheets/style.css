@@ -413,3 +413,14 @@ svg.leader-line {
 	border-top: 0;
 	padding: 1em;
 }
+
+
+.remember_me_float {
+	float: left;
+}
+.form-group {
+	padding: 0.5em;
+}
+#student_card, #teacher_card {
+	margin-top: 10%;
+}

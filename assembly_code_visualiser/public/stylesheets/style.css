@@ -415,6 +415,7 @@ svg.leader-line {
 }
 
 
+/* login and sign up pages */
 .remember_me_float {
 	float: left;
 }
@@ -423,4 +424,30 @@ svg.leader-line {
 }
 #student_card, #teacher_card {
 	margin-top: 7.5%;
+}
+.switch_to_student:hover {
+	background-color: #93c572;
+	color: black;
+}
+.switch_to_teacher:hover {
+	background-color: #cccc00;
+	color: black;
+}
+
+
+/* teacher challenges pages */
+#active_challenges {
+	margin-top: 0.25em;
+	border: 0.25em double black;
+}
+#create_challenges_create_btn:hover {
+	background-color: #93c572;
+	color: black;
+}
+.create_challenges_edit_btn:hover {
+	background-color: #cccc00;
+	color: black;
+}
+.create_challenges_delete_btn:hover {
+	background-color: #aa4a44;
 }

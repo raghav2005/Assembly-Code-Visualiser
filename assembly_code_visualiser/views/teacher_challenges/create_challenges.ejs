@@ -6,6 +6,7 @@
 	<% include ./partials/script %>
 	<% include ./partials/style %>
 	<% include ./partials/head %>
+	<% include ./partials/script_toggle %>
 </head>
 
 <body>
@@ -13,232 +14,258 @@
 
 		<% include ../partials/menu %>
 
-		<!-- create a new challenge -->
-		<div class="row">
-			<div class="col-md-12">
-
-				<form action="/create_challenges/new_challenge" method="post">
-					<!-- submit button -->
-					<button type="submit" value="Create New Challenge">CREATE NEW CHALLENGE</button>
-				</form>
-
-			</div>
-		</div>
-
 		<!-- display created challenges -->
-		<div class="row">
+		<div class="row justify-content-center">
 			<div class="col-md-12">
-				
-				<% if (typeof challenges_to_display === "undefined") { %>
-					<h4><a href="../create_challenges">Reload</a> Page</h4>
-				<% } else  { %>
-					<% if (challenges_to_display.length == 0 || challenges_to_display == []) { %>
-						<h4>No Challenges Created Yet</h4>
-					<% } else { %>
-					
-						<table id="active_challenges">
+				<div class="card" style="margin-top: 0.5em;">
+		
+					<div class="card-header" style="background-color: #E6E6FA;">
+						<div class="row">
+							<div class="col-md-3">
+								<h5 style="vertical-align: middle; line-height: 1.5; margin-top: 0.1em;">Created Challenges</h5>
+							</div>
+							<div class="col-md-6"></div>
+							<div class="col-md-3">
+								<button class="btn btn-secondary switch_to_student" onclick="toggle_display_challenges()" style="float: right;" id="display_challenges_toggle">Show Challenges</button>
+							</div>
+						</div>
+					</div>
+		
+					<div class="card-body" id="active_challenges_card_body" style="background-color: #E6E6FA;">
 
-							<tr>
-								<th>Challenge Title</th>
-								<th>Challenge Description</th>
-								<th></th>
-							</tr>
+						<% if (typeof challenges_to_display === "undefined") { %>
+									<h4><a href="../create_challenges">Reload</a> Page</h4>
+						<% } else  { %>
+							<% if (challenges_to_display.length == 0 || challenges_to_display == []) { %>
+								<h4>No Challenges Created Yet</h4>
+							<% } else { %>
+							
+								<table id="active_challenges" style="width: 100%; table-layout: fixed;">
 
-							<% challenges_to_display.forEach((element, index) => { %>
-								<tr>
-									<td>
-										<%= element[0].split('\n')[1].toString() %>
-									</td>
-									<td>
-										<%= element[0].split('\n')[3].toString() %>
-									</td>
-									<!-- edit challenge -->
-									<td>
-										<form action="/create_challenges/edit/<%= element[1].toString() %>" method="post">
-											<button type="submit" value="edit_<%= element[1].toString() %>">Edit</button>
-										</form>
-									</td>
-									<!-- create challenge -->
-									<td>
-										<form action="/create_challenges/delete/<%= element[1].toString() %>" method="post">
-											<button type="submit" value="delete_<%= element[1].toString() %>">Delete</button>
-										</form>
-									</td>
-								</tr>
-							<% }); %>
-						</table>
-					
-					<% } %>
-				<% } %>
+									<tr>
+										<th style="width: 25%;">Challenge Title</th>
+										<th style="width: 60%;">Challenge Description</th>
+										<th colspan="2" style="width: 15%;">
+											<!-- create a new challenge -->
+											<form action="/create_challenges/new_challenge" method="post">
+												<!-- submit button -->
+												<button type="submit" value="Create New Challenge" class="btn btn-secondary" id="create_challenges_create_btn">CREATE NEW CHALLENGE</button>
+											</form>
+										</th>
+									</tr>
 
+									<% challenges_to_display.forEach((element, index) => { %>
+										<tr>
+											<td style="word-wrap: break-word;">
+												<%= element[0].split('\n')[1].toString() %>
+											</td>
+											<td style="word-wrap: break-word;">
+												<%= element[0].split('\n')[3].toString() %>
+											</td>
+											<!-- edit challenge -->
+											<td>
+												<form action="/create_challenges/edit/<%= element[1].toString() %>" method="post">
+													<button type="submit" value="edit_<%= element[1].toString() %>" class="btn btn-secondary create_challenges_edit_btn">Edit</button>
+												</form>
+											</td>
+											<!-- create challenge -->
+											<td>
+												<form action="/create_challenges/delete/<%= element[1].toString() %>" method="post">
+													<button type="submit" value="delete_<%= element[1].toString() %>" class="btn btn-secondary create_challenges_delete_btn">Delete</button>
+												</form>
+											</td>
+										</tr>
+									<% }); %>
+								</table>
+							
+							<% } %>
+						<% } %>
+
+					</div>
+		
+				</div>
 			</div>
 		</div>
 
 		<!-- assign challenges -->
-		<div class="row">
+		<div class="row justify-content-center">
 			<div class="col-md-12">
+				<div class="card" style="margin-top: 0.5em;">
 		
-				<form action="/create_challenges/assign" method="POST" id="assign_challenge_form">
+					<div class="card-header" style="background-color: #ADD8E6;">
+						<div class="row">
+							<div class="col-md-3">
+								<h5 style="vertical-align: middle; line-height: 1.5; margin-top: 0.1em;">Assign Challenges</h5>
+							</div>
+							<div class="col-md-6"></div>
+							<div class="col-md-3">
+								<button class="btn btn-secondary switch_to_student" onclick="toggle_assign_challenges()"
+									style="float: right;" id="assign_challenges_toggle">Show Assign Challenges</button>
+							</div>
+						</div>
+					</div>
+		
+					<div class="card-body" id="assign_challenges_card_body" style="background-color: #ADD8E6;">
+		
+						<form action="/create_challenges/assign" method="POST" id="assign_challenge_form">
 
-					<div class="row">
-						<div class="col-md-6">
 							<% if (typeof challenges_to_display==="undefined" ) { %>
-							
+
 							<% } else { %>
-								<span>Assign</span>
 
-								<select id="assign_challenge_dd" name="assign_challenge_dd" required>
-									<option value="" selected hidden>select your challenge</option>	
-									<% var challenge_titles=[]; %>
-									<% challenges_to_display.forEach((element, index)=> { %>
-										<% challenge_titles.push(element[0].split('\n')[1].toString()); %>
-									<% }); %>
+								<div class="form-group row">
+									<label class="col-md-3 col-form-label">CHALLENGE TITLE</label>
+									<div class="col-md-8">
 
-									<% if (typeof challenge_titles==="undefined" ) { %>
-									
-										<option value="no_challenge">you haven't created any challenges</option>
-									
-									<% } else { %>
-									
-										<% for (var challenge_titles_counter=0; challenge_titles_counter < challenge_titles.length; challenge_titles_counter++) { %>
-											<option value="<%= challenge_titles[challenge_titles_counter] %>">
-												<%= challenge_titles[challenge_titles_counter] %>
-											</option>
-										<% } %>
+										<select id="assign_challenge_dd" name="assign_challenge_dd" class="form-control" required>
+											<option value="" selected hidden>select your challenge</option>	
+											<% var challenge_titles=[]; %>
+											<% challenges_to_display.forEach((element, index)=> { %>
+												<% challenge_titles.push(element[0].split('\n')[1].toString()); %>
+											<% }); %>
 
-									<% } %>
-								</select>
+											<% if (typeof challenge_titles==="undefined" ) { %>
+											
+												<option value="no_challenge">you haven't created any challenges</option>
+											
+											<% } else { %>
+											
+												<% for (var challenge_titles_counter=0; challenge_titles_counter < challenge_titles.length; challenge_titles_counter++) { %>
+													<option value="<%= challenge_titles[challenge_titles_counter] %>">
+														<%= challenge_titles[challenge_titles_counter] %>
+													</option>
+												<% } %>
 
-								<span>to:</span>
-							
+											<% } %>
+										</select>
+
+									</div>
+								</div>
+
 							<% } %>
 
-						</div>
+							<% if (typeof class_students==="undefined" ) { %>
+								
+							<% } else { %>
+								<!-- DROPDOWN FOR CLASSES WITH STUDENTS -->
+								<% class_students.forEach((element, index)=> { %>
 
-						<div class="col-md-6"></div>
-					</div>
+									<div class="form-group row">
 
-					<% if (typeof class_students==="undefined" ) { %>
-						
-					<% } else { %>
-						<!-- DROPDOWN FOR CLASSES WITH STUDENTS -->
-						<% class_students.forEach((element, index)=> { %>
-							<div class="row">
+										<label class="col-md-3 col-form-label"><%= element[0].toString() %></label>
 
-								<div class="col-md-6">
-				
-									<select id="class_<%= element[0].toString() %>" data-placeholder="select <%= element[0].toString() %> students" multiple class="chosen-select">
-				
+										<div class="col-md-5">
+											<select id="class_<%= element[0].toString() %>" data-placeholder="select <%= element[0].toString() %> students" multiple class="form-control chosen-select">
+												<% if (element[2].length===0 || !element[2].length) { %>
+													<option value="" disabled>no students in this class</option>
+												<% } else { %>
+													<% element[2].toString().split(',').forEach((element_2, index_2)=> { %>
+														<option value="<%= element_2 %>" class="students">
+															<%= element_2 %>
+														</option>
+													<%}); %>
+												<% } %>
+											</select>
+										</div>
+										
+
+										<!-- only show select all / deselect all buttons if there are students in that class -->
 										<% if (element[2].length===0 || !element[2].length) { %>
-											<option value="" disabled>no students in this class</option>
+											<div class="col-md-2"></div>
+											<div class="col-md-2"></div>
 										<% } else { %>
-											<% element[2].toString().split(',').forEach((element_2, index_2)=> { %>
-												<option value="<%= element_2 %>" class="students">
-													<%= element_2 %>
-												</option>
-											<%}); %>
+												<div class="col-md-2">
+													<button type="button" id="select_all_<%= element[0].toString() %>" class="chosen-toggle select btn btn-secondary switch_to_student" onclick="select_all('<%- index.toString() %>')" style="width: 100% !important;">Select all</button>
+												</div>
+												<div class="col-md-2">
+													<button type="button" class="chosen-toggle deselect btn btn-secondary create_challenges_delete_btn" onclick="deselect_all('<%- index.toString() %>')" style="width: 100% !important;">Deselect all</button>
+												</div>
 										<% } %>
-				
-									</select>
 
+									</div>
+
+								<% }); %>
+							<% } %>
+
+							<div class="form-group row">
+								<label class="col-md-3 col-form-label">DUE DATE</label>
+								<div class="col-md-8">
+									<input id="due_date" type="datetime-local" name="due_date" class="form-control" required />
 								</div>
-								<!-- only show select all / deselect all buttons if there are students in that class -->
-								<% if (element[2].length === 0 || !element[2].length) { %>
-									<div class="col-md-3"></div>
-									<div class="col-md-3"></div>
-								<% } else { %>
-									<div class="col-md-3">
-										<button type="button" id="select_all_<%= element[0].toString() %>" class="chosen-toggle select" onclick="select_all('<%- index.toString() %>')">Select all</button>
-									</div>
-									<div class="col-md-3">
-										<button type="button" class="chosen-toggle deselect" onclick="deselect_all('<%- index.toString() %>')">Deselect all</button>
-									</div>
-								<% } %>
+
+								<div class="col-md-6"></div>
 
 							</div>
-						<% }); %>
-					<% } %>
 
-					<div class="row">
-						
-						<div class="col-md-3"></div>
-						
-						<div class="col-md-3">
-							<span>for: </span>
-							<input id="due_date" type="datetime-local" name="due_date" required />
-						</div>
+							<!-- submit button -->
+							<div class="row">
+								<div class="col-md-8 offset-md-3" style="margin-top: 0.75em;">
+									<button type="submit" class="btn btn-primary">ASSIGN</button>
+								</div>
+							</div>
 
-						<div class="col-md-6"></div>
-
-					</div>
-
-					<!-- submit button -->
-					<div class="row">
-						<div class="col-md-3">
-							<button type="submit">ASSIGN</button>
-						</div>
-						<div class="col-md-9"></div>
-					</div>
-
-					<!-- error message -->
-					<% if (message.error) { %>
-						<div class="alert alert-danger" role="alert">
-							<strong>
-								<%= message.error %>
-							</strong>
-						</div>
-					<% } %>
-
-					<% if (message.success) { %>
-						<div class="alert alert-success" role="alert">
-							<strong>
-								<%= message.success %>
-							</strong>
-						</div>
-					<% } %>
-
-					<div class="row" hidden aria-hidden="true">
-						<div class="col-md-12">
-							<label for="class_students">class_students</label>
-							<textarea id="class_students" name="class_students"><% class_students.forEach((element, index) => { %><%= element + '\n'%><%}); %></textarea>
-						</div>
-					</div>
-
-					<div class="row" hidden aria-hidden="true">
-						<div class="col-md-12">
-							<label for="challenge_title_match_id">challenge_title_match_id</label>
-							<textarea id="challenge_title_match_id" name="challenge_title_match_id"><%- challenge_title_match_id %></textarea>
-						</div>
-					</div>
-
-					<div class="row" hidden aria-hidden="true">
-						<div class="col-md-12">
-							<label for="challenges_to_display">challenges_to_display</label>
-							<textarea id="challenges_to_display" name="challenges_to_display"><%- challenges_to_display %></textarea>
-						</div>
-					</div>
-
-					<div class="row" hidden aria-hidden="true">
-						<div class="col-md-12">
-							<label for="students_selected_2">SELECTED STUDENTS TO ASSIGN CHALLENGE TO</label>
-							<textarea id="students_selected_2" name="students_selected_2"></textarea>
-						</div>
-					</div>
-
-					<!-- hidden to be retrievable in js file -->
-					<div class="row" hidden aria-hidden="true">
-						<div class="col-md-12">
-							<label for="challenge_title_match_id">SELECTED CHALLENGE TO ASSIGN ID</label>
-							<% if (typeof challenges_title_match_id==="undefined" ) { %>
-								<textarea id="challenge_title_match_id" name="challenge_title_match_id"></textarea>
-							<% } else { %>
-								<textarea id="challenge_title_match_id" name="challenge_title_match_id"><% challenge_title_match_id.forEach(element => { %><%= element[0] + 'thisisaveryspeficbreak' + element[1] + 'thisisaveryspeficbreak' %><% }); %></textarea>
+							<!-- error message -->
+							<% if (message.error) { %>
+								<div class="alert alert-danger" role="alert" style="margin-top: 1em;">
+									<strong>
+										<%= message.error %>
+									</strong>
+								</div>
 							<% } %>
-						</div>
-					</div>
 
-				</form>
-			
+							<% if (message.success) { %>
+								<div class="alert alert-success" role="alert" style="margin-top: 1em;">
+									<strong>
+										<%= message.success %>
+									</strong>
+								</div>
+							<% } %>
+
+							<div class="row" hidden aria-hidden="true">
+								<div class="col-md-12">
+									<label for="class_students">class_students</label>
+									<textarea id="class_students" name="class_students"><% class_students.forEach((element, index) => { %><%= element + '\n'%><%}); %></textarea>
+								</div>
+							</div>
+
+							<div class="row" hidden aria-hidden="true">
+								<div class="col-md-12">
+									<label for="challenge_title_match_id">challenge_title_match_id</label>
+									<textarea id="challenge_title_match_id" name="challenge_title_match_id"><%- challenge_title_match_id %></textarea>
+								</div>
+							</div>
+
+							<div class="row" hidden aria-hidden="true">
+								<div class="col-md-12">
+									<label for="challenges_to_display">challenges_to_display</label>
+									<textarea id="challenges_to_display" name="challenges_to_display"><%- challenges_to_display %></textarea>
+								</div>
+							</div>
+
+							<div class="row" hidden aria-hidden="true">
+								<div class="col-md-12">
+									<label for="students_selected_2">SELECTED STUDENTS TO ASSIGN CHALLENGE TO</label>
+									<textarea id="students_selected_2" name="students_selected_2"></textarea>
+								</div>
+							</div>
+
+							<!-- hidden to be retrievable in js file -->
+							<div class="row" hidden aria-hidden="true">
+								<div class="col-md-12">
+									<label for="challenge_title_match_id">SELECTED CHALLENGE TO ASSIGN ID</label>
+									<% if (typeof challenges_title_match_id==="undefined" ) { %>
+										<textarea id="challenge_title_match_id" name="challenge_title_match_id"></textarea>
+									<% } else { %>
+										<textarea id="challenge_title_match_id" name="challenge_title_match_id"><% challenge_title_match_id.forEach(element => { %><%= element[0] + 'thisisaveryspeficbreak' + element[1] + 'thisisaveryspeficbreak' %><% }); %></textarea>
+									<% } %>
+								</div>
+							</div>
+
+						</form>
+						
+					</div>
+		
+				</div>
 			</div>
 		</div>
 		

@@ -40,7 +40,7 @@
 								<h5 style="vertical-align: middle; line-height: 1.5; margin-top: 0.1em;">Student Sign-up</h5>
 							</div>
 							<div class="col-md-9">
-								<button class="btn btn-secondary" onclick="change_form_login()" style="float: right;">Switch to Teacher Sign-up</button>
+								<button class="btn btn-secondary switch_to_teacher" onclick="change_form_login()" style="float: right;">Switch to Teacher Sign-up</button>
 							</div>
 						</div>
 					</div>
@@ -128,7 +128,7 @@
 							<% } %>
 		
 							<% if (message.success) { %>
-								<div class="alert alert-success" role="alert">
+								<div class="alert alert-success" role="alert" style="margin-top: 1em;">
 									<strong>
 										<%= message.success %>
 									</strong>
@@ -155,7 +155,7 @@
 								<h5 style="vertical-align: middle; line-height: 1.5; margin-top: 0.1em;">Teacher Sign-up</h5>
 							</div>
 							<div class="col-md-9">
-								<button class="btn btn-secondary" onclick="change_form_login()" style="float: right;">Switch to Student Sign-up</button>
+								<button class="btn btn-secondary switch_to_student" onclick="change_form_login()" style="float: right;">Switch to Student Sign-up</button>
 							</div>
 						</div>
 					</div>
@@ -214,7 +214,7 @@
 							<% } %>
 		
 							<% if (message.success) { %>
-								<div class="alert alert-success" role="alert">
+								<div class="alert alert-success" role="alert" style="margin-top: 1em;">
 									<strong>
 										<%= message.success %>
 									</strong>

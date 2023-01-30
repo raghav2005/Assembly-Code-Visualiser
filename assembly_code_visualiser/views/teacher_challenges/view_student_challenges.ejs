@@ -3,6 +3,7 @@
 
 <head>
 	<% include ../partials/head %>
+	<% include ./partials/script_toggle %>
 </head>
 
 <body>
@@ -15,78 +16,112 @@
 		<% } else { %>
 		
 			<!-- ASSIGNED CHALLENGES -->
-			<div class="row">
+			<div class="row justify-content-center">
 				<div class="col-md-12">
-	
-					<h4>CHALLENGES THAT HAVE BEEN ASSIGNED:</h4>
-	
-					<% if (typeof all_assigned_challenges === "undefined" || all_assigned_challenges == [] || all_assigned_challenges.length == 0) { %>
-						<h5>No Challenges have been Assigned yet</h5>
-					<% } else { %>
-	
-						<table>
+					<div class="card" style="margin-top: 0.5em;">
+			
+						<div class="card-header" style="background-color: #E6E6FA;">
+							<div class="row">
+								<div class="col-md-4">
+									<h5 style="vertical-align: middle; line-height: 1.5; margin-top: 0.1em;">Challenges that have been Assigned</h5>
+								</div>
+								<div class="col-md-5"></div>
+								<div class="col-md-3">
+									<button class="btn btn-secondary switch_to_student" onclick="toggle_challenges_have_been_assigned()"
+										style="float: right;" id="display_challenges_have_been_toggle">Hide Challenges</button>
+								</div>
+							</div>
+						</div>
+			
+						<div class="card-body" id="challenges_have_been_assigned" style="background-color: #E6E6FA;">
+			
+							<% if (typeof all_assigned_challenges === "undefined" || all_assigned_challenges == [] || all_assigned_challenges.length == 0) { %>
+								<h5>No Challenges have been Assigned yet</h5>
+							<% } else { %>
+			
+								<table style="width: 100%;" id="challenges_have_been_assigned_table">
 
-							<tr>
-								<th>Challenge Title</th>
-								<th>Challenge Description</th>
-							</tr>
+									<tr>
+										<th>Challenge Title</th>
+										<th>Challenge Description</th>
+										<th></th>
+									</tr>
 
-							<% all_assigned_challenges.forEach((element, index)=> { %>
-								<tr>
-									<td>
-										<%= element[0].split('\n')[1].toString() %>
-									</td>
-									<td>
-										<%= element[0].split('\n')[3].toString() %>
-									</td>
-									<td>
-										<form
-											action="/view_student_challenges/more_information/<%= element[1].toString() %>" method="post">
-											<button type="submit" value="more_information_<%= element[1].toString() %>">More Information</button>
-										</form>
-									</td>
-								</tr>
-							<% }); %>
+									<% all_assigned_challenges.forEach((element, index)=> { %>
+										<tr>
+											<td>
+												<%= element[0].split('\n')[1].toString() %>
+											</td>
+											<td>
+												<%= element[0].split('\n')[3].toString() %>
+											</td>
+											<td>
+												<form
+													action="/view_student_challenges/more_information/<%= element[1].toString() %>" method="post">
+													<button type="submit" value="more_information_<%= element[1].toString() %>" class="btn btn-secondary create_challenges_edit_btn">More Information</button>
+												</form>
+											</td>
+										</tr>
+									<% }); %>
 
-						</table>
+								</table>
 
-					<% } %>
-	
+							<% } %>
+			
+						</div>
+			
+					</div>
 				</div>
 			</div>
 	
 			<!-- NOT ASSIGNED CHALLENGES -->
-			<div class="row">
+			<div class="row justify-content-center">
 				<div class="col-md-12">
+					<div class="card" style="margin-top: 0.5em;">
 			
-					<h4>CHALLENGES THAT HAVEN'T BEEN ASSIGNED:</h4>
+						<div class="card-header" style="background-color: #ADD8E6;">
+							<div class="row">
+								<div class="col-md-4">
+									<h5 style="vertical-align: middle; line-height: 1.5; margin-top: 0.1em;">Challenges that haven't been Assigned</h5>
+								</div>
+								<div class="col-md-5"></div>
+								<div class="col-md-3">
+									<button class="btn btn-secondary switch_to_student" onclick="toggle_challenges_havent_been_assigned()" style="float: right;" id="display_challenges_havent_been_toggle">Show Challenges</button>
+								</div>
+							</div>
+						</div>
 			
-					<% if (typeof all_not_assigned_challenges === "undefined" || all_not_assigned_challenges == [] || all_not_assigned_challenges.length == 0) { %>
-						<h5>All Challenges have been Assigned</h5>
-					<% } else { %>
-			
-							<table>
+						<div class="card-body" id="challenges_havent_been_assigned" style="background-color: #ADD8E6;">
 
-								<tr>
-									<th>Challenge Title</th>
-									<th>Challenge Description</th>
-								</tr>
-			
-								<% all_not_assigned_challenges.forEach((element, index)=> { %>
+							<% if (typeof all_not_assigned_challenges === "undefined" || all_not_assigned_challenges == [] || all_not_assigned_challenges.length == 0) { %>
+								<h5>All Challenges have been Assigned</h5>
+							<% } else { %>
+					
+								<table style="width: 100%;" id="challenges_havent_been_assigned_table">
+
 									<tr>
-										<td>
-											<%= element[0].split('\n')[1].toString() %>
-										</td>
-										<td>
-											<%= element[0].split('\n')[3].toString() %>
-										</td>
+										<th>Challenge Title</th>
+										<th>Challenge Description</th>
 									</tr>
-								<% }); %>
+				
+									<% all_not_assigned_challenges.forEach((element, index)=> { %>
+										<tr>
+											<td>
+												<%= element[0].split('\n')[1].toString() %>
+											</td>
+											<td>
+												<%= element[0].split('\n')[3].toString() %>
+											</td>
+										</tr>
+									<% }); %>
+				
+								</table>
+					
+							<% } %>
 			
-							</table>
+						</div>
 			
-					<% } %>
-			
+					</div>
 				</div>
 			</div>
 

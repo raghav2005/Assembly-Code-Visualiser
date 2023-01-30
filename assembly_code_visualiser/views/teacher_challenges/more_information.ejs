@@ -3,6 +3,7 @@
 
 <head>
 	<% include ../partials/head %>
+	<% include ./partials/script_toggle %>
 </head>
 
 <body>
@@ -13,18 +14,45 @@
 		<div class="row">
 			<div class="col-md-12">
 
-				<div class="row">
-					<!-- challenge title -->
-					<div class="col-md-4">
-						<label for="challenge_title">CHALLENGE TITLE</label>
-						<textarea id="challenge_title" name="challenge_title" wrap="off" placeholder="Generic Challenge Title" readonly style="overflow-y: scroll; height: 1.5em; width: 100%;"><%= challenge_title %></textarea>
+				<!-- CHALLENGE INFO -->
+				<div class="row justify-content-center">
+					<div class="col-md-12">
+						<div class="card" style="margin-top: 0.5em;">
+				
+							<div class="card-header" style="background-color: #E6E6FA;">
+								<div class="row">
+									<div class="col-md-4">
+										<h5 style="vertical-align: middle; line-height: 1.5; margin-top: 0.1em;">Challenge Information</h5>
+									</div>
+									<div class="col-md-5"></div>
+									<div class="col-md-3">
+										<button class="btn btn-secondary switch_to_student" onclick="toggle_challenge_info()" style="float: right;" id="display_challenge_info">Hide Information</button>
+									</div>
+								</div>
+							</div>
+				
+							<div class="card-body" id="challenge_info" style="background-color: #E6E6FA;">
+				
+								<div class="row">
+									<!-- challenge title -->
+									<div class="col-md-4">
+										<label for="challenge_title">CHALLENGE TITLE</label>
+										<textarea id="challenge_title" name="challenge_title" wrap="off" placeholder="Generic Challenge Title" readonly
+											style="overflow-y: scroll; height: 20em; width: 100%;"><%= challenge_title %></textarea>
+									</div>
+									<!-- challenge description -->
+									<div class="col-md-8">
+										<label for="challenge_description">CHALLENGE DESCRIPTION</label>
+										<textarea id="challenge_description" name="challenge_description" wrap="off"
+											placeholder="Generic Challenge Description" readonly
+											style="overflow-y: scroll; height: 20em; width: 100%;"><%= challenge_description %></textarea>
+									</div>
+								</div>
+				
+							</div>
+				
+						</div>
 					</div>
-					<!-- challenge description -->
-					<div class="col-md-8">
-						<label for="challenge_description">CHALLENGE DESCRIPTION</label>
-						<textarea id="challenge_description" name="challenge_description" wrap="off" placeholder="Generic Challenge Description" readonly style="overflow-y: scroll; height: 20em; width: 100%;"><%= challenge_description %></textarea>
-					</div>
-
 				</div>
 
 			</div>
@@ -33,43 +61,69 @@
 		<!-- STUDENTS COMPLETED -->
 		<div class="row">
 			<div class="col-md-12">
+
+				<div class="row justify-content-center">
+					<div class="col-md-12">
+						<div class="card" style="margin-top: 0.5em;">
+				
+							<div class="card-header" style="background-color: #E6E6FA;">
+								<div class="row">
+									<div class="col-md-4">
+										<h5 style="vertical-align: middle; line-height: 1.5; margin-top: 0.1em;">Students that have Submitted</h5>
+									</div>
+									<div class="col-md-5"></div>
+									<div class="col-md-3">
+										<button class="btn btn-secondary switch_to_student" onclick="toggle_students_have_submitted()"
+											style="float: right;" id="display_students_have_submitted">Show Students</button>
+									</div>
+								</div>
+							</div>
+				
+							<div class="card-body" id="students_have_submitted" style="background-color: #E6E6FA;">
+				
+								<% if (typeof students_solved === "undefined" || students_solved == [] || students_solved.length == 0) { %>
+									<h5>No Students have solved this Challenge yet</h5>
+								<% } else { %>
+					
+									<table style="width: 100%;" id="students_have_submitted_table">
+					
+										<tr>
+											<th>Student ID</th>
+											<th>Due Date</th>
+											<th>Completion Date</th>
+											<th></th>
+										</tr>
+					
+										<% students_solved.forEach((element, index)=> { %>
+											<tr>
+												<td>
+													<%= element[0].toString() %>
+												</td>
+												<td>
+													<%= element[2].toString() %>
+												</td>
+												<td>
+													<%= element[3].toString() %>
+												</td>
+												<td>
+													<form action="/view_student_challenges/more_information/<%= challenge_teacher_id.toString() %>/view_answer/<%= element[1].toString() %>" method="post">
+														<button type="submit" value="view_answer" class="btn btn-secondary switch_to_student">See Solution</button>
+													</form>
+												</td>
+											</tr>
+										<% }); %>
+					
+									</table>
+					
+								<% } %>
+				
+							</div>
+				
+						</div>
+					</div>
+				</div>
 		
-				<h4>Students that have Submitted:</h4>
-		
-				<% if (typeof students_solved === "undefined" || students_solved == [] || students_solved.length == 0) { %>
-					<h5>No Students have solved this Challenge yet</h5>
-				<% } else { %>
-	
-					<table>
-	
-						<tr>
-							<th>Student ID</th>
-							<th>Due Date</th>
-							<th>Completion Date</th>
-						</tr>
-	
-						<% students_solved.forEach((element, index)=> { %>
-							<tr>
-								<td>
-									<%= element[0].toString() %>
-								</td>
-								<td>
-									<%= element[2].toString() %>
-								</td>
-								<td>
-									<%= element[3].toString() %>
-								</td>
-								<td>
-									<form action="/view_student_challenges/more_information/<%= challenge_teacher_id.toString() %>/view_answer/<%= element[1].toString() %>" method="post">
-										<button type="submit" value="view_answer">See Solution</button>
-									</form>
-								</td>
-							</tr>
-						<% }); %>
-	
-					</table>
-	
-				<% } %>
+				
 		
 			</div>
 		</div>
@@ -78,33 +132,53 @@
 		<div class="row">
 			<div class="col-md-12">
 		
-				<h4>Students yet to Submit:</h4>
+				<div class="row justify-content-center">
+					<div class="col-md-12">
+						<div class="card" style="margin-top: 0.5em;">
 		
-				<% if (typeof students_not_solved_before_due==="undefined" || students_not_solved_before_due==[] || students_not_solved_before_due.length==0) { %>
-					<h5>No Students left to Submit</h5>
-				<% } else { %>
+							<div class="card-header" style="background-color: #ADD8E6;">
+								<div class="row">
+									<div class="col-md-4">
+										<h5 style="vertical-align: middle; line-height: 1.5; margin-top: 0.1em;">Students yet to Submit</h5>
+									</div>
+									<div class="col-md-5"></div>
+									<div class="col-md-3">
+										<button class="btn btn-secondary switch_to_student" onclick="toggle_students_yet_to()" style="float: right;" id="display_students_yet_to">Show Students</button>
+									</div>
+								</div>
+							</div>
 		
-					<table>
-	
-						<tr>
-							<th>Student ID</th>
-							<th>Due Date</th>
-						</tr>
-	
-						<% students_not_solved_before_due.forEach((element, index)=> { %>
-							<tr>
-								<td>
-									<%= element[0].toString() %>
-								</td>
-								<td>
-									<%= element[2].toString() %>
-								</td>
-							</tr>
-						<% }); %>
-	
-					</table>
-	
-				<% } %>
+							<div class="card-body" id="students_yet_to" style="background-color: #ADD8E6;">
+								<% if (typeof students_not_solved_before_due==="undefined" || students_not_solved_before_due==[] || students_not_solved_before_due.length==0) { %>
+									<h5>No Students left to Submit</h5>
+								<% } else { %>
+						
+									<table style="width: 100%;" id="students_yet_to_table">
+					
+										<tr>
+											<th>Student ID</th>
+											<th>Due Date</th>
+										</tr>
+					
+										<% students_not_solved_before_due.forEach((element, index)=> { %>
+											<tr>
+												<td>
+													<%= element[0].toString() %>
+												</td>
+												<td>
+													<%= element[2].toString() %>
+												</td>
+											</tr>
+										<% }); %>
+					
+									</table>
+					
+								<% } %>
+							</div>
+		
+						</div>
+					</div>
+				</div>
 		
 			</div>
 		</div>
@@ -112,35 +186,57 @@
 		<!-- STUDENTS NOT COMPLETED AND AFTER DEADLINE -->
 		<div class="row">
 			<div class="col-md-12">
-		
-				<h4>Students that missed the deadline:</h4>
-		
-				<% if (typeof students_not_solved_after_due==="undefined" || students_not_solved_after_due==[] || students_not_solved_after_due.length==0) { %>
-					<h5>No Students have missed the deadline</h5>
-				<% } else { %>
-		
-					<table>
-	
-						<tr>
-							<th>Student ID</th>
-							<th>Due Date</th>
-						</tr>
-	
-						<% students_not_solved_after_due.forEach((element, index)=> { %>
-							<tr>
-								<td>
-									<%= element[0].toString() %>
-								</td>
-								<td>
-									<%= element[2].toString() %>
-								</td>
-							</tr>
-						<% }); %>
-	
-					</table>
-		
-				<% } %>
-		
+
+				<div class="row justify-content-center">
+					<div class="col-md-12">
+						<div class="card" style="margin-top: 0.5em;">
+				
+							<div class="card-header" style="background-color: #FAA0A0;">
+								<div class="row">
+									<div class="col-md-5">
+										<h5 style="vertical-align: middle; line-height: 1.5; margin-top: 0.1em;">Students that missed the deadline</h5>
+									</div>
+									<div class="col-md-4"></div>
+									<div class="col-md-3">
+										<button class="btn btn-secondary switch_to_student" onclick="toggle_students_missed()" style="float: right;" id="display_students_missed">Show Students</button>
+									</div>
+								</div>
+							</div>
+
+							<div class="card-body" id="students_missed" style="background-color: #FAA0A0;">
+								
+								<% if (typeof students_not_solved_after_due==="undefined" || students_not_solved_after_due==[] || students_not_solved_after_due.length==0) { %>
+									<h5>No Students have missed the deadline</h5>
+								<% } else { %>
+						
+									<table style="width: 100%;" id="students_missed_table">
+					
+										<tr>
+											<th>Student ID</th>
+											<th>Due Date</th>
+										</tr>
+					
+										<% students_not_solved_after_due.forEach((element, index)=> { %>
+											<tr>
+												<td>
+													<%= element[0].toString() %>
+												</td>
+												<td>
+													<%= element[2].toString() %>
+												</td>
+											</tr>
+										<% }); %>
+					
+									</table>
+						
+								<% } %>
+
+							</div>
+				
+						</div>
+					</div>
+				</div>
+				
 			</div>
 		</div>
 

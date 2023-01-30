@@ -451,3 +451,6 @@ svg.leader-line {
 .create_challenges_delete_btn:hover {
 	background-color: #aa4a44;
 }
+#challenges_have_been_assigned_table, #challenges_havent_been_assigned_table, #students_have_submitted_table, #students_yet_to_table, #students_missed_table {
+	border: 0.25em double black;
+}

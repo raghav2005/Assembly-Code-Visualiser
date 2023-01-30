@@ -1,8 +1,6 @@
 $(document).ready(function () {
 	$('#active_challenges_card_body').hide();
 	$('#active_challenges').hide();
-	$('#assign_challenges_card_body').hide();
-	$('#assign_challenge_form').hide();
 });
 
 function toggle_display_challenges() {

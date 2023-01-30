@@ -454,3 +454,9 @@ svg.leader-line {
 #challenges_have_been_assigned_table, #challenges_havent_been_assigned_table, #students_have_submitted_table, #students_yet_to_table, #students_missed_table {
 	border: 0.25em double black;
 }
+
+
+/* student challenges pages */
+#challenges_todo_table, #completed, #missed {
+	border: 0.25em double black;
+}

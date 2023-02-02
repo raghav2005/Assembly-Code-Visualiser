@@ -1,4 +1,4 @@
 ###CHALLENGE TITLE###
-this was created on sunday
+Challenge #1
 ###CHALLENGE DESCRIPTION###
-blah x5
+This is challenge #1's description

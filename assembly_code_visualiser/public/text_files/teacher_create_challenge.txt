@@ -1,4 +1,4 @@
 ###CHALLENGE TITLE###
-i hope this works
+Mr Wood's Challenge 1
 ###CHALLENGE DESCRIPTION###
-please please please work
+In this challenge I want you to create an added, which allows the user to type in 2 numbers and your code will add those 2 numbers together and output the sum.

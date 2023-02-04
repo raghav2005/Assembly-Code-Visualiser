@@ -20,6 +20,573 @@ class Instruction {
 		return this.operands[operand_num - 1];
 	}; // e.g. for LDR instruction, operand_num = 1 would return R because the first operand is Rd
 
+	process_instruction() {
+		return;
+	};
+
+};
+
+class HLT_Instruction extends Instruction {
+
+	process_instruction_opcode(LMC) {
+
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			LMC.carry_on = setInterval(() => {
+				// fetch instruction
+				if (i == 0) {
+					LMC.log_output('HLT');
+					LMC.log_output('Executing instruction...');
+				} else if (i == 1) {
+					LMC.deactivate_wrapper('control_unit_wrapper');
+					LMC.deactivate_wrapper('decode_unit_wrapper');
+					control_bus.setOptions({
+						color: '#AAAAAA'
+					});
+					LMC.log_output('Program stopped');
+					LMC.cycles++;
+				} else {
+					LMC.log_output('####################');
+					LMC.log_output('Program executed in ' + LMC.cycles + ' FDE cycles');
+					LMC.paused = true;
+					LMC.stop = true;
+					document.getElementById('clock').value = LMC.cycles;
+					LMC.deactivate_wrapper('clock_wrapper');
+					LMC.cycles = 0;
+					resolve();
+					clearInterval(LMC.carry_on);
+				};
+				i++;
+			}, LMC.animation_interval);
+		});
+
+	};
+
+};
+
+class INP_Instruction extends Instruction {
+
+	process_instruction_opcode(LMC) {
+
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			LMC.carry_on = setInterval(() => {
+				// fetch instruction
+				LMC.check_error();
+
+				if (LMC.assembly_code_error == true) {
+					resolve();
+					clearInterval(LMC.carry_on);
+				} else {
+					if (i == 0) {
+						LMC.log_output('INP');
+						LMC.log_output('Executing instruction...');
+					} else if (i == 1) {
+						LMC.deactivate_wrapper('control_unit_wrapper');
+						LMC.deactivate_wrapper('decode_unit_wrapper');
+						control_bus.setOptions({
+							color: '#AAAAAA'
+						});
+						LMC.log_output('Waiting for user input...');
+						LMC.cycles++;
+					} else if (i == 2) {
+						LMC.inp = prompt('User input:');
+						document.getElementById('input').value = LMC.inp;
+						document.getElementById('input').scrollTop = document.getElementById('input').scrollHeight;
+					} else {
+						LMC.log_output('Store user input in Accumulator: ' + LMC.inp);
+						document.getElementById('accumulator').value = LMC.inp;
+						document.getElementById('clock').value = LMC.cycles;
+						LMC.deactivate_wrapper('clock_wrapper');
+						resolve();
+						clearInterval(LMC.carry_on);
+					};
+					i++;
+				};
+			}, LMC.animation_interval);
+		});
+
+	};
+
+};
+
+class OUT_Instruction extends Instruction {
+
+	process_instruction_opcode(LMC) {
+
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			LMC.carry_on = setInterval(() => {
+				// fetch instruction
+				LMC.check_error();
+
+				if (LMC.assembly_code_error == true) {
+					resolve();
+					clearInterval(LMC.carry_on);
+				} else {
+					if (i == 0) {
+						LMC.log_output('OUT');
+						LMC.log_output('Executing instruction...');
+					} else if (i == 1) {
+						LMC.deactivate_wrapper('control_unit_wrapper');
+						LMC.deactivate_wrapper('decode_unit_wrapper');
+						control_bus.setOptions({
+							color: '#AAAAAA'
+						});
+						LMC.activate_wrapper('accumulator_wrapper');
+					} else if (i == 2) {
+						LMC.deactivate_wrapper('accumulator_wrapper');
+						LMC.log_output('Output value held in Accumulator: ' + document.getElementById('accumulator').value);
+						LMC.cycles++;
+						document.getElementById('output').value = document.getElementById('accumulator').value;
+						document.getElementById('output').scrollTop = document.getElementById('output').scrollHeight;
+					} else {
+						document.getElementById('clock').value = LMC.cycles;
+						LMC.deactivate_wrapper('clock_wrapper');
+						resolve();
+						clearInterval(LMC.carry_on);
+					};
+					i++;
+				};
+			}, LMC.animation_interval);
+		});
+
+	};
+
+};
+
+class ADD_Instruction extends Instruction {
+
+	process_instruction_opcode(LMC, direct, operand, accumulator) {
+
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			var MBR;
+			LMC.carry_on = setInterval(() => {
+				// fetch instruction
+				LMC.check_error();
+
+				if (LMC.assembly_code_error == true) {
+					resolve(MBR, accumulator);
+					clearInterval(LMC.carry_on);
+				} else {
+					if (i == 0) {
+						LMC.log_output('ADD');
+						LMC.log_output('Executing instruction...');
+					} else if (i == 1) {
+						LMC.deactivate_wrapper('control_unit_wrapper');
+						LMC.deactivate_wrapper('decode_unit_wrapper');
+						control_bus.setOptions({
+							color: '#AAAAAA'
+						});
+						LMC.cycles++;
+					} else if (i == 2) {
+						if (direct) {
+							MBR = parseInt(operand);
+							LMC.activate_wrapper('MBR_wrapper');
+						} else {
+							MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+							LMC.activate_wrapper('MAR_wrapper');
+							LMC.deactivate_wrapper('MBR_wrapper');
+						};
+					} else if (i == 3) {
+						if (direct) {
+							LMC.activate_wrapper('MBR_wrapper');
+							LMC.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
+							document.getElementById('MBR').value = MBR;
+						} else {
+							LMC.deactivate_wrapper('MAR_wrapper');
+							LMC.deactivate_wrapper('MBR_wrapper');
+							LMC.log_output('Set MAR to operand of the current instruction: ' + operand);
+							LMC.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
+							document.getElementById('MAR').value = operand;
+							document.getElementById('MBR').value = MBR;
+						}
+					} else if (i == 4) {
+						LMC.activate_wrapper('MBR_wrapper');
+						LMC.activate_wrapper('accumulator_wrapper');
+					} else if (i == 5) {
+						LMC.deactivate_wrapper('MBR_wrapper');
+						LMC.deactivate_wrapper('accumulator_wrapper');
+						LMC.log_output('Add MBR value to Accumulator and store the result in Accumulator: ' + accumulator + '+' + MBR + '=' + (accumulator + MBR));
+						accumulator += MBR;
+						document.getElementById('accumulator').value = accumulator;
+					} else {
+						document.getElementById('clock').value = LMC.cycles;
+						LMC.deactivate_wrapper('clock_wrapper');
+						resolve(MBR, accumulator);
+						clearInterval(LMC.carry_on);
+					};
+					i++;
+				};
+			}, LMC.animation_interval);
+		});
+
+	};
+
+};
+
+class SUB_Instruction extends Instruction {
+
+	process_instruction_opcode(LMC, direct, operand, accumulator) {
+
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			var MBR;
+			LMC.carry_on = setInterval(() => {
+				// fetch instruction
+				LMC.check_error();
+
+				if (LMC.assembly_code_error == true) {
+					resolve(MBR, accumulator);
+					clearInterval(LMC.carry_on);
+				} else {
+					if (i == 0) {
+						LMC.log_output('SUB');
+						LMC.log_output('Executing instruction...');
+					} else if (i == 1) {
+						LMC.deactivate_wrapper('control_unit_wrapper');
+						LMC.deactivate_wrapper('decode_unit_wrapper');
+						control_bus.setOptions({
+							color: '#AAAAAA'
+						});
+						LMC.cycles++;
+					} else if (i == 2) {
+						if (direct) {
+							MBR = parseInt(operand);
+							LMC.activate_wrapper('MBR_wrapper');
+						} else {
+							MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+							LMC.activate_wrapper('MAR_wrapper');
+							LMC.deactivate_wrapper('MBR_wrapper');
+						};
+					} else if (i == 3) {
+						if (direct) {
+							LMC.activate_wrapper('MBR_wrapper');
+							LMC.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
+							document.getElementById('MBR').value = MBR;
+						} else {
+							LMC.deactivate_wrapper('MAR_wrapper');
+							LMC.deactivate_wrapper('MBR_wrapper');
+							LMC.log_output('Set MAR to operand of the current instruction: ' + operand);
+							LMC.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
+							document.getElementById('MAR').value = operand;
+							document.getElementById('MBR').value = MBR;
+						}
+					} else if (i == 4) {
+						LMC.activate_wrapper('MBR_wrapper');
+						LMC.activate_wrapper('accumulator_wrapper');
+					} else if (i == 5) {
+						LMC.deactivate_wrapper('MBR_wrapper');
+						LMC.deactivate_wrapper('accumulator_wrapper');
+						LMC.log_output('Subtract MBR value from Accumulator and store the result in Accumulator: ' + accumulator + '-' + MBR + '=' + (accumulator - MBR));
+						accumulator -= MBR;
+						document.getElementById('accumulator').value = accumulator;
+					} else {
+						document.getElementById('clock').value = LMC.cycles;
+						LMC.deactivate_wrapper('clock_wrapper');
+						resolve(MBR, accumulator);
+						clearInterval(LMC.carry_on);
+					};
+					i++;
+				};
+			}, LMC.animation_interval);
+		});
+
+	};
+
+};
+
+class LDA_Instruction extends Instruction {
+
+	process_instruction_opcode(LMC, direct, operand) {
+
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			var MBR;
+			LMC.carry_on = setInterval(() => {
+				// fetch instruction
+				LMC.check_error();
+
+				if (LMC.assembly_code_error == true) {
+					resolve(MBR);
+					clearInterval(LMC.carry_on);
+				} else {
+					if (i == 0) {
+						LMC.log_output('LDA');
+						LMC.log_output('Executing instruction...');
+					} else if (i == 1) {
+						LMC.deactivate_wrapper('control_unit_wrapper');
+						LMC.deactivate_wrapper('decode_unit_wrapper');
+						control_bus.setOptions({
+							color: '#AAAAAA'
+						});
+						LMC.cycles++;
+					} else if (i == 2) {
+						if (direct) {
+							MBR = parseInt(operand);
+							LMC.activate_wrapper('MBR_wrapper');
+						} else {
+							MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+							LMC.activate_wrapper('MAR_wrapper');
+							LMC.deactivate_wrapper('MBR_wrapper');
+						};
+					} else if (i == 3) {
+						if (direct) {
+							LMC.activate_wrapper('MBR_wrapper');
+							LMC.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
+							document.getElementById('MBR').value = MBR;
+						} else {
+							LMC.deactivate_wrapper('MAR_wrapper');
+							LMC.deactivate_wrapper('MBR_wrapper');
+							MBR = parseInt(document.getElementById('memory_location_' + operand).value);
+							LMC.log_output('Set MAR to operand of the current instruction: ' + operand);
+							LMC.log_output('Fetch data at location held by MAR (' + operand + ') and store it in MBR: ' + MBR);
+							document.getElementById('MAR').value = operand;
+							document.getElementById('MBR').value = MBR;
+						}
+					} else if (i == 4) {
+						LMC.activate_wrapper('MBR_wrapper');
+						LMC.activate_wrapper('accumulator_wrapper');
+					} else if (i == 5) {
+						LMC.deactivate_wrapper('MBR_wrapper');
+						LMC.deactivate_wrapper('accumulator_wrapper');
+						document.getElementById('accumulator').value = MBR;
+						LMC.log_output('Store MBR value in Accumulator: ' + MBR);
+					} else {
+						document.getElementById('clock').value = LMC.cycles;
+						LMC.deactivate_wrapper('clock_wrapper');
+						resolve(MBR);
+						clearInterval(LMC.carry_on);
+					};
+					i++;
+				};
+			}, LMC.animation_interval);
+		});
+
+	};
+
+};
+
+class STA_Instruction extends Instruction {
+
+	process_instruction_opcode(LMC, operand) {
+
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			var MBR;
+			LMC.carry_on = setInterval(() => {
+				// fetch instruction
+				LMC.check_error();
+
+				if (LMC.assembly_code_error == true) {
+					resolve(MBR);
+					clearInterval(LMC.carry_on);
+				} else {
+					if (i == 0) {
+						LMC.log_output('STA');
+						LMC.log_output('Executing instruction...');
+					} else if (i == 1) {
+						LMC.deactivate_wrapper('control_unit_wrapper');
+						LMC.deactivate_wrapper('decode_unit_wrapper');
+						control_bus.setOptions({
+							color: '#AAAAAA'
+						});
+						LMC.cycles++;
+					} else if (i == 2) {
+						MBR = parseInt(document.getElementById('accumulator').value);
+						LMC.activate_wrapper('MBR_wrapper');
+						LMC.activate_wrapper('accumulator_wrapper');
+					} else if (i == 3) {
+						LMC.deactivate_wrapper('accumulator_wrapper');
+						LMC.log_output('Set MBR to value held in Accumulator: ' + MBR);
+						document.getElementById('MBR').value = MBR;
+					} else if (i == 4) {
+						LMC.deactivate_wrapper('MBR_wrapper');
+						LMC.activate_wrapper('MAR_wrapper');
+						LMC.log_output('Store MBR value ' + MBR + ' at memory location held in MAR: ' + operand);
+						document.getElementById('MAR').value = operand;
+						document.getElementById('memory_location_' + operand).value = MBR;
+					} else {
+						LMC.deactivate_wrapper('MAR_wrapper');
+						document.getElementById('clock').value = LMC.cycles;
+						LMC.deactivate_wrapper('clock_wrapper');
+						resolve(MBR);
+						clearInterval(LMC.carry_on);
+					};
+					i++;
+				};
+			}, LMC.animation_interval);
+		});
+
+	};
+
+};
+
+class BRA_Instruction extends Instruction {
+
+	process_instruction_opcode(LMC, operand) {
+
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			LMC.carry_on = setInterval(() => {
+				// fetch instruction
+				LMC.check_error();
+
+				if (LMC.assembly_code_error == true) {
+					resolve();
+					clearInterval(LMC.carry_on);
+				} else {
+					if (i == 0) {
+						LMC.log_output('BRA');
+						LMC.log_output('Executing instruction...');
+					} else if (i == 1) {
+						LMC.deactivate_wrapper('control_unit_wrapper');
+						LMC.deactivate_wrapper('decode_unit_wrapper');
+						control_bus.setOptions({
+							color: '#AAAAAA'
+						});
+						LMC.cycles++;
+					} else if (i == 2) {
+						LMC.activate_wrapper('PC_wrapper');
+					} else if (i == 3) {
+						document.getElementById('PC').value = operand;
+						LMC.deactivate_wrapper('PC_wrapper');
+						LMC.program_counter = parseInt(operand);
+						LMC.log_output('Set PC to operand of instruction: ' + operand);
+					} else {
+						document.getElementById('clock').value = LMC.cycles;
+						LMC.deactivate_wrapper('clock_wrapper');
+						resolve();
+						clearInterval(LMC.carry_on);
+					};
+					i++;
+				};
+			}, LMC.animation_interval);
+		});
+
+	};
+
+};
+
+class BRZ_Instruction extends Instruction {
+
+	process_instruction_opcode(LMC, operand, accumulator) {
+
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			LMC.carry_on = setInterval(() => {
+				// fetch instruction
+				LMC.check_error();
+
+				if (LMC.assembly_code_error == true) {
+					resolve();
+					clearInterval(LMC.carry_on);
+				} else {
+					if (i == 0) {
+						LMC.log_output('BRZ');
+						LMC.log_output('Executing instruction...');
+					} else if (i == 1) {
+						LMC.deactivate_wrapper('control_unit_wrapper');
+						LMC.deactivate_wrapper('decode_unit_wrapper');
+						control_bus.setOptions({
+							color: '#AAAAAA'
+						});
+						LMC.cycles++;
+					} else if (i == 2) {
+						LMC.log_output('Check if value held in Accumulator is 0');
+					} else if (i == 3) {
+						if (accumulator == 0) {
+							LMC.log_output('0 == 0 - true');
+							LMC.activate_wrapper('PC_wrapper');
+						} else {
+							LMC.log_output(accumulator + ' == 0 - false');
+						};
+					} else if (i == 4) {
+						if (accumulator == 0) {
+							LMC.deactivate_wrapper('PC_wrapper');
+							LMC.log_output('Set PC to operand of instruction: ' + operand);
+							document.getElementById('PC').value = operand;
+							LMC.program_counter = parseInt(operand);
+						} else {
+							document.getElementById('clock').value = LMC.cycles;
+							LMC.deactivate_wrapper('clock_wrapper');
+							resolve();
+							clearInterval(LMC.carry_on);
+						};
+					} else {
+						document.getElementById('clock').value = LMC.cycles;
+						LMC.deactivate_wrapper('clock_wrapper');
+						resolve();
+						clearInterval(LMC.carry_on);
+					};
+					i++;
+				};
+			}, LMC.animation_interval);
+		});
+
+	};
+
+};
+
+class BRP_Instruction extends Instruction {
+
+	process_instruction_opcode(LMC, operand, accumulator) {
+
+		return new Promise((resolve, reject) => {
+			var i = 0;
+			LMC.carry_on = setInterval(() => {
+				// fetch instruction
+				LMC.check_error();
+
+				if (LMC.assembly_code_error == true) {
+					resolve();
+					clearInterval(LMC.carry_on);
+				} else {
+					if (i == 0) {
+						LMC.log_output('BRP');
+						LMC.log_output('Executing instruction...');
+					} else if (i == 1) {
+						LMC.deactivate_wrapper('control_unit_wrapper');
+						LMC.deactivate_wrapper('decode_unit_wrapper');
+						control_bus.setOptions({
+							color: '#AAAAAA'
+						});
+						LMC.cycles++;
+					} else if (i == 2) {
+						LMC.log_output('Check if value held in Accumulator is positive (>= 0)');
+					} else if (i == 3) {
+						if (accumulator >= 0) {
+							LMC.log_output(accumulator + ' >= 0 - true');
+							LMC.activate_wrapper('PC_wrapper');
+						} else {
+							LMC.log_output(accumulator + ' >= 0 - false');
+						};
+					} else if (i == 4) {
+						if (accumulator >= 0) {
+							LMC.deactivate_wrapper('PC_wrapper');
+							LMC.log_output('Set PC to operand of instruction: ' + operand);
+							document.getElementById('PC').value = operand;
+							LMC.program_counter = parseInt(operand);
+						} else {
+							document.getElementById('clock').value = LMC.cycles;
+							LMC.deactivate_wrapper('clock_wrapper');
+							resolve();
+							clearInterval(LMC.carry_on);
+						};
+					} else {
+						document.getElementById('clock').value = LMC.cycles;
+						LMC.deactivate_wrapper('clock_wrapper');
+						resolve();
+						clearInterval(LMC.carry_on);
+					};
+					i++;
+				};
+			}, LMC.animation_interval);
+		});
+
+	};
+
 };
 
 // LMC template w/ methods used later
@@ -37,6 +604,7 @@ class Little_Man_Computer {
 		this.program_counter = 0;
 
 		this.instruction_set = args.instruction_set || {};
+		this.instruction_set_objs = args.instruction_set_objs || {};
 
 		// this.clock = 25;
 		// this.time_lapse = 10000;
@@ -178,7 +746,7 @@ class Little_Man_Computer {
 		document.getElementById('PC').value = '00';
 		document.getElementById('clock').value = '0';
 		document.getElementById('MBR').value = '0'.repeat(this.RAM_value_length);
-		
+
 		this.program_counter = 0;
 
 		this.deactivate_wrapper('ALU_wrapper');
@@ -190,7 +758,7 @@ class Little_Man_Computer {
 		this.deactivate_wrapper('clock_wrapper');
 		this.deactivate_wrapper('MBR_wrapper');
 		this.deactivate_wrapper('status_register_wrapper');
-		
+
 		// leaderlines + wrappers back to normal
 		address_bus.setOptions({
 			end: LeaderLine.pointAnchor(document.getElementById('memory_10_wrapper'), {
@@ -273,12 +841,12 @@ class Little_Man_Computer {
 			var line = lines[i].trim();
 
 			if (line != '') {
-				
+
 				var instruction = line.split(/\s+/);
 
 				// variable that stores input
 				if (instruction.length == 2) {
-					
+
 					if (instruction[1] == 'DAT') {
 						this.labels[instruction[0]] = counter;
 						this.reset_specific_RAM(counter);
@@ -341,7 +909,7 @@ class Little_Man_Computer {
 				var instruction = line.split(/\s+/);
 
 				if (instruction.length == 3) {
-					
+
 					var label = instruction[0];
 					var opcode = instruction[1];
 					var operand = instruction[2];
@@ -355,9 +923,9 @@ class Little_Man_Computer {
 					if (operand.length > 1) {
 
 						if (operand.substring(0, 1) == '@') {
-						
+
 							operand = operand.substring(1);
-						
+
 							if (isNaN(operand)) {
 								if (operand in this.labels) {
 									operand = '@' + this.labels[operand];
@@ -390,9 +958,9 @@ class Little_Man_Computer {
 						counter++;
 
 					} else if (opcode == 'DAT') {
-					
+
 						counter++;
-					
+
 					} else {
 
 						this.log_output('Error at line ' + counter + ': Invalid opcode');
@@ -402,21 +970,21 @@ class Little_Man_Computer {
 				} else if (instruction.length == 2) {
 
 					if (instruction[0] in this.instruction_set) {
-						
+
 						var opcode = instruction[0];
 						var operand = instruction[1];
 
 						if (operand in this.labels) {
 							operand = this.labels[operand];
 						};
-						
+
 						// Indirect Addressing
 						if (operand.length > 1) {
 
 							if (operand.substring(0, 1) == '@') {
-								
+
 								operand = operand.substring(1);
-								
+
 								if (isNaN(operand)) {
 									if (operand in this.labels) {
 										operand = '@' + this.labels[operand];
@@ -426,9 +994,9 @@ class Little_Man_Computer {
 								};
 
 							} else if (operand.substring(0, 1) == '#') {
-								
+
 								operand = operand.substring(1);
-								
+
 								if (isNaN(operand)) {
 									if (operand in this.labels) {
 										operand = '#' + this.labels[operand];
@@ -436,16 +1004,16 @@ class Little_Man_Computer {
 								} else {
 									operand = '#' + operand;
 								};
-							
+
 							};
-						
+
 						};
 
 						var encode = this.instruction_set[opcode].numerical_value + operand;
 						this.RAM[counter] = encode.toString();
 
 						counter++;
-					
+
 					} else {
 
 						this.labels[instruction[0]] = counter;
@@ -590,7 +1158,7 @@ class Little_Man_Computer {
 						this.activate_wrapper('MBR_wrapper');
 						document.getElementById('MBR').value = instruction;
 					} else if (i == 12) {
-						
+
 						// leaderlines + wrappers back to normal
 						address_bus.setOptions({
 							end: LeaderLine.pointAnchor(document.getElementById('memory_10_wrapper'), {
@@ -645,505 +1213,82 @@ class Little_Man_Computer {
 	};
 
 	process_instruction_HLT() {
-		return new Promise((resolve, reject) => {
-			var i = 0;
-			this.carry_on = setInterval(() => {
-				// fetch instruction
-				if (i == 0) {
-					this.log_output('HLT');
-					this.log_output('Executing instruction...');
-				} else if (i == 1) {
-					this.deactivate_wrapper('control_unit_wrapper');
-					this.deactivate_wrapper('decode_unit_wrapper');
-					control_bus.setOptions({
-						color: '#AAAAAA'
-					});
-					this.log_output('Program stopped');
-					this.cycles++;
-				} else {
-					this.log_output('####################');
-					this.log_output('Program executed in ' + this.cycles + ' FDE cycles');
-					this.paused = true;
-					this.stop = true;
-					document.getElementById('clock').value = this.cycles;
-					this.deactivate_wrapper('clock_wrapper');
-					this.cycles = 0;
-					resolve();
-					clearInterval(this.carry_on);
-				};
-				i++;
-			}, this.animation_interval);
+		return new Promise(async (resolve, reject) => {
+			var LMC_Obj = this;
+			await this.instruction_set_objs['HLT'].process_instruction_opcode(LMC_Obj);
+			resolve();
 		});
 	};
 
 	process_instruction_INP() {
-		return new Promise((resolve, reject) => {
-			var i = 0;
-			this.carry_on = setInterval(() => {
-				// fetch instruction
-				this.check_error();
-
-				if (this.assembly_code_error == true) {
-					resolve();
-					clearInterval(this.carry_on);
-				} else {
-					if (i == 0) {
-						this.log_output('INP');
-						this.log_output('Executing instruction...');
-					} else if (i == 1) {
-						this.deactivate_wrapper('control_unit_wrapper');
-						this.deactivate_wrapper('decode_unit_wrapper');
-						control_bus.setOptions({
-							color: '#AAAAAA'
-						});
-						this.log_output('Waiting for user input...');
-						this.cycles++;
-					} else if (i == 2) {
-						this.inp = prompt('User input:');
-						document.getElementById('input').value = this.inp;
-						document.getElementById('input').scrollTop = document.getElementById('input').scrollHeight;
-					} else {
-						this.log_output('Store user input in Accumulator: ' + this.inp);
-						document.getElementById('accumulator').value = this.inp;
-						document.getElementById('clock').value = this.cycles;
-						this.deactivate_wrapper('clock_wrapper');
-						resolve();
-						clearInterval(this.carry_on);
-					};
-					i++;
-				};
-			}, this.animation_interval);
+		return new Promise(async (resolve, reject) => {
+			var LMC_Obj = this;
+			await this.instruction_set_objs['INP'].process_instruction_opcode(LMC_Obj);
+			resolve();
 		});
 	};
 
 	process_instruction_OUT() {
-		return new Promise((resolve, reject) => {
-			var i = 0;
-			this.carry_on = setInterval(() => {
-				// fetch instruction
-				this.check_error();
-
-				if (this.assembly_code_error == true) {
-					resolve();
-					clearInterval(this.carry_on);
-				} else {
-					if (i == 0) {
-						this.log_output('OUT');
-						this.log_output('Executing instruction...');
-					} else if (i == 1) {
-						this.deactivate_wrapper('control_unit_wrapper');
-						this.deactivate_wrapper('decode_unit_wrapper');
-						control_bus.setOptions({
-							color: '#AAAAAA'
-						});
-						this.activate_wrapper('accumulator_wrapper');
-					} else if (i == 2) {
-						this.deactivate_wrapper('accumulator_wrapper');
-						this.log_output('Output value held in Accumulator: ' + document.getElementById('accumulator').value);
-						this.cycles++;
-						document.getElementById('output').value = document.getElementById('accumulator').value;
-						document.getElementById('output').scrollTop = document.getElementById('output').scrollHeight;
-					} else {
-						document.getElementById('clock').value = this.cycles;
-						this.deactivate_wrapper('clock_wrapper');
-						resolve();
-						clearInterval(this.carry_on);
-					};
-					i++;
-				};
-			}, this.animation_interval);
+		return new Promise(async (resolve, reject) => {
+			var LMC_Obj = this;
+			await this.instruction_set_objs['OUT'].process_instruction_opcode(LMC_Obj);
+			resolve();
 		});
 	};
 
 	process_instruction_ADD(direct, operand, accumulator) {
-		return new Promise((resolve, reject) => {
-			var i = 0;
-			var MBR;
-			this.carry_on = setInterval(() => {
-				// fetch instruction
-				this.check_error();
-
-				if (this.assembly_code_error == true) {
-					resolve(MBR, accumulator);
-					clearInterval(this.carry_on);
-				} else {
-					if (i == 0) {
-						this.log_output('ADD');
-						this.log_output('Executing instruction...');
-					} else if (i == 1) {
-						this.deactivate_wrapper('control_unit_wrapper');
-						this.deactivate_wrapper('decode_unit_wrapper');
-						control_bus.setOptions({
-							color: '#AAAAAA'
-						});
-						this.cycles++;
-					} else if (i == 2) {
-						if (direct) {
-							MBR = parseInt(operand);
-							this.activate_wrapper('MBR_wrapper');
-						} else {
-							MBR = parseInt(document.getElementById('memory_location_' + operand).value);
-							this.activate_wrapper('MAR_wrapper');
-							this.deactivate_wrapper('MBR_wrapper');
-						};
-					} else if (i == 3) {
-						if (direct) {
-							this.activate_wrapper('MBR_wrapper');
-							this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
-							document.getElementById('MBR').value = MBR;
-						} else {
-							this.deactivate_wrapper('MAR_wrapper');
-							this.deactivate_wrapper('MBR_wrapper');
-							this.log_output('Set MAR to operand of the current instruction: ' + operand);
-							this.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
-							document.getElementById('MAR').value = operand;
-							document.getElementById('MBR').value = MBR;
-						}
-					} else if (i == 4) {
-						this.activate_wrapper('MBR_wrapper');
-						this.activate_wrapper('accumulator_wrapper');
-					} else if (i == 5) {
-						this.deactivate_wrapper('MBR_wrapper');
-						this.deactivate_wrapper('accumulator_wrapper');
-						this.log_output('Add MBR value to Accumulator and store the result in Accumulator: ' + accumulator + '+' + MBR + '=' + (accumulator + MBR));
-						accumulator += MBR;
-						document.getElementById('accumulator').value = accumulator;
-					} else {
-						document.getElementById('clock').value = this.cycles;
-						this.deactivate_wrapper('clock_wrapper');
-						resolve(MBR, accumulator);
-						clearInterval(this.carry_on);
-					};
-					i++;
-				};
-			}, this.animation_interval);
+		return new Promise(async (resolve, reject) => {
+			var LMC_Obj = this;
+			await this.instruction_set_objs['ADD'].process_instruction_opcode(LMC_Obj, direct, operand, accumulator);
+			resolve();
 		});
 	};
 
 	process_instruction_SUB(direct, operand, accumulator) {
-		return new Promise((resolve, reject) => {
-			var i = 0;
-			var MBR;
-			this.carry_on = setInterval(() => {
-				// fetch instruction
-				this.check_error();
-
-				if (this.assembly_code_error == true) {
-					resolve(MBR, accumulator);
-					clearInterval(this.carry_on);
-				} else {
-					if (i == 0) {
-						this.log_output('SUB');
-						this.log_output('Executing instruction...');
-					} else if (i == 1) {
-						this.deactivate_wrapper('control_unit_wrapper');
-						this.deactivate_wrapper('decode_unit_wrapper');
-						control_bus.setOptions({
-							color: '#AAAAAA'
-						});
-						this.cycles++;
-					} else if (i == 2) {
-						if (direct) {
-							MBR = parseInt(operand);
-							this.activate_wrapper('MBR_wrapper');
-						} else {
-							MBR = parseInt(document.getElementById('memory_location_' + operand).value);
-							this.activate_wrapper('MAR_wrapper');
-							this.deactivate_wrapper('MBR_wrapper');
-						};
-					} else if (i == 3) {
-						if (direct) {
-							this.activate_wrapper('MBR_wrapper');
-							this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
-							document.getElementById('MBR').value = MBR;
-						} else {
-							this.deactivate_wrapper('MAR_wrapper');
-							this.deactivate_wrapper('MBR_wrapper');
-							this.log_output('Set MAR to operand of the current instruction: ' + operand);
-							this.log_output('Fetch data at location held by MAR and store it in MBR: ' + MBR);
-							document.getElementById('MAR').value = operand;
-							document.getElementById('MBR').value = MBR;
-						}
-					} else if (i == 4) {
-						this.activate_wrapper('MBR_wrapper');
-						this.activate_wrapper('accumulator_wrapper');
-					} else if (i == 5) {
-						this.deactivate_wrapper('MBR_wrapper');
-						this.deactivate_wrapper('accumulator_wrapper');
-						this.log_output('Subtract MBR value from Accumulator and store the result in Accumulator: ' + accumulator + '-' + MBR + '=' + (accumulator - MBR));
-						accumulator -= MBR;
-						document.getElementById('accumulator').value = accumulator;
-					} else {
-						document.getElementById('clock').value = this.cycles;
-						this.deactivate_wrapper('clock_wrapper');
-						resolve(MBR, accumulator);
-						clearInterval(this.carry_on);
-					};
-					i++;
-				};
-			}, this.animation_interval);
+		return new Promise(async (resolve, reject) => {
+			var LMC_Obj = this;
+			await this.instruction_set_objs['SUB'].process_instruction_opcode(LMC_Obj, direct, operand, accumulator);
+			resolve();
 		});
 	};
 
 	process_instruction_LDA(direct, operand) {
-		return new Promise((resolve, reject) => {
-			var i = 0;
-			var MBR;
-			this.carry_on = setInterval(() => {
-				// fetch instruction
-				this.check_error();
-
-				if (this.assembly_code_error == true) {
-					resolve(MBR);
-					clearInterval(this.carry_on);
-				} else {
-					if (i == 0) {
-						this.log_output('LDA');
-						this.log_output('Executing instruction...');
-					} else if (i == 1) {
-						this.deactivate_wrapper('control_unit_wrapper');
-						this.deactivate_wrapper('decode_unit_wrapper');
-						control_bus.setOptions({
-							color: '#AAAAAA'
-						});
-						this.cycles++;
-					} else if (i == 2) {
-						if (direct) {
-							MBR = parseInt(operand);
-							this.activate_wrapper('MBR_wrapper');
-						} else {
-							MBR = parseInt(document.getElementById('memory_location_' + operand).value);
-							this.activate_wrapper('MAR_wrapper');
-							this.deactivate_wrapper('MBR_wrapper');
-						};
-					} else if (i == 3) {
-						if (direct) {
-							this.activate_wrapper('MBR_wrapper');
-							this.log_output('Direct addressing: set MBR to operand of current instruction: ' + operand);
-							document.getElementById('MBR').value = MBR;
-						} else {
-							this.deactivate_wrapper('MAR_wrapper');
-							this.deactivate_wrapper('MBR_wrapper');
-							MBR = parseInt(document.getElementById('memory_location_' + operand).value);
-							this.log_output('Set MAR to operand of the current instruction: ' + operand);
-							this.log_output('Fetch data at location held by MAR (' + operand + ') and store it in MBR: ' + MBR);
-							document.getElementById('MAR').value = operand;
-							document.getElementById('MBR').value = MBR;
-						}
-					} else if (i == 4) {
-						this.activate_wrapper('MBR_wrapper');
-						this.activate_wrapper('accumulator_wrapper');
-					} else if (i == 5) {
-						this.deactivate_wrapper('MBR_wrapper');
-						this.deactivate_wrapper('accumulator_wrapper');
-						document.getElementById('accumulator').value = MBR;
-						this.log_output('Store MBR value in Accumulator: ' + MBR);
-					} else {
-						document.getElementById('clock').value = this.cycles;
-						this.deactivate_wrapper('clock_wrapper');
-						resolve(MBR);
-						clearInterval(this.carry_on);
-					};
-					i++;
-				};
-			}, this.animation_interval);
+		return new Promise(async (resolve, reject) => {
+			var LMC_Obj = this;
+			await this.instruction_set_objs['LDA'].process_instruction_opcode(LMC_Obj, direct, operand);
+			resolve();
 		});
 	};
 
 	process_instruction_STA(operand) {
-		return new Promise((resolve, reject) => {
-			var i = 0;
-			var MBR;
-			this.carry_on = setInterval(() => {
-				// fetch instruction
-				this.check_error();
-				
-				if (this.assembly_code_error == true) {
-					resolve(MBR);
-					clearInterval(this.carry_on);
-				} else {
-					if (i == 0) {
-						this.log_output('STA');
-						this.log_output('Executing instruction...');
-					} else if (i == 1) {
-						this.deactivate_wrapper('control_unit_wrapper');
-						this.deactivate_wrapper('decode_unit_wrapper');
-						control_bus.setOptions({
-							color: '#AAAAAA'
-						});
-						this.cycles++;
-					} else if (i == 2) {
-						MBR = parseInt(document.getElementById('accumulator').value);
-						this.activate_wrapper('MBR_wrapper');
-						this.activate_wrapper('accumulator_wrapper');
-					} else if (i == 3) {
-						this.deactivate_wrapper('accumulator_wrapper');
-						this.log_output('Set MBR to value held in Accumulator: ' + MBR);
-						document.getElementById('MBR').value = MBR;
-					} else if (i == 4) {
-						this.deactivate_wrapper('MBR_wrapper');
-						this.activate_wrapper('MAR_wrapper');
-						this.log_output('Store MBR value ' + MBR + ' at memory location held in MAR: ' + operand);
-						document.getElementById('MAR').value = operand;
-						document.getElementById('memory_location_' + operand).value = MBR;
-					} else {
-						this.deactivate_wrapper('MAR_wrapper');
-						document.getElementById('clock').value = this.cycles;
-						this.deactivate_wrapper('clock_wrapper');
-						resolve(MBR);
-						clearInterval(this.carry_on);
-					};
-					i++;
-				};
-			}, this.animation_interval);
+		return new Promise(async (resolve, reject) => {
+			var LMC_Obj = this;
+			await this.instruction_set_objs['STA'].process_instruction_opcode(LMC_Obj, operand);
+			resolve();
 		});
 	};
 
 	process_instruction_BRA(operand) {
-		return new Promise((resolve, reject) => {
-			var i = 0;
-			this.carry_on = setInterval(() => {
-				// fetch instruction
-				this.check_error();
-
-				if (this.assembly_code_error == true) {
-					resolve();
-					clearInterval(this.carry_on);
-				} else {
-					if (i == 0) {
-						this.log_output('BRA');
-						this.log_output('Executing instruction...');
-					} else if (i == 1) {
-						this.deactivate_wrapper('control_unit_wrapper');
-						this.deactivate_wrapper('decode_unit_wrapper');
-						control_bus.setOptions({
-							color: '#AAAAAA'
-						});
-						this.cycles++;
-					} else if (i == 2) {
-						this.activate_wrapper('PC_wrapper');
-					} else if (i == 3) {
-						document.getElementById('PC').value = operand;
-						this.deactivate_wrapper('PC_wrapper');
-						this.program_counter = parseInt(operand);
-						this.log_output('Set PC to operand of instruction: ' + operand);
-					} else {
-						document.getElementById('clock').value = this.cycles;
-						this.deactivate_wrapper('clock_wrapper');
-						resolve();
-						clearInterval(this.carry_on);
-					};
-					i++;
-				};
-			}, this.animation_interval);
+		return new Promise(async (resolve, reject) => {
+			var LMC_Obj = this;
+			await this.instruction_set_objs['BRA'].process_instruction_opcode(LMC_Obj, operand);
+			resolve();
 		});
 	};
 
 	process_instruction_BRZ(operand, accumulator) {
-		return new Promise((resolve, reject) => {
-			var i = 0;
-			this.carry_on = setInterval(() => {
-				// fetch instruction
-				this.check_error();
-
-				if (this.assembly_code_error == true) {
-					resolve();
-					clearInterval(this.carry_on);
-				} else {
-					if (i == 0) {
-						this.log_output('BRZ');
-						this.log_output('Executing instruction...');
-					} else if (i == 1) {
-						this.deactivate_wrapper('control_unit_wrapper');
-						this.deactivate_wrapper('decode_unit_wrapper');
-						control_bus.setOptions({
-							color: '#AAAAAA'
-						});
-						this.cycles++;
-					} else if (i == 2) {
-						this.log_output('Check if value held in Accumulator is 0');
-					} else if (i == 3) {
-						if (accumulator == 0) {
-							this.log_output('0 == 0 - true');
-							this.activate_wrapper('PC_wrapper');
-						} else {
-							this.log_output(accumulator + ' == 0 - false');
-						};
-					} else if (i == 4) {
-						if (accumulator == 0) {
-							this.deactivate_wrapper('PC_wrapper');
-							this.log_output('Set PC to operand of instruction: ' + operand);
-							document.getElementById('PC').value = operand;
-							this.program_counter = parseInt(operand);
-						} else {
-							document.getElementById('clock').value = this.cycles;
-							this.deactivate_wrapper('clock_wrapper');
-							resolve();
-							clearInterval(this.carry_on);
-						};
-					} else {
-						document.getElementById('clock').value = this.cycles;
-						this.deactivate_wrapper('clock_wrapper');
-						resolve();
-						clearInterval(this.carry_on);
-					};
-					i++;
-				};
-			}, this.animation_interval);
+		return new Promise(async (resolve, reject) => {
+			var LMC_Obj = this;
+			await this.instruction_set_objs['BRZ'].process_instruction_opcode(LMC_Obj, operand, accumulator);
+			resolve();
 		});
 	};
 
 	process_instruction_BRP(operand, accumulator) {
-		return new Promise((resolve, reject) => {
-			var i = 0;
-			this.carry_on = setInterval(() => {
-				// fetch instruction
-				this.check_error();
-
-				if (this.assembly_code_error == true) {
-					resolve();
-					clearInterval(this.carry_on);
-				} else {
-					if (i == 0) {
-						this.log_output('BRP');
-						this.log_output('Executing instruction...');
-					} else if (i == 1) {
-						this.deactivate_wrapper('control_unit_wrapper');
-						this.deactivate_wrapper('decode_unit_wrapper');
-						control_bus.setOptions({
-							color: '#AAAAAA'
-						});
-						this.cycles++;
-					} else if (i == 2) {
-						this.log_output('Check if value held in Accumulator is positive (>= 0)');
-					} else if (i == 3) {
-						if (accumulator >= 0) {
-							this.log_output(accumulator + ' >= 0 - true');
-							this.activate_wrapper('PC_wrapper');
-						} else {
-							this.log_output(accumulator + ' >= 0 - false');
-						};
-					} else if (i == 4) {
-						if (accumulator >= 0) {
-							this.deactivate_wrapper('PC_wrapper');
-							this.log_output('Set PC to operand of instruction: ' + operand);
-							document.getElementById('PC').value = operand;
-							this.program_counter = parseInt(operand);
-						} else {
-							document.getElementById('clock').value = this.cycles;
-							this.deactivate_wrapper('clock_wrapper');
-							resolve();
-							clearInterval(this.carry_on);
-						};
-					} else {
-						document.getElementById('clock').value = this.cycles;
-						this.deactivate_wrapper('clock_wrapper');
-						resolve();
-						clearInterval(this.carry_on);
-					};
-					i++;
-				};
-			}, this.animation_interval);
+		return new Promise(async (resolve, reject) => {
+			var LMC_Obj = this;
+			await this.instruction_set_objs['BRP'].process_instruction_opcode(LMC_Obj, operand, accumulator);
+			resolve();
 		});
 	};
 
@@ -1154,7 +1299,7 @@ class Little_Man_Computer {
 
 			// must be done in order, so await is used
 			var instruction = await this.process_instruction_main_beginning();
-			
+
 			// halt instruction
 			if (instruction == '000') {
 
@@ -1305,19 +1450,84 @@ function initialise_LMC() {
 
 	// dictionary of Instruction objects
 	var instruction_set = {
-	'INP': INP,
-	'OUT': OUT,
-	'LDA': LDA,
-	'STA': STA,
-	'ADD': ADD,
-	'SUB': SUB,
-	'BRP': BRP,
-	'BRZ': BRZ,
-	'BRA': BRA,
-	'HLT': HLT,
-	'DAT': DAT
+		'INP': INP,
+		'OUT': OUT,
+		'LDA': LDA,
+		'STA': STA,
+		'ADD': ADD,
+		'SUB': SUB,
+		'BRP': BRP,
+		'BRZ': BRZ,
+		'BRA': BRA,
+		'HLT': HLT,
+		'DAT': DAT
 	};
 
+	var INP_Obj = new INP_Instruction({
+		name: 'INP',
+		numerical_value: '901',
+		operands: []
+	});
+	var OUT_Obj = new OUT_Instruction({
+		name: 'OUT',
+		numerical_value: '902',
+		operands: []
+	});
+	var LDA_Obj = new LDA_Instruction({
+		name: 'LDA',
+		numerical_value: '5',
+		operands: ['M']
+	});
+	var STA_Obj = new STA_Instruction({
+		name: 'STA',
+		numerical_value: '3',
+		operands: ['B']
+	});
+	var ADD_Obj = new ADD_Instruction({
+		name: 'ADD',
+		numerical_value: '1',
+		operands: ['B']
+	});
+	var SUB_Obj = new SUB_Instruction({
+		name: 'SUB',
+		numerical_value: '2',
+		operands: ['B']
+	});
+	var BRP_Obj = new BRP_Instruction({
+		name: 'BRP',
+		numerical_value: '8',
+		operands: ['M']
+	});
+	var BRZ_Obj = new BRZ_Instruction({
+		name: 'BRZ',
+		numerical_value: '7',
+		operands: ['M']
+	});
+	var BRA_Obj = new BRA_Instruction({
+		name: 'BRA',
+		numerical_value: '6',
+		operands: ['M']
+	});
+	var HLT_Obj = new HLT_Instruction({
+		name: 'HLT',
+		numerical_value: '000',
+		operands: []
+	});
+
+	// similar dictionary but different use (only for process_instruction)
+	var instruction_set_objs = {
+		'INP': INP_Obj,
+		'OUT': OUT_Obj,
+		'LDA': LDA_Obj,
+		'STA': STA_Obj,
+		'ADD': ADD_Obj,
+		'SUB': SUB_Obj,
+		'BRP': BRP_Obj,
+		'BRZ': BRZ_Obj,
+		'BRA': BRA_Obj,
+		'HLT': HLT_Obj
+	}
+	
 	RAM = [];
 	var RAM_value_length = 4;
 
@@ -1334,6 +1544,7 @@ function initialise_LMC() {
 	// LMC object with all processing
 	var LMC = new Little_Man_Computer({
 		instruction_set: instruction_set,
+		instruction_set_objs: instruction_set_objs,
 		RAM: RAM,
 		RAM_value_length: RAM_value_length,
 		general_registers: general_registers
@@ -1714,7 +1925,7 @@ function load_into_RAM(LMC) {
 	LMC.load();
 };
 function run_program(LMC) {
-	
+
 	if (LMC.RAM[0] == '0000') {
 		load_into_RAM(LMC);
 	};
@@ -1727,7 +1938,7 @@ function run_program(LMC) {
 
 };
 function step_program(LMC) {
-	
+
 	if (LMC.RAM[0] == '0000') {
 		load_into_RAM(LMC);
 	};
@@ -1741,10 +1952,10 @@ function step_program(LMC) {
 };
 
 // for pre-created programs loading into assembly code area
-$("#pre-created_programs").on("change", function() {
-	
+$("#pre-created_programs").on("change", function () {
+
 	try {
-	
+
 		var selected_option = $("#pre-created_programs").val().toString();
 		var directory = '../text_files/pre_created_programs/' + selected_option + '.txt';
 

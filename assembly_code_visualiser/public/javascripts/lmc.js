@@ -174,6 +174,7 @@ class ADD_Instruction extends Instruction {
 						LMC.log_output('ADD');
 						LMC.log_output('Executing instruction...');
 					} else if (i == 1) {
+						LMC.activate_wrapper('ALU_wrapper');
 						LMC.deactivate_wrapper('control_unit_wrapper');
 						LMC.deactivate_wrapper('decode_unit_wrapper');
 						control_bus.setOptions({
@@ -214,6 +215,7 @@ class ADD_Instruction extends Instruction {
 					} else {
 						document.getElementById('clock').value = LMC.cycles;
 						LMC.deactivate_wrapper('clock_wrapper');
+						LMC.deactivate_wrapper('ALU_wrapper');
 						resolve(MBR, accumulator);
 						clearInterval(LMC.carry_on);
 					};
@@ -245,6 +247,7 @@ class SUB_Instruction extends Instruction {
 						LMC.log_output('SUB');
 						LMC.log_output('Executing instruction...');
 					} else if (i == 1) {
+						LMC.activate_wrapper('ALU_wrapper');
 						LMC.deactivate_wrapper('control_unit_wrapper');
 						LMC.deactivate_wrapper('decode_unit_wrapper');
 						control_bus.setOptions({
@@ -285,6 +288,7 @@ class SUB_Instruction extends Instruction {
 					} else {
 						document.getElementById('clock').value = LMC.cycles;
 						LMC.deactivate_wrapper('clock_wrapper');
+						LMC.deactivate_wrapper('ALU_wrapper');
 						resolve(MBR, accumulator);
 						clearInterval(LMC.carry_on);
 					};
@@ -441,6 +445,7 @@ class BRA_Instruction extends Instruction {
 						LMC.log_output('BRA');
 						LMC.log_output('Executing instruction...');
 					} else if (i == 1) {
+						LMC.activate_wrapper('status_register_wrapper');
 						LMC.deactivate_wrapper('control_unit_wrapper');
 						LMC.deactivate_wrapper('decode_unit_wrapper');
 						control_bus.setOptions({
@@ -457,6 +462,7 @@ class BRA_Instruction extends Instruction {
 					} else {
 						document.getElementById('clock').value = LMC.cycles;
 						LMC.deactivate_wrapper('clock_wrapper');
+						LMC.deactivate_wrapper('status_register_wrapper');
 						resolve();
 						clearInterval(LMC.carry_on);
 					};
@@ -487,6 +493,7 @@ class BRZ_Instruction extends Instruction {
 						LMC.log_output('BRZ');
 						LMC.log_output('Executing instruction...');
 					} else if (i == 1) {
+						LMC.activate_wrapper('status_register_wrapper');
 						LMC.deactivate_wrapper('control_unit_wrapper');
 						LMC.deactivate_wrapper('decode_unit_wrapper');
 						control_bus.setOptions({
@@ -511,12 +518,14 @@ class BRZ_Instruction extends Instruction {
 						} else {
 							document.getElementById('clock').value = LMC.cycles;
 							LMC.deactivate_wrapper('clock_wrapper');
+							LMC.deactivate_wrapper('status_register_wrapper');
 							resolve();
 							clearInterval(LMC.carry_on);
 						};
 					} else {
 						document.getElementById('clock').value = LMC.cycles;
 						LMC.deactivate_wrapper('clock_wrapper');
+						LMC.deactivate_wrapper('status_register_wrapper');
 						resolve();
 						clearInterval(LMC.carry_on);
 					};
@@ -547,6 +556,7 @@ class BRP_Instruction extends Instruction {
 						LMC.log_output('BRP');
 						LMC.log_output('Executing instruction...');
 					} else if (i == 1) {
+						LMC.activate_wrapper('status_register_wrapper');
 						LMC.deactivate_wrapper('control_unit_wrapper');
 						LMC.deactivate_wrapper('decode_unit_wrapper');
 						control_bus.setOptions({
@@ -570,6 +580,7 @@ class BRP_Instruction extends Instruction {
 							LMC.program_counter = parseInt(operand);
 						} else {
 							document.getElementById('clock').value = LMC.cycles;
+							LMC.deactivate_wrapper('status_register_wrapper');
 							LMC.deactivate_wrapper('clock_wrapper');
 							resolve();
 							clearInterval(LMC.carry_on);
@@ -577,6 +588,7 @@ class BRP_Instruction extends Instruction {
 					} else {
 						document.getElementById('clock').value = LMC.cycles;
 						LMC.deactivate_wrapper('clock_wrapper');
+						LMC.deactivate_wrapper('status_register_wrapper');
 						resolve();
 						clearInterval(LMC.carry_on);
 					};

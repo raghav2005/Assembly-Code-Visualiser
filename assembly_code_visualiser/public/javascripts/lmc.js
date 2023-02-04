@@ -20,7 +20,7 @@ class Instruction {
 		return this.operands[operand_num - 1];
 	}; // e.g. for LDR instruction, operand_num = 1 would return R because the first operand is Rd
 
-	process_instruction() {
+	process_instruction_opcode() {
 		return;
 	};
 

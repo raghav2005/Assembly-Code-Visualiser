@@ -38,6 +38,12 @@
 						<% } else  { %>
 							<% if (challenges_to_display.length == 0 || challenges_to_display == []) { %>
 								<h4>No Challenges Created Yet</h4>
+								<!-- create a new challenge -->
+								<form action="/create_challenges/new_challenge" method="post">
+									<!-- submit button -->
+									<button type="submit" value="Create New Challenge" class="btn btn-secondary"
+										id="create_challenges_create_btn">CREATE NEW CHALLENGE</button>
+								</form>
 							<% } else { %>
 							
 								<table id="active_challenges" style="width: 100%; table-layout: fixed;">

@@ -5,7 +5,7 @@ To run the program:
 1) open MAMP Pro, and start the assembly_code_visualiser host
 2) run the following code in the terminal after navigating to this directory:
 ```
-$ nodemon start
+$ cd assembly_code_visualiser; nodemon start
 ```
 3) go to your web browser and type in the following in the URL bar:
 ```

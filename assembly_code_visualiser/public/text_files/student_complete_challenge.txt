@@ -1,1 +1,2 @@
-*Really good response. I am the best*
+LDA #1
+OUT

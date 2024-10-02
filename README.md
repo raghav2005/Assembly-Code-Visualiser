@@ -11,3 +11,5 @@ $ cd assembly_code_visualiser; nodemon start
 ```
 localhost:3000
 ```
+
+The testing video, going through all requirements, can be see [here](https://youtu.be/ZfbiDA_2PHk).
